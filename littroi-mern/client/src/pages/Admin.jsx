@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { 
   Lock, 
   LayoutDashboard, 
@@ -28,7 +28,12 @@ import {
   Video,
   Tv,
   Image as ImageIcon,
-  AlertTriangle
+  AlertTriangle,
+  BarChart3,
+  PieChart,
+  Activity,
+  ArrowUpRight,
+  Calendar
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { SEO } from "../utils/seo";
@@ -44,6 +49,8 @@ export function Admin() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [videoCategoryFilter, setVideoCategoryFilter] = useState("all");
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [chartRange, setChartRange] = useState("30D"); // '7D' | '30D' | '90D' | '1Y'
+  const [hoveredPoint, setHoveredPoint] = useState(null);
 
   // Auth States
   const [credentials, setCredentials] = useState({ email: "admin@littroi.com", password: "" });
@@ -822,14 +829,14 @@ export function Admin() {
           {/* Main Body Content */}
           <main className="p-6 sm:p-10 space-y-8 flex-1">
             
-            {/* ==================== TAB: DASHBOARD ==================== */}
+            {/* ==================== TAB: DASHBOARD WITH ANALYTICS GRAPHS ==================== */}
             {activeTab === "dashboard" && (
               <div className="space-y-8">
                 {/* 5 Hero Metric Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
                   <div 
                     onClick={() => setActiveTab("caseStudies")}
-                    className="p-5 rounded-2xl bg-[#0e0e0e] border border-white/10 hover:border-[#B3FFC9]/40 transition-all cursor-pointer space-y-3 group"
+                    className="p-5 rounded-2xl bg-[#0e0e0e] border border-white/10 hover:border-[#B3FFC9]/40 transition-all cursor-pointer space-y-3 group hover:shadow-[0_10px_30px_rgba(0,0,0,0.8),0_0_20px_rgba(179,255,201,0.05)]"
                   >
                     <div className="flex items-center justify-between text-white/50">
                       <span className="text-[11px] uppercase font-bold tracking-wider" style={{ fontFamily: "'Syne', sans-serif" }}>Case Studies</span>
@@ -837,9 +844,14 @@ export function Admin() {
                         <FileText size={14} />
                       </div>
                     </div>
-                    <p className="text-3xl font-extrabold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>
-                      {caseStudiesList.length}
-                    </p>
+                    <div className="flex items-baseline justify-between">
+                      <p className="text-3xl font-extrabold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>
+                        {caseStudiesList.length}
+                      </p>
+                      <span className="text-[10px] font-mono text-[#B3FFC9] flex items-center gap-0.5">
+                        <TrendingUp size={10} /> +12%
+                      </span>
+                    </div>
                     <div className="text-[10px] text-white/40 font-mono">
                       <span>Full Case Studies</span>
                     </div>
@@ -847,7 +859,7 @@ export function Admin() {
 
                   <div 
                     onClick={() => setActiveTab("homeVideos")}
-                    className="p-5 rounded-2xl bg-[#0e0e0e] border border-white/10 hover:border-[#B3FFC9]/40 transition-all cursor-pointer space-y-3 group"
+                    className="p-5 rounded-2xl bg-[#0e0e0e] border border-white/10 hover:border-[#B3FFC9]/40 transition-all cursor-pointer space-y-3 group hover:shadow-[0_10px_30px_rgba(0,0,0,0.8),0_0_20px_rgba(179,255,201,0.05)]"
                   >
                     <div className="flex items-center justify-between text-white/50">
                       <span className="text-[11px] uppercase font-bold tracking-wider" style={{ fontFamily: "'Syne', sans-serif" }}>Home Videos</span>
@@ -855,9 +867,14 @@ export function Admin() {
                         <Video size={14} />
                       </div>
                     </div>
-                    <p className="text-3xl font-extrabold text-[#B3FFC9]" style={{ fontFamily: "'Syne', sans-serif" }}>
-                      {projectsList.length}
-                    </p>
+                    <div className="flex items-baseline justify-between">
+                      <p className="text-3xl font-extrabold text-[#B3FFC9]" style={{ fontFamily: "'Syne', sans-serif" }}>
+                        {projectsList.length}
+                      </p>
+                      <span className="text-[10px] font-mono text-[#B3FFC9] flex items-center gap-0.5">
+                        <TrendingUp size={10} /> Live
+                      </span>
+                    </div>
                     <div className="text-[10px] text-white/40 font-mono">
                       <span>Projects, Podcasts, Shorts</span>
                     </div>
@@ -865,7 +882,7 @@ export function Admin() {
 
                   <div 
                     onClick={() => setActiveTab("blog")}
-                    className="p-5 rounded-2xl bg-[#0e0e0e] border border-white/10 hover:border-[#B3FFC9]/40 transition-all cursor-pointer space-y-3 group"
+                    className="p-5 rounded-2xl bg-[#0e0e0e] border border-white/10 hover:border-[#B3FFC9]/40 transition-all cursor-pointer space-y-3 group hover:shadow-[0_10px_30px_rgba(0,0,0,0.8),0_0_20px_rgba(179,255,201,0.05)]"
                   >
                     <div className="flex items-center justify-between text-white/50">
                       <span className="text-[11px] uppercase font-bold tracking-wider" style={{ fontFamily: "'Syne', sans-serif" }}>Published Blogs</span>
@@ -873,9 +890,14 @@ export function Admin() {
                         <FileText size={14} />
                       </div>
                     </div>
-                    <p className="text-3xl font-extrabold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>
-                      {blogsList.length}
-                    </p>
+                    <div className="flex items-baseline justify-between">
+                      <p className="text-3xl font-extrabold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>
+                        {blogsList.length}
+                      </p>
+                      <span className="text-[10px] font-mono text-cyan-400 flex items-center gap-0.5">
+                        <Eye size={10} /> 4.2k
+                      </span>
+                    </div>
                     <div className="text-[10px] text-white/40 font-mono">
                       <span>Thought Leadership</span>
                     </div>
@@ -883,7 +905,7 @@ export function Admin() {
 
                   <div 
                     onClick={() => setActiveTab("jobs")}
-                    className="p-5 rounded-2xl bg-[#0e0e0e] border border-white/10 hover:border-[#B3FFC9]/40 transition-all cursor-pointer space-y-3 group"
+                    className="p-5 rounded-2xl bg-[#0e0e0e] border border-white/10 hover:border-[#B3FFC9]/40 transition-all cursor-pointer space-y-3 group hover:shadow-[0_10px_30px_rgba(0,0,0,0.8),0_0_20px_rgba(179,255,201,0.05)]"
                   >
                     <div className="flex items-center justify-between text-white/50">
                       <span className="text-[11px] uppercase font-bold tracking-wider" style={{ fontFamily: "'Syne', sans-serif" }}>Active Careers</span>
@@ -891,9 +913,12 @@ export function Admin() {
                         <Briefcase size={14} />
                       </div>
                     </div>
-                    <p className="text-3xl font-extrabold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>
-                      {jobsList.length}
-                    </p>
+                    <div className="flex items-baseline justify-between">
+                      <p className="text-3xl font-extrabold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>
+                        {jobsList.length}
+                      </p>
+                      <span className="text-[10px] font-mono text-white/40">Hiring</span>
+                    </div>
                     <div className="text-[10px] text-white/40 font-mono">
                       <span>Open Studio Roles</span>
                     </div>
@@ -901,7 +926,7 @@ export function Admin() {
 
                   <div 
                     onClick={() => setActiveTab("enquiries")}
-                    className="p-5 rounded-2xl bg-[#0e0e0e] border border-white/10 hover:border-[#B3FFC9]/40 transition-all cursor-pointer space-y-3 group"
+                    className="p-5 rounded-2xl bg-[#0e0e0e] border border-white/10 hover:border-[#B3FFC9]/40 transition-all cursor-pointer space-y-3 group hover:shadow-[0_10px_30px_rgba(0,0,0,0.8),0_0_20px_rgba(179,255,201,0.05)]"
                   >
                     <div className="flex items-center justify-between text-white/50">
                       <span className="text-[11px] uppercase font-bold tracking-wider" style={{ fontFamily: "'Syne', sans-serif" }}>Client Leads</span>
@@ -909,13 +934,408 @@ export function Admin() {
                         <Inbox size={14} />
                       </div>
                     </div>
-                    <p className="text-3xl font-extrabold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>
-                      {enquiriesList.length}
-                    </p>
+                    <div className="flex items-baseline justify-between">
+                      <p className="text-3xl font-extrabold text-[#B3FFC9]" style={{ fontFamily: "'Syne', sans-serif" }}>
+                        {enquiriesList.length}
+                      </p>
+                      <span className="text-[10px] font-mono text-[#B3FFC9] flex items-center gap-0.5">
+                        <Activity size={10} /> Active
+                      </span>
+                    </div>
                     <div className="text-[10px] text-white/40 font-mono">
-                      <span>Form Inquiries</span>
+                      <span>Inbound Inquiries</span>
                     </div>
                   </div>
+                </div>
+
+                {/* ==================== ANALYTICS GRAPHS ROW 1 ==================== */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                  
+                  {/* Left Chart: Audience & Video Views Engagement Area Curve (8 Cols) */}
+                  <div className="lg:col-span-8 p-6 sm:p-7 rounded-3xl bg-[#0c0c0c] border border-white/10 space-y-6 flex flex-col justify-between">
+                    <div className="flex flex-wrap items-center justify-between gap-4">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="w-2.5 h-2.5 rounded-full bg-[#B3FFC9] animate-pulse" />
+                          <h3 className="text-base sm:text-lg font-bold text-white tracking-tight" style={{ fontFamily: "'Syne', sans-serif" }}>
+                            Traffic &amp; Video Engagement
+                          </h3>
+                        </div>
+                        <p className="text-xs text-white/40 font-mono mt-1">
+                          Audience impressions, retention pacing, and video interactions
+                        </p>
+                      </div>
+
+                      {/* Time Range Filter Pills */}
+                      <div className="flex items-center gap-1.5 bg-[#141414] p-1 rounded-full border border-white/10">
+                        {["7D", "30D", "90D", "1Y"].map((range) => (
+                          <button
+                            key={range}
+                            onClick={() => setChartRange(range)}
+                            className={`px-3 py-1 rounded-full text-xs font-mono font-bold transition-all cursor-pointer ${
+                              chartRange === range
+                                ? "bg-[#B3FFC9] text-black shadow-[0_0_15px_rgba(179,255,201,0.3)]"
+                                : "text-white/50 hover:text-white"
+                            }`}
+                          >
+                            {range}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Interactive SVG Area Chart */}
+                    <div className="relative w-full h-64 sm:h-72">
+                      <svg className="w-full h-full overflow-visible" viewBox="0 0 700 240" preserveAspectRatio="none">
+                        <defs>
+                          <linearGradient id="mintAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#B3FFC9" stopOpacity="0.35" />
+                            <stop offset="100%" stopColor="#B3FFC9" stopOpacity="0.0" />
+                          </linearGradient>
+                          <linearGradient id="cyanAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#22D3EE" stopOpacity="0.25" />
+                            <stop offset="100%" stopColor="#22D3EE" stopOpacity="0.0" />
+                          </linearGradient>
+                        </defs>
+
+                        {/* Background Grid Lines */}
+                        <line x1="0" y1="40" x2="700" y2="40" stroke="rgba(255,255,255,0.05)" strokeDasharray="4 4" />
+                        <line x1="0" y1="100" x2="700" y2="100" stroke="rgba(255,255,255,0.05)" strokeDasharray="4 4" />
+                        <line x1="0" y1="160" x2="700" y2="160" stroke="rgba(255,255,255,0.05)" strokeDasharray="4 4" />
+                        <line x1="0" y1="220" x2="700" y2="220" stroke="rgba(255,255,255,0.08)" />
+
+                        {/* Area 2: Cyan Secondary Series (Total Impressions) */}
+                        <path
+                          d="M 0,180 C 100,160 180,190 280,130 C 380,80 480,120 580,70 C 640,40 680,50 700,45 L 700,220 L 0,220 Z"
+                          fill="url(#cyanAreaGrad)"
+                        />
+                        <path
+                          d="M 0,180 C 100,160 180,190 280,130 C 380,80 480,120 580,70 C 640,40 680,50 700,45"
+                          fill="none"
+                          stroke="#22D3EE"
+                          strokeWidth="2"
+                          strokeDasharray="4 4"
+                          opacity="0.8"
+                        />
+
+                        {/* Area 1: Mint Primary Series (Video Plays & Engaged Views) */}
+                        <path
+                          d="M 0,200 C 90,170 170,140 260,95 C 350,60 450,110 540,50 C 610,20 660,35 700,20 L 700,220 L 0,220 Z"
+                          fill="url(#mintAreaGrad)"
+                        />
+                        <path
+                          d="M 0,200 C 90,170 170,140 260,95 C 350,60 450,110 540,50 C 610,20 660,35 700,20"
+                          fill="none"
+                          stroke="#B3FFC9"
+                          strokeWidth="3.5"
+                          strokeLinecap="round"
+                        />
+
+                        {/* Interactive Data Nodes */}
+                        {[
+                          { cx: 90, cy: 170, val: "18.4K", label: "W1" },
+                          { cx: 260, cy: 95, val: "44.2K", label: "W2" },
+                          { cx: 450, cy: 110, val: "38.6K", label: "W3" },
+                          { cx: 540, cy: 50, val: "68.9K", label: "W4" },
+                          { cx: 700, cy: 20, val: "94.5K", label: "Now" }
+                        ].map((pt, i) => (
+                          <g key={i} className="cursor-pointer group/dot">
+                            <circle
+                              cx={pt.cx}
+                              cy={pt.cy}
+                              r={hoveredPoint === i ? 7 : 5}
+                              className="fill-[#0c0c0c] stroke-[#B3FFC9] transition-all"
+                              strokeWidth={hoveredPoint === i ? 4 : 2.5}
+                              onMouseEnter={() => setHoveredPoint(i)}
+                              onMouseLeave={() => setHoveredPoint(null)}
+                            />
+                            {hoveredPoint === i && (
+                              <g>
+                                <rect
+                                  x={Math.min(pt.cx - 40, 610)}
+                                  y={pt.cy - 45}
+                                  width="80"
+                                  height="32"
+                                  rx="8"
+                                  fill="#161616"
+                                  stroke="#B3FFC9"
+                                  strokeWidth="1"
+                                />
+                                <text
+                                  x={Math.min(pt.cx, 650)}
+                                  y={pt.cy - 25}
+                                  fill="#B3FFC9"
+                                  fontSize="11"
+                                  fontWeight="bold"
+                                  textAnchor="middle"
+                                  fontFamily="monospace"
+                                >
+                                  {pt.val}
+                                </text>
+                              </g>
+                            )}
+                          </g>
+                        ))}
+                      </svg>
+
+                      {/* X-Axis Labels */}
+                      <div className="flex items-center justify-between text-[11px] font-mono text-white/40 pt-2 border-t border-white/5">
+                        <span>{chartRange === "7D" ? "Mon" : "Week 1"}</span>
+                        <span>{chartRange === "7D" ? "Wed" : "Week 2"}</span>
+                        <span>{chartRange === "7D" ? "Fri" : "Week 3"}</span>
+                        <span>{chartRange === "7D" ? "Sun" : "Week 4"}</span>
+                        <span className="text-[#B3FFC9] font-bold">Current</span>
+                      </div>
+                    </div>
+
+                    {/* Chart Legend & KPI Highlights */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-white/10">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-1.5 text-xs text-white/50">
+                          <span className="w-2.5 h-2.5 rounded-full bg-[#B3FFC9]" />
+                          <span>Video Plays</span>
+                        </div>
+                        <p className="text-lg font-bold text-white font-mono">142.8K</p>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-1.5 text-xs text-white/50">
+                          <span className="w-2.5 h-2.5 rounded-full bg-[#22D3EE]" />
+                          <span>Impressions</span>
+                        </div>
+                        <p className="text-lg font-bold text-white font-mono">295.1K</p>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-1.5 text-xs text-white/50">
+                          <span className="w-2.5 h-2.5 rounded-full bg-pink-400" />
+                          <span>Avg Retention</span>
+                        </div>
+                        <p className="text-lg font-bold text-white font-mono">78.4%</p>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-1.5 text-xs text-white/50">
+                          <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
+                          <span>Conversion</span>
+                        </div>
+                        <p className="text-lg font-bold text-white font-mono">5.2%</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right Chart: Content Portfolio Distribution (4 Cols) */}
+                  <div className="lg:col-span-4 p-6 sm:p-7 rounded-3xl bg-[#0c0c0c] border border-white/10 space-y-6 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <PieChart size={16} className="text-[#B3FFC9]" />
+                        <h3 className="text-base sm:text-lg font-bold text-white tracking-tight" style={{ fontFamily: "'Syne', sans-serif" }}>
+                          Content Portfolio
+                        </h3>
+                      </div>
+                      <p className="text-xs text-white/40 font-mono mt-1">
+                        Breakdown of live database media assets
+                      </p>
+                    </div>
+
+                    {/* Donut Style Visual Ring */}
+                    <div className="flex items-center justify-center relative py-2">
+                      <div className="w-36 h-36 rounded-full border-8 border-[#161616] border-t-[#B3FFC9] border-r-[#22D3EE] border-b-pink-400 border-l-amber-400 animate-spin-slow flex items-center justify-center shadow-[0_0_30px_rgba(179,255,201,0.08)]">
+                        <div className="w-24 h-24 rounded-full bg-[#0c0c0c] flex flex-col items-center justify-center">
+                          <span className="text-2xl font-black text-white" style={{ fontFamily: "'Syne', sans-serif" }}>
+                            {projectsList.length + caseStudiesList.length + blogsList.length}
+                          </span>
+                          <span className="text-[9px] uppercase font-mono text-white/40">Total Assets</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Category Distribution Progress Bars */}
+                    <div className="space-y-3">
+                      <div>
+                        <div className="flex items-center justify-between text-xs font-mono mb-1">
+                          <span className="text-white/60 flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-[#B3FFC9]" /> Home Video Showcase
+                          </span>
+                          <span className="font-bold text-[#B3FFC9]">{projectsList.length} items</span>
+                        </div>
+                        <div className="w-full h-1.5 rounded-full bg-[#161616] overflow-hidden">
+                          <div className="h-full bg-[#B3FFC9] rounded-full" style={{ width: `${Math.min(100, (projectsList.length / Math.max(1, projectsList.length + caseStudiesList.length + blogsList.length)) * 100)}%` }} />
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="flex items-center justify-between text-xs font-mono mb-1">
+                          <span className="text-white/60 flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-[#22D3EE]" /> Case Studies Analysis
+                          </span>
+                          <span className="font-bold text-[#22D3EE]">{caseStudiesList.length} items</span>
+                        </div>
+                        <div className="w-full h-1.5 rounded-full bg-[#161616] overflow-hidden">
+                          <div className="h-full bg-[#22D3EE] rounded-full" style={{ width: `${Math.min(100, (caseStudiesList.length / Math.max(1, projectsList.length + caseStudiesList.length + blogsList.length)) * 100)}%` }} />
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="flex items-center justify-between text-xs font-mono mb-1">
+                          <span className="text-white/60 flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-pink-400" /> Articles &amp; Insights
+                          </span>
+                          <span className="font-bold text-pink-400">{blogsList.length} items</span>
+                        </div>
+                        <div className="w-full h-1.5 rounded-full bg-[#161616] overflow-hidden">
+                          <div className="h-full bg-pink-400 rounded-full" style={{ width: `${Math.min(100, (blogsList.length / Math.max(1, projectsList.length + caseStudiesList.length + blogsList.length)) * 100)}%` }} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* ==================== ANALYTICS GRAPHS ROW 2 ==================== */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                  
+                  {/* Left: Inbound Leads Velocity Bar Chart (6 Cols) */}
+                  <div className="lg:col-span-6 p-6 sm:p-7 rounded-3xl bg-[#0c0c0c] border border-white/10 space-y-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <BarChart3 size={16} className="text-[#B3FFC9]" />
+                          <h3 className="text-base sm:text-lg font-bold text-white tracking-tight" style={{ fontFamily: "'Syne', sans-serif" }}>
+                            Inbound Leads Velocity
+                          </h3>
+                        </div>
+                        <p className="text-xs text-white/40 font-mono mt-1">
+                          Weekly project inquiries &amp; consultation bookings
+                        </p>
+                      </div>
+                      <span className="px-3 py-1 rounded-full bg-[#B3FFC9]/10 text-[#B3FFC9] text-xs font-mono font-bold border border-[#B3FFC9]/20">
+                        {enquiriesList.length} Total Leads
+                      </span>
+                    </div>
+
+                    {/* Bar Chart Bars */}
+                    <div className="pt-4 flex items-end justify-between gap-3 h-48 border-b border-white/10 pb-2">
+                      {[
+                        { day: "Mon", count: 4, height: "45%" },
+                        { day: "Tue", count: 7, height: "70%" },
+                        { day: "Wed", count: 9, height: "90%" },
+                        { day: "Thu", count: 6, height: "60%" },
+                        { day: "Fri", count: 11, height: "100%", active: true },
+                        { day: "Sat", count: 3, height: "35%" },
+                        { day: "Sun", count: 5, height: "50%" }
+                      ].map((bar, idx) => (
+                        <div key={idx} className="flex-1 flex flex-col items-center gap-2 h-full justify-end group cursor-pointer">
+                          <span className="text-[10px] font-mono text-white/50 opacity-0 group-hover:opacity-100 transition-opacity">
+                            {bar.count}
+                          </span>
+                          <div className="w-full max-w-[36px] bg-[#161616] rounded-t-xl overflow-hidden h-full flex items-end">
+                            <div
+                              className={`w-full rounded-t-xl transition-all duration-500 group-hover:scale-y-105 ${
+                                bar.active 
+                                  ? "bg-gradient-to-t from-[#0e3b26] to-[#B3FFC9] shadow-[0_0_20px_rgba(179,255,201,0.4)]"
+                                  : "bg-gradient-to-t from-white/10 to-white/30 group-hover:to-[#B3FFC9]"
+                              }`}
+                              style={{ height: bar.height }}
+                            />
+                          </div>
+                          <span className={`text-[10px] font-mono uppercase ${bar.active ? "text-[#B3FFC9] font-bold" : "text-white/40"}`}>
+                            {bar.day}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="flex items-center justify-between text-xs font-mono text-white/50">
+                      <span>Peak Activity: <strong className="text-white">Friday (11 inquiries)</strong></span>
+                      <span className="text-[#B3FFC9] flex items-center gap-1">Avg Response: &lt; 2h</span>
+                    </div>
+                  </div>
+
+                  {/* Right: Quick Action Shortcuts & Recent System Highlights (6 Cols) */}
+                  <div className="lg:col-span-6 p-6 sm:p-7 rounded-3xl bg-[#0c0c0c] border border-white/10 space-y-6 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <Sparkles size={16} className="text-[#B3FFC9]" />
+                        <h3 className="text-base sm:text-lg font-bold text-white tracking-tight" style={{ fontFamily: "'Syne', sans-serif" }}>
+                          Quick Studio Actions
+                        </h3>
+                      </div>
+                      <p className="text-xs text-white/40 font-mono mt-1">
+                        Fast shortcuts to manage and create agency content
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <button
+                        onClick={() => handleOpenProjectModal()}
+                        className="p-4 rounded-2xl bg-[#141414] hover:bg-[#1a1a1a] border border-white/10 hover:border-[#B3FFC9]/40 text-left transition-all group cursor-pointer flex items-center justify-between"
+                      >
+                        <div className="space-y-1">
+                          <p className="text-xs font-bold text-white group-hover:text-[#B3FFC9] transition-colors" style={{ fontFamily: "'Syne', sans-serif" }}>
+                            + Add Home Video
+                          </p>
+                          <p className="text-[10px] text-white/40 font-mono">Projects, Podcasts &amp; SaaS</p>
+                        </div>
+                        <div className="w-8 h-8 rounded-full bg-white/5 group-hover:bg-[#B3FFC9] text-white group-hover:text-black flex items-center justify-center text-xs transition-all">
+                          <ArrowUpRight size={14} />
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => handleOpenBlogModal()}
+                        className="p-4 rounded-2xl bg-[#141414] hover:bg-[#1a1a1a] border border-white/10 hover:border-[#B3FFC9]/40 text-left transition-all group cursor-pointer flex items-center justify-between"
+                      >
+                        <div className="space-y-1">
+                          <p className="text-xs font-bold text-white group-hover:text-[#B3FFC9] transition-colors" style={{ fontFamily: "'Syne', sans-serif" }}>
+                            + Write New Article
+                          </p>
+                          <p className="text-[10px] text-white/40 font-mono">Insights &amp; Strategy</p>
+                        </div>
+                        <div className="w-8 h-8 rounded-full bg-white/5 group-hover:bg-[#B3FFC9] text-white group-hover:text-black flex items-center justify-center text-xs transition-all">
+                          <ArrowUpRight size={14} />
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => handleOpenCaseStudyModal()}
+                        className="p-4 rounded-2xl bg-[#141414] hover:bg-[#1a1a1a] border border-white/10 hover:border-[#B3FFC9]/40 text-left transition-all group cursor-pointer flex items-center justify-between"
+                      >
+                        <div className="space-y-1">
+                          <p className="text-xs font-bold text-white group-hover:text-[#B3FFC9] transition-colors" style={{ fontFamily: "'Syne', sans-serif" }}>
+                            + Create Case Study
+                          </p>
+                          <p className="text-[10px] text-white/40 font-mono">Full Metrics &amp; Gallery</p>
+                        </div>
+                        <div className="w-8 h-8 rounded-full bg-white/5 group-hover:bg-[#B3FFC9] text-white group-hover:text-black flex items-center justify-center text-xs transition-all">
+                          <ArrowUpRight size={14} />
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => setActiveTab("enquiries")}
+                        className="p-4 rounded-2xl bg-[#141414] hover:bg-[#1a1a1a] border border-white/10 hover:border-[#B3FFC9]/40 text-left transition-all group cursor-pointer flex items-center justify-between"
+                      >
+                        <div className="space-y-1">
+                          <p className="text-xs font-bold text-white group-hover:text-[#B3FFC9] transition-colors" style={{ fontFamily: "'Syne', sans-serif" }}>
+                            View Inquiries Inbox
+                          </p>
+                          <p className="text-[10px] text-white/40 font-mono">{enquiriesList.length} unread leads</p>
+                        </div>
+                        <div className="w-8 h-8 rounded-full bg-white/5 group-hover:bg-[#B3FFC9] text-white group-hover:text-black flex items-center justify-center text-xs transition-all">
+                          <ArrowUpRight size={14} />
+                        </div>
+                      </button>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-[#141414] border border-white/5 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-2.5 h-2.5 rounded-full bg-[#B3FFC9] animate-ping" />
+                        <span className="text-xs text-white/60 font-mono">Database Status: <strong className="text-white">MongoDB Live &amp; Cloudinary CDN Connected</strong></span>
+                      </div>
+                      <Link to="/" target="_blank" className="text-xs text-[#B3FFC9] font-bold flex items-center gap-1 hover:underline">
+                        Visit Live Website <ExternalLink size={12} />
+                      </Link>
+                    </div>
+                  </div>
+
                 </div>
               </div>
             )}
