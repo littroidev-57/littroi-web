@@ -355,6 +355,81 @@ const seedData = async () => {
     await BlogPost.insertMany(initialBlogs);
     console.log("[Seeder] Blog posts seeded into MongoDB.");
 
+    // 5. Seed Initial Careers / Jobs
+    const initialJobs = [
+      {
+        title: "Lead Video Editor",
+        department: "Post-Production",
+        location: "Bareilly (Studio / Remote)",
+        type: "Full-time",
+        employmentType: "Full-time",
+        experience: "2-4 Years",
+        salary: "Competitive",
+        overview: "Lead high-velocity video editing workflows for Tier-1 SaaS brands, podcasts, and creator channels.",
+        description: "Lead high-velocity video editing workflows for Tier-1 SaaS brands, podcasts, and creator channels.",
+        responsibilities: [
+          "Edit narrative-driven SaaS showcase reels and podcast episodes",
+          "Collaborate with creative directors on visual pacing and sound engineering",
+          "Review and QA post-production output from junior editors"
+        ],
+        requirements: [
+          "2+ years editing in Premiere Pro / After Effects",
+          "Deep understanding of YouTube / Shorts retention algorithms",
+          "Strong portfolio of high-engagement video edits"
+        ],
+        applyEmail: "careers@littroi.com",
+        isActive: true
+      },
+      {
+        title: "Senior 3D & Motion Designer",
+        department: "Visual Effects",
+        location: "Bareilly (Studio / Remote)",
+        type: "Full-time",
+        employmentType: "Full-time",
+        experience: "3+ Years",
+        salary: "Competitive",
+        overview: "Design high-fidelity 3D software abstractions, kinetic UI animations, and hyper-modern brand visuals.",
+        description: "Design high-fidelity 3D software abstractions, kinetic UI animations, and hyper-modern brand visuals.",
+        responsibilities: [
+          "Create photorealistic 3D product renders and device mockups",
+          "Develop kinetic typography systems for social campaigns",
+          "Build reusable motion design templates for video production"
+        ],
+        requirements: [
+          "Proficiency in Cinema4D / Blender and After Effects",
+          "Exceptional sense of timing, physics, lighting, and composition",
+          "Experience with Figma and UI/UX design workflows is a plus"
+        ],
+        applyEmail: "careers@littroi.com",
+        isActive: true
+      },
+      {
+        title: "Podcast Producer & Audio Engineer",
+        department: "Audio / Video",
+        location: "Bareilly (Studio / Remote)",
+        type: "Full-time",
+        employmentType: "Full-time",
+        experience: "2+ Years",
+        salary: "Competitive",
+        overview: "Own full podcast audio mastering, multi-camera sync, micro-clip extraction, and weekly release scheduling.",
+        description: "Own full podcast audio mastering, multi-camera sync, micro-clip extraction, and weekly release scheduling.",
+        responsibilities: [
+          "Studio audio restoration, mixing, leveling, and mastering",
+          "Identify and extract high-engagement conversational moments for Shorts",
+          "Coordinate guest assets and YouTube metadata packaging"
+        ],
+        requirements: [
+          "Proficiency in iZotope RX, Adobe Audition / Logic Pro",
+          "Strong grasp of viral conversation hooks and storytelling",
+          "High attention to detail and sound design excellence"
+        ],
+        applyEmail: "careers@littroi.com",
+        isActive: true
+      }
+    ];
+    await Job.insertMany(initialJobs);
+    console.log("[Seeder] 3 Initial Career Roles seeded into MongoDB.");
+
     console.log("[Seeder] Complete database seed finished successfully.");
     process.exit(0);
   } catch (error) {
