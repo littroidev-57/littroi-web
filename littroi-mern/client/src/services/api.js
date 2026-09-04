@@ -4,7 +4,7 @@ import { blogPosts as fallbackBlogs } from "../data/blogPosts";
 import { jobs as fallbackJobs } from "../data/jobs";
 import { services as fallbackServices } from "../data/services";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem("littroi_token");
