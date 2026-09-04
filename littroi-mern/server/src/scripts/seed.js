@@ -427,8 +427,47 @@ const seedData = async () => {
         isActive: true
       }
     ];
-    await Job.insertMany(initialJobs);
-    console.log("[Seeder] 3 Initial Career Roles seeded into MongoDB.");
+    // 6. Seed Home Page Video Testimonials
+    const initialTestimonials = [
+      {
+        name: "Marc Babin",
+        role: "Founder of The Podcast Blueprint",
+        company: "The Podcast Blueprint",
+        quote: "Marc is big on values alignment and communication and when you find a team that gets it, you hold onto them. Knowing every episode is in good hands, without having to think twice about it, is exactly the kind of support network he was looking for.",
+        avatar: "https://littroi.com/wp-content/uploads/2026/06/Group-1100.png",
+        videoId: "FApmJphhF9Y",
+        videoUrl: "https://www.youtube.com/watch?v=FApmJphhF9Y",
+        videoFirst: true,
+        order: 1,
+        isActive: true
+      },
+      {
+        name: "Spencer Gilmore",
+        role: "Founder of Hair Rescue",
+        company: "Hair Rescue",
+        quote: "Spencer is prolific with content but editing was slowing him down. Working with us freed him up to focus on what he does best and the content hasn't stopped since.",
+        avatar: "https://littroi.com/wp-content/uploads/2026/06/Group-1082.png",
+        videoId: "EIJg4p4MHpI",
+        videoUrl: "https://www.youtube.com/watch?v=EIJg4p4MHpI",
+        videoFirst: false,
+        order: 2,
+        isActive: true
+      },
+      {
+        name: "Harison Saunders",
+        role: "Host of the Growth Voyage podcast",
+        company: "The Growth Voyage Podcast",
+        quote: "Harrison hosts conversations with top entrepreneurs and investors, the content was already there. The production just needed to match it. Three months in, people were reaching out commenting on the quality unprompted.\n\nTime saved, standards met, and a clear step up from everything before. The difference was audible.",
+        avatar: "https://littroi.com/wp-content/uploads/2026/06/Group-1079.png",
+        videoId: "lpFoyBWzrUE",
+        videoUrl: "https://www.youtube.com/watch?v=lpFoyBWzrUE",
+        videoFirst: true,
+        order: 3,
+        isActive: true
+      }
+    ];
+    await Testimonial.insertMany(initialTestimonials);
+    console.log("[Seeder] 3 Home Page Video Testimonials seeded into MongoDB.");
 
     console.log("[Seeder] Complete database seed finished successfully.");
     process.exit(0);

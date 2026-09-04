@@ -2,7 +2,8 @@ import { Testimonial } from "../models/Testimonial.js";
 
 export const getTestimonials = async (req, res, next) => {
   try {
-    const testimonials = await Testimonial.find({ isActive: true }).sort({ order: 1 });
+    const filter = req.query.all === "true" ? {} : { isActive: true };
+    const testimonials = await Testimonial.find(filter).sort({ order: 1, createdAt: -1 });
     res.json({ success: true, count: testimonials.length, data: testimonials });
   } catch (error) {
     next(error);
@@ -39,7 +40,14 @@ export const deleteTestimonial = async (req, res, next) => {
     if (!testimonial) {
       return res.status(404).json({ success: false, message: "Testimonial not found" });
     }
-    res.json({ success: true, message: "Testimonial deleted" });
+
+    // Automatically remove Cloudinary avatar
+    if (testimonial.avatar) {
+      const { deleteFromCloudinary } = await import("../config/cloudinary.js");
+      await deleteFromCloudinary(testimonial.avatar);
+    }
+
+    res.json({ success: true, message: "Testimonial and avatar deleted" });
   } catch (error) {
     next(error);
   }

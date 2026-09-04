@@ -37,17 +37,29 @@ import {
   Mail,
   Phone,
   Building,
-  MessageSquare
+  MessageSquare,
+  Quote,
+  Star
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { SEO } from "../utils/seo";
-import { authAPI, caseStudiesAPI, blogAPI, jobsAPI, contactAPI, projectsAPI, uploadAPI } from "../services/api";
+import { authAPI, caseStudiesAPI, blogAPI, jobsAPI, contactAPI, projectsAPI, uploadAPI, testimonialsAPI, cookieUtils } from "../services/api";
 import litroiLogo from "../assets/littroi-logo.png";
 
 export function Admin() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [adminUser, setAdminUser] = useState(null);
-  const [activeTab, setActiveTab] = useState("dashboard"); // 'dashboard' | 'caseStudies' | 'homeVideos' | 'blog' | 'jobs' | 'enquiries'
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    const token = cookieUtils.get("littroi_token") || localStorage.getItem("littroi_token");
+    return Boolean(token && token !== "mock_jwt_token_littroi_admin_active");
+  });
+  const [adminUser, setAdminUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem("littroi_user");
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [activeTab, setActiveTab] = useState("dashboard"); // 'dashboard' | 'caseStudies' | 'homeVideos' | 'testimonials' | 'blog' | 'jobs' | 'enquiries'
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -65,6 +77,7 @@ export function Admin() {
   // Dynamic Data Lists
   const [caseStudiesList, setCaseStudiesList] = useState([]);
   const [projectsList, setProjectsList] = useState([]);
+  const [testimonialsList, setTestimonialsList] = useState([]);
   const [blogsList, setBlogsList] = useState([]);
   const [jobsList, setJobsList] = useState([]);
   const [enquiriesList, setEnquiriesList] = useState([]);
@@ -72,7 +85,7 @@ export function Admin() {
   const [toastMessage, setToastMessage] = useState("");
 
   // Modal States
-  const [modalType, setModalType] = useState(null); // 'caseStudy' | 'project' | 'blog' | 'job' | 'viewEnquiry' | 'videoPreview'
+  const [modalType, setModalType] = useState(null); // 'caseStudy' | 'project' | 'testimonial' | 'blog' | 'job' | 'viewEnquiry' | 'videoPreview'
   const [editingItem, setEditingItem] = useState(null);
   const [selectedEnquiry, setSelectedEnquiry] = useState(null);
   const [previewVideoUrl, setPreviewVideoUrl] = useState("");
@@ -113,6 +126,21 @@ export function Admin() {
     order: 1
   });
 
+  // Form State: Testimonial
+  const [testimonialForm, setTestimonialForm] = useState({
+    name: "",
+    role: "",
+    company: "",
+    quote: "",
+    avatar: "",
+    videoUrl: "",
+    videoId: "",
+    videoFirst: true,
+    metric: "",
+    order: 0,
+    isActive: true
+  });
+
   // Form State: Blog
   const [blogForm, setBlogForm] = useState({
     title: "",
@@ -146,30 +174,28 @@ export function Admin() {
   // Check Existing Session — validates token against real server, clears any stale mock tokens
   useEffect(() => {
     const checkSession = async () => {
-      // Clear any stale mock token that can't actually save to DB
-      const token = localStorage.getItem("littroi_token");
-      if (token === "mock_jwt_token_littroi_admin_active") {
+      const token = cookieUtils.get("littroi_token") || localStorage.getItem("littroi_token");
+      if (!token || token === "mock_jwt_token_littroi_admin_active") {
+        setIsAuthenticated(false);
+        setAdminUser(null);
+        cookieUtils.remove("littroi_token");
         localStorage.removeItem("littroi_token");
         localStorage.removeItem("littroi_user");
-        return; // Force re-login with real credentials
+        return;
       }
 
-      // Validate the token against the real server
       try {
-        const res = await fetch("http://localhost:5000/api/auth/me", {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        const data = await res.json();
-        if (res.ok && data.success && data.user) {
-          setAdminUser(data.user);
+        const user = await authAPI.getMe();
+        if (user) {
+          setAdminUser(user);
           setIsAuthenticated(true);
-          return;
+        } else {
+          // Explicit invalidation
+          setIsAuthenticated(false);
+          setAdminUser(null);
         }
-        // Token invalid — clear and force re-login
-        localStorage.removeItem("littroi_token");
-        localStorage.removeItem("littroi_user");
-      } catch {
-        // Server unreachable — check local user just to show UI, but don't set authenticated
+      } catch (err) {
+        console.warn("Session check notice:", err);
       }
     };
     checkSession();
@@ -179,15 +205,17 @@ export function Admin() {
   const loadAllData = async () => {
     setIsLoadingData(true);
     try {
-      const [cs, projs, blogs, jobs, enqs] = await Promise.all([
+      const [cs, projs, tests, blogs, jobs, enqs] = await Promise.all([
         caseStudiesAPI.getAll(),
         projectsAPI.getAll(),
+        testimonialsAPI.getAll(true),
         blogAPI.getAll(),
         jobsAPI.getAll(),
         contactAPI.getAll()
       ]);
       setCaseStudiesList(cs || []);
       setProjectsList(projs || []);
+      setTestimonialsList(tests || []);
       setBlogsList(blogs || []);
       setJobsList(jobs || []);
       setEnquiriesList(enqs || []);
@@ -244,6 +272,9 @@ export function Admin() {
       } else if (type === "caseStudy") {
         await caseStudiesAPI.delete(id);
         showToast("Case study deleted");
+      } else if (type === "testimonial") {
+        await testimonialsAPI.delete(id);
+        showToast("Testimonial deleted");
       } else if (type === "blog") {
         await blogAPI.delete(id);
         showToast("Blog article deleted");
@@ -548,6 +579,82 @@ export function Admin() {
     }
   };
 
+  // ==================== CRUD: TESTIMONIALS ====================
+  const handleOpenTestimonialModal = (item = null) => {
+    if (item) {
+      setEditingItem(item);
+      const vidId = item.videoId || (item.videoUrl ? item.videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/)?.[1] : "") || "";
+      setTestimonialForm({
+        name: item.name || item.clientName || "",
+        role: item.role || item.clientRole || "",
+        company: item.company || item.clientCompany || "",
+        quote: item.quote || item.testimonial || "",
+        avatar: item.avatar || item.clientImage || "",
+        videoUrl: item.videoUrl || (vidId ? `https://www.youtube.com/watch?v=${vidId}` : ""),
+        videoId: vidId,
+        videoFirst: item.videoFirst !== undefined ? item.videoFirst : true,
+        metric: item.metric || "",
+        order: item.order !== undefined ? item.order : 0,
+        isActive: item.isActive !== undefined ? item.isActive : true
+      });
+    } else {
+      setEditingItem(null);
+      setTestimonialForm({
+        name: "",
+        role: "",
+        company: "",
+        quote: "",
+        avatar: "",
+        videoUrl: "",
+        videoId: "",
+        videoFirst: true,
+        metric: "",
+        order: testimonialsList.length,
+        isActive: true
+      });
+    }
+    setModalType("testimonial");
+  };
+
+  const handleSaveTestimonial = async (e) => {
+    e.preventDefault();
+    if (!testimonialForm.name || !testimonialForm.quote) {
+      showToast("Please provide client name and testimonial quote");
+      return;
+    }
+
+    let extractedVideoId = testimonialForm.videoId;
+    if (testimonialForm.videoUrl && !extractedVideoId) {
+      const match = testimonialForm.videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
+      if (match) extractedVideoId = match[1];
+    }
+
+    const payload = {
+      ...testimonialForm,
+      videoId: extractedVideoId,
+      clientName: testimonialForm.name,
+      clientRole: testimonialForm.role,
+      clientCompany: testimonialForm.company,
+      clientImage: testimonialForm.avatar,
+      testimonial: testimonialForm.quote
+    };
+
+    try {
+      if (editingItem) {
+        await testimonialsAPI.update(editingItem._id || editingItem.id, payload);
+        showToast("Testimonial updated successfully ✓");
+      } else {
+        await testimonialsAPI.create(payload);
+        showToast("New testimonial added to Home Page ✓");
+      }
+      await loadAllData();
+      setModalType(null);
+    } catch (err) {
+      console.error("Testimonial save error:", err);
+      showToast(`❌ Error: ${err.message || "Could not save testimonial"}`);
+    }
+  };
+
   // ==================== ENQUIRIES ====================
   const handleToggleEnquiryStatus = async (id, currentStatus) => {
     const nextStatus = currentStatus === "New" ? "Reviewed" : (currentStatus === "Reviewed" ? "Contacted" : "New");
@@ -597,6 +704,13 @@ export function Admin() {
     return matchesSearch && (p.category === videoCategoryFilter);
   });
 
+  const filteredTestimonials = testimonialsList.filter((t) => 
+    (t.name || t.clientName)?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (t.role || t.clientRole)?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (t.company || t.clientCompany)?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (t.quote || t.testimonial)?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const filteredBlogs = blogsList.filter((b) => 
     b.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     b.category?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -623,6 +737,7 @@ export function Admin() {
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, count: null },
     { id: "caseStudies", label: "Case Studies", icon: FileText, count: caseStudiesList.length },
     { id: "homeVideos", label: "Home Videos", icon: Video, count: projectsList.length },
+    { id: "testimonials", label: "Testimonials", icon: Quote, count: testimonialsList.length },
     { id: "blog", label: "Blog Insights", icon: FileText, count: blogsList.length },
     { id: "jobs", label: "Careers", icon: Briefcase, count: jobsList.length },
     { id: "enquiries", label: "Client Inquiries", icon: Inbox, count: enquiriesList.length, highlight: enquiriesList.some(e => e.status === "New") },
@@ -837,7 +952,7 @@ export function Admin() {
               </button>
               <div>
                 <h1 className="text-xl sm:text-2xl font-bold text-white capitalize tracking-tight" style={{ fontFamily: "'Syne', sans-serif" }}>
-                  {activeTab === "caseStudies" ? "Case Studies Analysis" : (activeTab === "homeVideos" ? "Home Video Showcases" : (activeTab === "enquiries" ? "Client Inquiries Inbox" : activeTab))}
+                  {activeTab === "caseStudies" ? "Case Studies Analysis" : (activeTab === "homeVideos" ? "Home Video Showcases" : (activeTab === "testimonials" ? "Client Testimonials" : (activeTab === "enquiries" ? "Client Inquiries Inbox" : activeTab)))}
                 </h1>
                 <p className="text-xs text-white/40 hidden sm:block">
                   Littroi Media MERN Production Database
@@ -881,6 +996,16 @@ export function Admin() {
                 </button>
               )}
 
+              {activeTab === "testimonials" && (
+                <button
+                  onClick={() => handleOpenTestimonialModal()}
+                  className="px-4 py-2 sm:px-5 sm:py-2.5 rounded-full bg-[#B3FFC9] text-black font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 hover:bg-[#9effba] hover:shadow-[0_0_20px_rgba(179,255,201,0.4)] transition-all cursor-pointer"
+                  style={{ fontFamily: "'Syne', sans-serif" }}
+                >
+                  <Plus size={15} /> <span>New Testimonial</span>
+                </button>
+              )}
+
               {activeTab === "blog" && (
                 <button
                   onClick={() => handleOpenBlogModal()}
@@ -909,8 +1034,8 @@ export function Admin() {
             {/* ==================== TAB: DASHBOARD WITH ANALYTICS GRAPHS ==================== */}
             {activeTab === "dashboard" && (
               <div className="space-y-8">
-                {/* 5 Hero Metric Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
+                {/* 6 Hero Metric Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                   <div 
                     onClick={() => setActiveTab("caseStudies")}
                     className="p-5 rounded-2xl bg-[#0e0e0e] border border-white/10 hover:border-[#B3FFC9]/40 transition-all cursor-pointer space-y-3 group hover:shadow-[0_10px_30px_rgba(0,0,0,0.8),0_0_20px_rgba(179,255,201,0.05)]"
@@ -931,6 +1056,29 @@ export function Admin() {
                     </div>
                     <div className="text-[10px] text-white/40 font-mono">
                       <span>Full Case Studies</span>
+                    </div>
+                  </div>
+
+                  <div 
+                    onClick={() => setActiveTab("testimonials")}
+                    className="p-5 rounded-2xl bg-[#0e0e0e] border border-white/10 hover:border-[#B3FFC9]/40 transition-all cursor-pointer space-y-3 group hover:shadow-[0_10px_30px_rgba(0,0,0,0.8),0_0_20px_rgba(179,255,201,0.05)]"
+                  >
+                    <div className="flex items-center justify-between text-white/50">
+                      <span className="text-[11px] uppercase font-bold tracking-wider" style={{ fontFamily: "'Syne', sans-serif" }}>Testimonials</span>
+                      <div className="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center text-[#B3FFC9] group-hover:scale-110 transition-transform">
+                        <Quote size={14} />
+                      </div>
+                    </div>
+                    <div className="flex items-baseline justify-between">
+                      <p className="text-3xl font-extrabold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>
+                        {testimonialsList.length}
+                      </p>
+                      <span className="text-[10px] font-mono text-[#B3FFC9] flex items-center gap-0.5">
+                        <Star size={10} /> 5.0
+                      </span>
+                    </div>
+                    <div className="text-[10px] text-white/40 font-mono">
+                      <span>Home Video Reviews</span>
                     </div>
                   </div>
 
@@ -1592,6 +1740,140 @@ export function Admin() {
               </div>
             )}
 
+            {/* ==================== TAB: TESTIMONIALS ==================== */}
+            {activeTab === "testimonials" && (
+              <div className="space-y-6">
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  <div className="text-xs text-white/50">
+                    Showing <strong className="text-white">{filteredTestimonials.length}</strong> client reviews on Home Page
+                  </div>
+                </div>
+
+                {filteredTestimonials.length === 0 ? (
+                  <div className="text-center py-20 rounded-2xl border border-dashed border-white/10 bg-[#0d0d0d] space-y-4">
+                    <div className="w-14 h-14 rounded-2xl bg-white/5 mx-auto flex items-center justify-center text-[#B3FFC9]">
+                      <Quote size={24} />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-bold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>No Testimonials Found</h3>
+                      <p className="text-xs text-white/40 mt-1">Add your first video testimonial from clients and creators.</p>
+                    </div>
+                    <button
+                      onClick={() => handleOpenTestimonialModal()}
+                      className="px-4 py-2 rounded-full bg-[#B3FFC9] text-black text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Plus size={14} /> Add Testimonial
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredTestimonials.map((t, tIdx) => {
+                      const tId = t._id || t.id || tIdx;
+                      const author = t.name || t.clientName || "Client";
+                      const role = t.role || t.clientRole || "";
+                      const company = t.company || t.clientCompany || "";
+                      const quote = t.quote || t.testimonial || "";
+                      const avatar = t.avatar || t.clientImage;
+                      const vidId = t.videoId || (t.videoUrl ? t.videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/)?.[1] : "");
+
+                      return (
+                        <div
+                          key={tId}
+                          className="rounded-2xl bg-[#0d0d0d] border border-white/10 hover:border-[#B3FFC9]/30 p-5 space-y-4 flex flex-col justify-between transition-all group hover:shadow-[0_10px_30px_rgba(0,0,0,0.8),0_0_20px_rgba(179,255,201,0.03)]"
+                        >
+                          <div className="space-y-3">
+                            {/* Video Preview / Embed Thumbnail */}
+                            {vidId ? (
+                              <div className="relative rounded-xl overflow-hidden aspect-video border border-white/10 bg-black group/vid">
+                                <img
+                                  src={`https://img.youtube.com/vi/${vidId}/hqdefault.jpg`}
+                                  alt={author}
+                                  className="w-full h-full object-cover group-hover/vid:scale-105 transition-transform duration-500"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setPreviewVideoUrl(`https://www.youtube.com/watch?v=${vidId}`);
+                                    setModalType("videoPreview");
+                                  }}
+                                  className="absolute inset-0 bg-black/40 hover:bg-black/20 flex items-center justify-center transition-colors cursor-pointer"
+                                >
+                                  <div className="w-10 h-10 rounded-full bg-[#B3FFC9] text-black flex items-center justify-center shadow-lg transform group-hover/vid:scale-110 transition-transform">
+                                    <Play size={18} fill="currentColor" className="ml-0.5" />
+                                  </div>
+                                </button>
+                                <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-black/80 backdrop-blur-md text-[10px] text-[#B3FFC9] font-mono font-bold">
+                                  {t.videoFirst !== false ? "Video: Left" : "Video: Right"}
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="rounded-xl aspect-video border border-dashed border-white/10 bg-[#141414] flex flex-col items-center justify-center text-white/30 text-xs">
+                                <Video size={24} className="mb-1" />
+                                <span>No YouTube Video Linked</span>
+                              </div>
+                            )}
+
+                            {/* Author Row */}
+                            <div className="flex items-center gap-3 pt-1">
+                              {avatar ? (
+                                <img
+                                  src={avatar}
+                                  alt={author}
+                                  className="w-11 h-11 rounded-full object-cover border border-white/15 bg-white/5 p-0.5 shrink-0"
+                                />
+                              ) : (
+                                <div className="w-11 h-11 rounded-full bg-[#B3FFC9]/20 text-[#B3FFC9] flex items-center justify-center font-bold text-sm shrink-0 border border-[#B3FFC9]/30">
+                                  {author.charAt(0)}
+                                </div>
+                              )}
+                              <div className="truncate">
+                                <h4 className="text-sm font-bold text-white group-hover:text-[#B3FFC9] transition-colors truncate" style={{ fontFamily: "'Syne', sans-serif" }}>
+                                  {author}
+                                </h4>
+                                <p className="text-xs text-white/50 truncate font-mono">{role}</p>
+                                {company && <p className="text-[10px] text-[#B3FFC9]/80 truncate">{company}</p>}
+                              </div>
+                            </div>
+
+                            {/* Quote Text */}
+                            <div className="relative pl-3 border-l-2 border-[#B3FFC9]/40 py-1">
+                              <p className="text-xs text-white/70 line-clamp-3 leading-relaxed italic">
+                                "{quote}"
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Footer Actions */}
+                          <div className="flex items-center justify-between pt-3 border-t border-white/5 text-xs">
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold ${
+                              t.isActive !== false ? "bg-[#183626] text-[#B3FFC9] border border-[#B3FFC9]/30" : "bg-white/5 text-white/40"
+                            }`}>
+                              {t.isActive !== false ? "Live on Home" : "Hidden"}
+                            </span>
+
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => handleOpenTestimonialModal(t)}
+                                className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-white/80 hover:text-white text-[11px] font-semibold flex items-center gap-1 transition-colors cursor-pointer"
+                              >
+                                <Edit3 size={11} /> Edit
+                              </button>
+                              <button
+                                onClick={() => setDeleteConfirm({ type: "testimonial", id: tId, title: `${author}'s Testimonial` })}
+                                className="px-2.5 py-1 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 text-[11px] font-semibold flex items-center gap-1 transition-colors cursor-pointer"
+                              >
+                                <Trash2 size={11} /> Delete
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* ==================== TAB: BLOG ==================== */}
             {activeTab === "blog" && (
               <div className="space-y-6">
@@ -2041,12 +2323,17 @@ export function Admin() {
                             </div>
                             <button
                               type="button"
-                              onClick={() => {
+                              onClick={async () => {
+                                const imgToDelete = img;
                                 const updated = csForm.images.filter((_, i) => i !== imgIdx);
                                 setCsForm({ ...csForm, images: updated });
+                                if (imgToDelete && imgToDelete.includes("cloudinary.com")) {
+                                  await uploadAPI.deleteImage(imgToDelete);
+                                  showToast("Image deleted from Cloudinary");
+                                }
                               }}
                               className="absolute top-1 right-1 p-1 rounded-full bg-red-500/90 text-white hover:bg-red-600 transition-colors shadow-md cursor-pointer"
-                              title="Delete Image"
+                              title="Delete Image from Cloudinary"
                             >
                               <X size={12} />
                             </button>
@@ -2292,7 +2579,14 @@ export function Admin() {
                       <img src={projectForm.thumbnail} alt="Preview" className="w-full h-full object-cover" />
                       <button
                         type="button"
-                        onClick={() => setProjectForm({ ...projectForm, thumbnail: "" })}
+                        onClick={async () => {
+                          const thumbToDelete = projectForm.thumbnail;
+                          setProjectForm({ ...projectForm, thumbnail: "" });
+                          if (thumbToDelete && thumbToDelete.includes("cloudinary.com")) {
+                            await uploadAPI.deleteImage(thumbToDelete);
+                            showToast("Thumbnail deleted from Cloudinary");
+                          }
+                        }}
                         className="absolute top-2 right-2 p-1.5 rounded-full bg-red-500/90 text-white hover:bg-red-600 cursor-pointer"
                       >
                         <X size={12} />
@@ -2333,6 +2627,224 @@ export function Admin() {
                   </button>
                   <button type="submit" className="px-6 py-2.5 rounded-full bg-[#B3FFC9] text-black font-bold text-xs uppercase tracking-wider hover:bg-[#9effba] cursor-pointer" style={{ fontFamily: "'Syne', sans-serif" }}>
                     {editingItem ? "Update Video" : "Add to Home"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* ==================== MODAL: TESTIMONIAL ADD / EDIT ==================== */}
+        {modalType === "testimonial" && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+            <div className="max-w-2xl w-full bg-[#0d0d0d] border border-white/15 rounded-[28px] p-6 sm:p-8 space-y-6 max-h-[90vh] overflow-y-auto relative shadow-2xl">
+              <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                <div>
+                  <h3 className="text-xl font-bold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>
+                    {editingItem ? "Edit Testimonial" : "Add Client Testimonial"}
+                  </h3>
+                  <p className="text-xs text-white/40">Manage video reviews and feedback displayed on the Home Page</p>
+                </div>
+                <button onClick={() => setModalType(null)} className="text-white/50 hover:text-white p-1 cursor-pointer">
+                  <X size={20} />
+                </button>
+              </div>
+
+              <form onSubmit={handleSaveTestimonial} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-white/60">Client / Creator Name *</label>
+                    <input
+                      type="text"
+                      required
+                      value={testimonialForm.name}
+                      onChange={(e) => setTestimonialForm({ ...testimonialForm, name: e.target.value })}
+                      placeholder="e.g. Marc Babin"
+                      className="w-full px-4 py-2.5 rounded-xl bg-[#161616] border border-white/10 text-white text-xs focus:border-[#B3FFC9] focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-white/60">Role / Title *</label>
+                    <input
+                      type="text"
+                      required
+                      value={testimonialForm.role}
+                      onChange={(e) => setTestimonialForm({ ...testimonialForm, role: e.target.value })}
+                      placeholder="e.g. Founder of The Podcast Blueprint"
+                      className="w-full px-4 py-2.5 rounded-xl bg-[#161616] border border-white/10 text-white text-xs focus:border-[#B3FFC9] focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-white/60">Company / Brand (Optional)</label>
+                    <input
+                      type="text"
+                      value={testimonialForm.company}
+                      onChange={(e) => setTestimonialForm({ ...testimonialForm, company: e.target.value })}
+                      placeholder="e.g. The Podcast Blueprint"
+                      className="w-full px-4 py-2.5 rounded-xl bg-[#161616] border border-white/10 text-white text-xs focus:border-[#B3FFC9] focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-white/60">Display Order</label>
+                    <input
+                      type="number"
+                      value={testimonialForm.order}
+                      onChange={(e) => setTestimonialForm({ ...testimonialForm, order: Number(e.target.value) })}
+                      placeholder="0, 1, 2..."
+                      className="w-full px-4 py-2.5 rounded-xl bg-[#161616] border border-white/10 text-white text-xs focus:border-[#B3FFC9] focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                {/* YouTube Video Link & Position */}
+                <div className="space-y-3 p-4 rounded-2xl bg-[#141414] border border-white/5">
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-white/60">YouTube Testimonial Video Link / ID</label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={testimonialForm.videoUrl}
+                        onChange={(e) => {
+                          const url = e.target.value;
+                          const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
+                          setTestimonialForm({
+                            ...testimonialForm,
+                            videoUrl: url,
+                            videoId: match ? match[1] : url
+                          });
+                        }}
+                        placeholder="e.g. https://www.youtube.com/watch?v=FApmJphhF9Y"
+                        className="w-full pl-4 pr-10 py-2.5 rounded-xl bg-[#1c1c1c] border border-white/10 text-white text-xs focus:border-[#B3FFC9] focus:outline-none"
+                      />
+                      <Video size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/40" />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+                    <label className="text-xs font-bold text-white/60">Home Page Video Alignment</label>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setTestimonialForm({ ...testimonialForm, videoFirst: true })}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                          testimonialForm.videoFirst
+                            ? "bg-[#B3FFC9] text-black"
+                            : "bg-white/5 text-white/60 hover:text-white"
+                        }`}
+                      >
+                        Left: Video | Right: Text
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setTestimonialForm({ ...testimonialForm, videoFirst: false })}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                          !testimonialForm.videoFirst
+                            ? "bg-[#B3FFC9] text-black"
+                            : "bg-white/5 text-white/60 hover:text-white"
+                        }`}
+                      >
+                        Left: Text | Right: Video
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Client Avatar Upload to Cloudinary */}
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-white/60">Client Avatar / Photo (Cloudinary Direct Upload)</label>
+                  {testimonialForm.avatar ? (
+                    <div className="flex items-center gap-4 p-3 rounded-2xl bg-[#141414] border border-white/10">
+                      <img
+                        src={testimonialForm.avatar}
+                        alt="Avatar Preview"
+                        className="w-14 h-14 rounded-full object-cover border border-white/20 p-0.5 bg-white/5"
+                      />
+                      <div className="flex-1 truncate">
+                        <p className="text-xs font-bold text-white truncate">Client Photo Uploaded</p>
+                        <p className="text-[11px] text-[#B3FFC9] font-mono truncate">{testimonialForm.avatar}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          const avatarToDelete = testimonialForm.avatar;
+                          setTestimonialForm({ ...testimonialForm, avatar: "" });
+                          if (avatarToDelete && avatarToDelete.includes("cloudinary.com")) {
+                            await uploadAPI.deleteImage(avatarToDelete);
+                            showToast("Avatar removed from Cloudinary");
+                          }
+                        }}
+                        className="p-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-colors cursor-pointer"
+                        title="Delete avatar"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="flex items-center justify-center gap-3 p-4 rounded-2xl border-2 border-dashed border-white/15 hover:border-[#B3FFC9]/50 bg-[#141414]/50 hover:bg-[#141414] text-xs text-white/70 hover:text-[#B3FFC9] cursor-pointer transition-all">
+                      <Plus size={16} />
+                      <span>{isUploadingImage ? "Uploading to Cloudinary..." : "Upload Client Avatar / Headshot (PNG, JPG)"}</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        disabled={isUploadingImage}
+                        className="hidden"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setIsUploadingImage(true);
+                            try {
+                              const url = await uploadAPI.uploadSingle(file);
+                              setTestimonialForm((prev) => ({ ...prev, avatar: url }));
+                              showToast("Avatar uploaded to Cloudinary");
+                            } catch {
+                              showToast("Error uploading avatar");
+                            } finally {
+                              setIsUploadingImage(false);
+                            }
+                          }
+                        }}
+                      />
+                    </label>
+                  )}
+                </div>
+
+                {/* Testimonial Quote */}
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-white/60">Client Testimonial Feedback Quote *</label>
+                  <textarea
+                    required
+                    rows={4}
+                    value={testimonialForm.quote}
+                    onChange={(e) => setTestimonialForm({ ...testimonialForm, quote: e.target.value })}
+                    placeholder="Describe their experience working with Littroi... e.g. Working with Littroi freed us up to focus on what we do best and the content hasn't stopped since."
+                    className="w-full px-4 py-3 rounded-xl bg-[#161616] border border-white/10 text-white text-xs focus:border-[#B3FFC9] focus:outline-none leading-relaxed"
+                  />
+                </div>
+
+                {/* Active Status Toggle */}
+                <div className="flex items-center gap-3 pt-2">
+                  <label className="flex items-center gap-2.5 text-xs text-white/80 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={testimonialForm.isActive}
+                      onChange={(e) => setTestimonialForm({ ...testimonialForm, isActive: e.target.checked })}
+                      className="w-4 h-4 rounded bg-[#161616] border-white/20 text-[#B3FFC9] focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                    />
+                    <span className="font-bold">Publish &amp; Show on Live Home Page</span>
+                  </label>
+                </div>
+
+                <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
+                  <button type="button" onClick={() => setModalType(null)} className="px-5 py-2.5 rounded-full text-xs font-bold text-white/60 hover:text-white cursor-pointer">
+                    Cancel
+                  </button>
+                  <button type="submit" className="px-6 py-2.5 rounded-full bg-[#B3FFC9] text-black font-bold text-xs uppercase tracking-wider hover:bg-[#9effba] cursor-pointer" style={{ fontFamily: "'Syne', sans-serif" }}>
+                    {editingItem ? "Update Testimonial" : "Add to Home Page"}
                   </button>
                 </div>
               </form>
@@ -2407,7 +2919,14 @@ export function Admin() {
                       <img src={blogForm.coverImage} alt="Cover Preview" className="w-full h-full object-cover" />
                       <button
                         type="button"
-                        onClick={() => setBlogForm({ ...blogForm, coverImage: "" })}
+                        onClick={async () => {
+                          const imgToDelete = blogForm.coverImage;
+                          setBlogForm({ ...blogForm, coverImage: "" });
+                          if (imgToDelete && imgToDelete.includes("cloudinary.com")) {
+                            await uploadAPI.deleteImage(imgToDelete);
+                            showToast("Cover image deleted from Cloudinary");
+                          }
+                        }}
                         className="absolute top-2 right-2 p-1.5 rounded-full bg-red-500/90 text-white hover:bg-red-600 cursor-pointer"
                       >
                         <X size={14} />

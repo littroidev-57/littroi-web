@@ -51,7 +51,17 @@ export const deleteCaseStudy = async (req, res, next) => {
     if (!study) {
       return res.status(404).json({ success: false, message: "Case study not found" });
     }
-    res.json({ success: true, message: "Case study deleted" });
+
+    // Automatically remove Cloudinary assets
+    const { deleteFromCloudinary } = await import("../config/cloudinary.js");
+    const imagesToDelete = [];
+    if (study.coverImage) imagesToDelete.push(study.coverImage);
+    if (Array.isArray(study.images)) imagesToDelete.push(...study.images);
+    if (imagesToDelete.length > 0) {
+      await deleteFromCloudinary(imagesToDelete);
+    }
+
+    res.json({ success: true, message: "Case study and associated Cloudinary media deleted" });
   } catch (error) {
     next(error);
   }

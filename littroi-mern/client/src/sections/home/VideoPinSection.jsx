@@ -10,19 +10,34 @@ export function VideoPinSection() {
   const vidWrapRef = useRef(null);
   const vidRef = useRef(null);
   const txtRef = useRef(null);
-  const soundStatusRef = useRef(null);
-  const [soundStatusText, setSoundStatusText] = useState("🔊 Tap anywhere for sound");
+  const [isMuted, setIsMuted] = useState(true);
+
+  // Toggle voice on / off whenever clicked anywhere on the section/video
+  const toggleSound = () => {
+    const vid = vidRef.current;
+    if (!vid) return;
+
+    if (vid.muted) {
+      vid.muted = false;
+      setIsMuted(false);
+      if (vid.paused) {
+        vid.play().catch(() => {});
+      }
+    } else {
+      vid.muted = true;
+      setIsMuted(true);
+    }
+  };
 
   useEffect(() => {
     const section = sectionRef.current;
     const vidWrap = vidWrapRef.current;
     const vid = vidRef.current;
     const txt = txtRef.current;
-    const soundStatus = soundStatusRef.current;
 
     if (!section || !vidWrap || !vid) return;
 
-    // Autoplay when section comes into view
+    // Autoplay muted video when section comes into view
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -36,21 +51,6 @@ export function VideoPinSection() {
       { threshold: 0.15 }
     );
     observer.observe(section);
-
-    // Global click to unmute
-    const handleUnmute = () => {
-      if (vid && vid.muted) {
-        vid.muted = false;
-        setSoundStatusText("🎵 Audio Active");
-        if (soundStatus) {
-          setTimeout(() => {
-            soundStatus.style.opacity = "0";
-          }, 2000);
-        }
-      }
-      document.removeEventListener("click", handleUnmute);
-    };
-    document.addEventListener("click", handleUnmute);
 
     // GSAP ScrollTrigger for desktop (>768px)
     let ctx = gsap.context(() => {
@@ -106,13 +106,16 @@ export function VideoPinSection() {
 
     return () => {
       observer.disconnect();
-      document.removeEventListener("click", handleUnmute);
       ctx.revert();
     };
   }, []);
 
   return (
-    <section className="relative w-full bg-black overflow-hidden select-none">
+    <section 
+      className="relative w-full bg-black overflow-hidden select-none cursor-pointer"
+      onClick={toggleSound}
+      title="Click anywhere to toggle audio"
+    >
       {/* ── DESKTOP: GSAP Scroll-Pinned Fullscreen-to-Corner Video ── */}
       <div
         id="video-pin-section"
@@ -144,14 +147,34 @@ export function VideoPinSection() {
           />
         </div>
 
-        {/* Floating Sound Status Indicator */}
-        <div
+        {/* Floating Sound Status Indicator / Toggle Button */}
+        <button
+          type="button"
           id="vps-sound-status"
-          ref={soundStatusRef}
-          className="absolute bottom-5 right-5 z-30 bg-black/60 text-white px-3.5 py-1.5 rounded-full text-xs font-mono pointer-events-none border border-white/20 transition-opacity duration-500"
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleSound();
+          }}
+          className={`absolute bottom-6 right-6 z-30 flex items-center gap-2.5 px-4 py-2 rounded-full text-xs font-medium tracking-wide backdrop-blur-md border transition-all duration-300 shadow-2xl cursor-pointer ${
+            isMuted
+              ? "bg-black/70 text-white/90 border-white/20 hover:border-[#1FD655] hover:text-[#1FD655] hover:bg-black/90"
+              : "bg-[#1FD655] text-black border-[#1FD655] font-semibold hover:bg-[#1FD655]/90"
+          }`}
         >
-          {soundStatusText}
-        </div>
+          <span className="relative flex h-2 w-2">
+            {!isMuted && (
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-black opacity-75"></span>
+            )}
+            <span
+              className={`relative inline-flex rounded-full h-2 w-2 ${
+                isMuted ? "bg-white/40" : "bg-black"
+              }`}
+            ></span>
+          </span>
+          <span>
+            {isMuted ? "🔇 Tap anywhere for sound" : "🔊 Sound ON · Tap to mute"}
+          </span>
+        </button>
 
         {/* Dynamic Text Appearing to the right of the shrunken video */}
         <div

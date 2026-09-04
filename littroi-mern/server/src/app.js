@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
+import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 
 import { apiLimiter } from "./middleware/rateLimiter.js";
@@ -72,9 +73,10 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-// Request Parsers & Rate Limiter
+// Request Parsers, Cookies & Rate Limiter
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+app.use(cookieParser());
 app.use("/api/", apiLimiter);
 
 

@@ -1,13 +1,15 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { testimonialsAPI } from "../../services/api";
 
 import avatarMarc from "../../assets/Group 1100.png";
 import avatarSpencer from "../../assets/Group 1082.png";
 import avatarHarrison from "../../assets/Group 1079.png";
 
-const TESTIMONIALS_DATA = [
+const INITIAL_TESTIMONIALS = [
   {
+    _id: "t1",
     id: 1,
     videoId: "FApmJphhF9Y",
     title: "Marc Babin - Founder of The Podcast Blueprint (Testimonial)",
@@ -19,6 +21,7 @@ const TESTIMONIALS_DATA = [
     videoFirst: true,
   },
   {
+    _id: "t2",
     id: 2,
     videoId: "EIJg4p4MHpI",
     title: "Spencer Gilmore - Founder of Hair Rescue",
@@ -30,6 +33,7 @@ const TESTIMONIALS_DATA = [
     videoFirst: false,
   },
   {
+    _id: "t3",
     id: 3,
     videoId: "lpFoyBWzrUE",
     title: "Harison Saunders - Podcast host of The Growth Voyage (Testimonial)",
@@ -43,6 +47,21 @@ const TESTIMONIALS_DATA = [
 ];
 
 export function TestimonialsSection() {
+  const [testimonials, setTestimonials] = useState(INITIAL_TESTIMONIALS);
+
+  useEffect(() => {
+    let isMounted = true;
+    testimonialsAPI.getAll().then((data) => {
+      if (isMounted && Array.isArray(data) && data.length > 0) {
+        setTestimonials(data);
+      }
+    }).catch(() => {});
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   return (
     <section
       className="elementor-element elementor-element-d095e46 e-con-full e-flex wpr-particle-no wpr-jarallax-no wpr-parallax-no wpr-sticky-section-no wpr-column-slider-no wpr-equal-height-no e-con e-parent e-lazyloaded bg-black relative py-20 sm:py-28 overflow-hidden select-none"
@@ -115,78 +134,87 @@ export function TestimonialsSection() {
           </motion.div>
         </div>
 
-        {/* 3 Alternating Testimonial Rows */}
+        {/* Dynamic Alternating Testimonial Rows */}
         <div className="space-y-16 sm:space-y-24">
-          {TESTIMONIALS_DATA.map((item, idx) => (
-            <div
-              key={item.id}
-              className={`flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-14 ${
-                item.videoFirst ? "" : "lg:flex-row-reverse"
-              }`}
-            >
-              {/* Video Column */}
-              <motion.div
-                initial={{ opacity: 0, x: item.videoFirst ? -60 : 60 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: "-60px" }}
-                transition={{ duration: 1.3, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-                className="w-full lg:w-1/2 aspect-video rounded-2xl overflow-hidden border border-white/10 bg-[#111111] shadow-[0_20px_60px_rgba(0,0,0,0.8)] relative group"
-              >
-                <iframe
-                  src={`https://www.youtube.com/embed/${item.videoId}?controls=1&rel=0&playsinline=0`}
-                  title={item.title}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                  className="w-full h-full border-none"
-                />
-              </motion.div>
+          {testimonials.map((item, idx) => {
+            const authorName = item.name || item.clientName || "Client";
+            const authorRole = item.role || item.clientRole || "";
+            const quoteText = item.quote || item.testimonial || "";
+            const avatarSrc = item.avatar || item.clientImage || avatarMarc;
+            const videoId = item.videoId || (item.videoUrl ? item.videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/)?.[1] : "") || "FApmJphhF9Y";
+            const isVideoFirst = item.videoFirst !== undefined ? item.videoFirst : (idx % 2 === 0);
 
-              {/* Testimonial Column */}
-              <motion.div
-                initial={{ opacity: 0, x: item.videoFirst ? 60 : -60 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: "-60px" }}
-                transition={{ duration: 1.3, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                className="w-full lg:w-1/2 p-6 sm:p-10 rounded-2xl bg-[#0a0a0a] border border-white/10 flex flex-col justify-between space-y-8"
+            return (
+              <div
+                key={item._id || item.id || idx}
+                className={`flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-14 ${
+                  isVideoFirst ? "" : "lg:flex-row-reverse"
+                }`}
               >
-                <p
-                  className="text-gray-200 text-sm sm:text-base leading-relaxed whitespace-pre-line"
-                  style={{
-                    fontFamily: "'benzine', sans-serif",
-                    fontSize: "clamp(13px, 1.1vw, 15px)",
-                    fontWeight: 300,
-                    lineHeight: 1.7,
-                    color: "rgba(255, 255, 255, 0.85)",
-                  }}
+                {/* Video Column */}
+                <motion.div
+                  initial={{ opacity: 0, x: isVideoFirst ? -60 : 60 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, margin: "-60px" }}
+                  transition={{ duration: 1.3, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+                  className="w-full lg:w-1/2 aspect-video rounded-2xl overflow-hidden border border-white/10 bg-[#111111] shadow-[0_20px_60px_rgba(0,0,0,0.8)] relative group"
                 >
-                  {item.quote}
-                </p>
-
-                {/* Author Info */}
-                <div className="flex items-center gap-4 pt-4 border-t border-white/10">
-                  <img
-                    src={item.avatar}
-                    alt={item.name}
-                    className="w-14 h-14 rounded-full object-contain border border-white/15 bg-white/5 p-1 shadow-md"
+                  <iframe
+                    src={`https://www.youtube.com/embed/${videoId}?controls=1&rel=0&playsinline=0`}
+                    title={`${authorName} Testimonial`}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    className="w-full h-full border-none"
                   />
-                  <div>
-                    <h4
-                      className="text-base sm:text-lg font-bold text-white tracking-wide"
-                      style={{ fontFamily: "'Syne', sans-serif" }}
-                    >
-                      {item.name}
-                    </h4>
-                    <p
-                      className="text-xs text-gray-400 font-mono tracking-wide mt-0.5"
-                      style={{ fontFamily: "'benzine', 'Syne', sans-serif" }}
-                    >
-                      {item.role}
-                    </p>
+                </motion.div>
+
+                {/* Testimonial Column */}
+                <motion.div
+                  initial={{ opacity: 0, x: isVideoFirst ? 60 : -60 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, margin: "-60px" }}
+                  transition={{ duration: 1.3, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                  className="w-full lg:w-1/2 p-6 sm:p-10 rounded-2xl bg-[#0a0a0a] border border-white/10 flex flex-col justify-between space-y-8"
+                >
+                  <p
+                    className="text-gray-200 text-sm sm:text-base leading-relaxed whitespace-pre-line"
+                    style={{
+                      fontFamily: "'benzine', sans-serif",
+                      fontSize: "clamp(13px, 1.1vw, 15px)",
+                      fontWeight: 300,
+                      lineHeight: 1.7,
+                      color: "rgba(255, 255, 255, 0.85)",
+                    }}
+                  >
+                    {quoteText}
+                  </p>
+
+                  {/* Author Info */}
+                  <div className="flex items-center gap-4 pt-4 border-t border-white/10">
+                    <img
+                      src={avatarSrc}
+                      alt={authorName}
+                      className="w-14 h-14 rounded-full object-cover border border-white/15 bg-white/5 p-1 shadow-md"
+                    />
+                    <div>
+                      <h4
+                        className="text-base sm:text-lg font-bold text-white tracking-wide"
+                        style={{ fontFamily: "'Syne', sans-serif" }}
+                      >
+                        {authorName}
+                      </h4>
+                      <p
+                        className="text-xs text-gray-400 font-mono tracking-wide mt-0.5"
+                        style={{ fontFamily: "'benzine', 'Syne', sans-serif" }}
+                      >
+                        {authorRole}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </motion.div>
-            </div>
-          ))}
+                </motion.div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

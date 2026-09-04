@@ -79,7 +79,14 @@ export const deleteBlogPost = async (req, res, next) => {
     if (!post) {
       return res.status(404).json({ success: false, message: "Blog post not found" });
     }
-    res.json({ success: true, message: "Blog post deleted" });
+
+    // Automatically remove Cloudinary featured image
+    if (post.featuredImage) {
+      const { deleteFromCloudinary } = await import("../config/cloudinary.js");
+      await deleteFromCloudinary(post.featuredImage);
+    }
+
+    res.json({ success: true, message: "Blog post and associated image deleted" });
   } catch (error) {
     next(error);
   }

@@ -109,4 +109,35 @@ router.post("/base64", authenticate, async (req, res, next) => {
   }
 });
 
+// ==================== DELETE /api/upload / POST /api/upload/delete ====================
+const handleDeleteImage = async (req, res, next) => {
+  try {
+    const { url, public_id, urls, public_ids } = req.body;
+    const targetItems = urls || public_ids || url || public_id;
+
+    if (!targetItems) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide url, public_id, urls, or public_ids to delete"
+      });
+    }
+
+    const { deleteFromCloudinary } = await import("../config/cloudinary.js");
+    const results = await deleteFromCloudinary(targetItems);
+
+    res.json({
+      success: true,
+      message: "Cloudinary image(s) deleted successfully",
+      results
+    });
+  } catch (error) {
+    console.error("Cloudinary delete error:", error);
+    next(error);
+  }
+};
+
+router.post("/delete", authenticate, handleDeleteImage);
+router.delete("/", authenticate, handleDeleteImage);
+
 export default router;
+

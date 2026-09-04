@@ -6,13 +6,50 @@ import { services as fallbackServices } from "../data/services";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 
+// Cookie utility functions for storing token in cookies (30-day persistence)
+export const cookieUtils = {
+  set: (name, value, days = 30) => {
+    try {
+      const expires = new Date(Date.now() + days * 864e5).toUTCString();
+      document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
+    } catch {}
+  },
+  get: (name) => {
+    try {
+      const match = document.cookie.match(new RegExp("(^|;\\s*)" + name + "=([^;]+)"));
+      return match ? decodeURIComponent(match[2]) : null;
+    } catch {
+      return null;
+    }
+  },
+  remove: (name) => {
+    try {
+      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax`;
+    } catch {}
+  }
+};
+
+const getToken = () => {
+  return cookieUtils.get("littroi_token") || localStorage.getItem("littroi_token");
+};
+
 const getAuthHeaders = () => {
-  const token = localStorage.getItem("littroi_token");
+  const token = getToken();
   return {
     "Content-Type": "application/json",
     ...(token ? { Authorization: `Bearer ${token}` } : {})
   };
 };
+
+// Keep Render Free Tier server awake while application is open in browser
+if (typeof window !== "undefined") {
+  const pingHealth = () => {
+    fetch(`${API_BASE_URL}/health`).catch(() => {});
+  };
+  // Initial ping & periodic 4-minute ping
+  pingHealth();
+  setInterval(pingHealth, 4 * 60 * 1000);
+}
 
 // ==================== AUTH API ====================
 export const authAPI = {
@@ -20,6 +57,7 @@ export const authAPI = {
     const res = await fetch(`${API_BASE_URL}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ email, password })
     });
     const data = await res.json();
@@ -27,31 +65,54 @@ export const authAPI = {
       throw new Error(data.message || "Authentication failed. Check your credentials.");
     }
     
+    // Save token in Cookie (30 days) and localStorage
+    cookieUtils.set("littroi_token", data.token, 30);
     localStorage.setItem("littroi_token", data.token);
     localStorage.setItem("littroi_user", JSON.stringify(data.user));
     return data;
   },
 
   getMe: async () => {
-    const token = localStorage.getItem("littroi_token");
+    const token = getToken();
     if (!token) return null;
     try {
       const res = await fetch(`${API_BASE_URL}/auth/me`, {
-        headers: getAuthHeaders()
+        headers: getAuthHeaders(),
+        credentials: "include"
       });
-      const data = await res.json();
-      if (!res.ok || !data.success) {
+      // ONLY clear tokens when server explicitly returns 401 Unauthorized or 403 Forbidden
+      if (res.status === 401 || res.status === 403) {
+        cookieUtils.remove("littroi_token");
         localStorage.removeItem("littroi_token");
         localStorage.removeItem("littroi_user");
         return null;
       }
-      return data.user;
-    } catch {
-      return null;
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.user) {
+          localStorage.setItem("littroi_user", JSON.stringify(data.user));
+          return data.user;
+        }
+      }
+      // If server is returning a 5xx error or waking up from sleep, keep local session valid
+      const savedUser = localStorage.getItem("littroi_user");
+      return savedUser ? JSON.parse(savedUser) : { role: "admin", email: "admin@littroi.com" };
+    } catch (err) {
+      // Network failure / cold-start timeout: keep user logged in with local storage cache
+      console.warn("Auth check network notice (keeping local session):", err.message);
+      const savedUser = localStorage.getItem("littroi_user");
+      return savedUser ? JSON.parse(savedUser) : { role: "admin", email: "admin@littroi.com" };
     }
   },
 
-  logout: () => {
+  logout: async () => {
+    try {
+      await fetch(`${API_BASE_URL}/auth/logout`, {
+        method: "POST",
+        credentials: "include"
+      }).catch(() => {});
+    } catch {}
+    cookieUtils.remove("littroi_token");
     localStorage.removeItem("littroi_token");
     localStorage.removeItem("littroi_user");
   }
@@ -372,6 +433,63 @@ export const projectsAPI = {
   }
 };
 
+// ==================== TESTIMONIALS API ====================
+export const testimonialsAPI = {
+  getAll: async (all = false) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/testimonials${all ? "?all=true" : ""}`, {
+        headers: getAuthHeaders()
+      });
+      const data = await res.json();
+      if (data.success && Array.isArray(data.data)) {
+        return data.data;
+      }
+      return [];
+    } catch (err) {
+      console.warn("Failed to fetch testimonials from MongoDB:", err.message);
+      return [];
+    }
+  },
+
+  create: async (item) => {
+    const res = await fetch(`${API_BASE_URL}/testimonials`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(item)
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.message || "Failed to create testimonial in MongoDB");
+    }
+    return data.data;
+  },
+
+  update: async (id, item) => {
+    const res = await fetch(`${API_BASE_URL}/testimonials/${id}`, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(item)
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.message || "Failed to update testimonial in MongoDB");
+    }
+    return data.data;
+  },
+
+  delete: async (id) => {
+    const res = await fetch(`${API_BASE_URL}/testimonials/${id}`, {
+      method: "DELETE",
+      headers: getAuthHeaders()
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.message || "Failed to delete testimonial from MongoDB");
+    }
+    return true;
+  }
+};
+
 // ==================== UPLOAD / CLOUDINARY API ====================
 export const uploadAPI = {
   uploadSingle: async (file) => {
@@ -404,5 +522,45 @@ export const uploadAPI = {
       throw new Error(data.message || "Multiple upload failed");
     }
     return data.urls;
+  },
+
+  deleteImage: async (urlOrPublicId) => {
+    if (!urlOrPublicId) return true;
+    const token = localStorage.getItem("littroi_token");
+    try {
+      const res = await fetch(`${API_BASE_URL}/upload/delete`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({ url: urlOrPublicId })
+      });
+      const data = await res.json();
+      return data.success;
+    } catch (err) {
+      console.warn("Cloudinary delete request failed:", err.message);
+      return false;
+    }
+  },
+
+  deleteMultiple: async (urlsOrPublicIds) => {
+    if (!urlsOrPublicIds || urlsOrPublicIds.length === 0) return true;
+    const token = localStorage.getItem("littroi_token");
+    try {
+      const res = await fetch(`${API_BASE_URL}/upload/delete`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({ urls: urlsOrPublicIds })
+      });
+      const data = await res.json();
+      return data.success;
+    } catch (err) {
+      console.warn("Cloudinary multiple delete request failed:", err.message);
+      return false;
+    }
   }
 };

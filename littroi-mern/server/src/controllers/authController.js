@@ -5,7 +5,7 @@ const generateToken = (user) => {
   return jwt.sign(
     { id: user._id, role: user.role, email: user.email },
     process.env.JWT_SECRET || "littroi_super_secret_jwt_key_2026_production_ready",
-    { expiresIn: process.env.JWT_EXPIRE || "7d" }
+    { expiresIn: process.env.JWT_EXPIRE || "30d" }
   );
 };
 
@@ -28,6 +28,16 @@ export const login = async (req, res, next) => {
     }
 
     const token = generateToken(user);
+    const isProduction = process.env.NODE_ENV === "production";
+
+    // Set HTTP-accessible cookie for 30 days
+    res.cookie("littroi_token", token, {
+      httpOnly: false,
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
+      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+    });
+
     res.json({
       success: true,
       token,
@@ -36,6 +46,15 @@ export const login = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+};
+
+export const logout = async (req, res) => {
+  const isProduction = process.env.NODE_ENV === "production";
+  res.clearCookie("littroi_token", {
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax"
+  });
+  res.json({ success: true, message: "Logged out successfully" });
 };
 
 export const getMe = async (req, res, next) => {
