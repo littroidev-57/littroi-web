@@ -61,20 +61,22 @@ if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 
+// Health check (Exempt from rate limiting for keep-alive pings)
+app.get("/api/health", (req, res) => {
+  res.json({
+    status: "ok",
+    service: "Littroi API",
+    uptime: Math.floor(process.uptime()),
+    timestamp: new Date().toISOString(),
+    version: "1.0.0"
+  });
+});
+
 // Request Parsers & Rate Limiter
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use("/api/", apiLimiter);
 
-// Health check
-app.get("/api/health", (req, res) => {
-  res.json({
-    status: "ok",
-    service: "Littroi API",
-    timestamp: new Date().toISOString(),
-    version: "1.0.0"
-  });
-});
 
 // API Routes
 app.use("/api/auth", authRoutes);
