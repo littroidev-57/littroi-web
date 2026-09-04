@@ -2,7 +2,7 @@ import { ContactEnquiry } from "../models/ContactEnquiry.js";
 
 export const submitContact = async (req, res, next) => {
   try {
-    const { name, email, company, message } = req.body;
+    const { name, email, phone, company, message, source } = req.body;
 
     if (!name || !email || !message) {
       return res.status(400).json({
@@ -14,9 +14,11 @@ export const submitContact = async (req, res, next) => {
     const enquiry = await ContactEnquiry.create({
       name,
       email,
-      company,
+      phone: phone || "",
+      company: company || "",
       message,
-      source: "website"
+      source: source || "website",
+      status: "New"
     });
 
     res.status(201).json({
@@ -42,7 +44,7 @@ export const markEnquiryAsRead = async (req, res, next) => {
   try {
     const enquiry = await ContactEnquiry.findByIdAndUpdate(
       req.params.id,
-      { isRead: true },
+      { isRead: true, status: "Reviewed" },
       { new: true }
     );
     if (!enquiry) {
@@ -86,4 +88,3 @@ export const deleteEnquiry = async (req, res, next) => {
     next(error);
   }
 };
-

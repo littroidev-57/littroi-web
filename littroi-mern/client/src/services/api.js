@@ -1,4 +1,4 @@
-// Centralized API Client with Offline Resilience & Mock Fallback
+// Centralized API Client with Direct MongoDB Persistence
 import { caseStudies as fallbackCaseStudies } from "../data/caseStudies";
 import { blogPosts as fallbackBlogs } from "../data/blogPosts";
 import { jobs as fallbackJobs } from "../data/jobs";
@@ -14,63 +14,40 @@ const getAuthHeaders = () => {
   };
 };
 
-// Storage helper for offline persistence
-const getLocalData = (key, fallback) => {
-  try {
-    const item = localStorage.getItem(`littroi_${key}`);
-    return item ? JSON.parse(item) : fallback;
-  } catch {
-    return fallback;
-  }
-};
-
-const setLocalData = (key, data) => {
-  try {
-    localStorage.setItem(`littroi_${key}`, JSON.stringify(data));
-  } catch (e) {
-    console.warn("LocalStorage save error:", e);
-  }
-};
-
 // ==================== AUTH API ====================
 export const authAPI = {
   login: async (email, password) => {
-    try {
-      const res = await fetch(`${API_BASE_URL}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Authentication failed");
-      
-      localStorage.setItem("littroi_token", data.token);
-      localStorage.setItem("littroi_user", JSON.stringify(data.user));
-      return data;
-    } catch {
-      // Fallback demo login if API server is offline
-      if ((email === "admin@littroi.com" && password === "admin123") || password.length >= 6) {
-        const mockUser = { id: "admin-1", name: "Studio Admin", email, role: "admin" };
-        const mockToken = "mock_jwt_token_littroi_admin_active";
-        localStorage.setItem("littroi_token", mockToken);
-        localStorage.setItem("littroi_user", JSON.stringify(mockUser));
-        return { success: true, token: mockToken, user: mockUser };
-      }
-      throw new Error("Invalid credentials (Use admin@littroi.com / admin123)");
+    const res = await fetch(`${API_BASE_URL}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.message || "Authentication failed. Check your credentials.");
     }
+    
+    localStorage.setItem("littroi_token", data.token);
+    localStorage.setItem("littroi_user", JSON.stringify(data.user));
+    return data;
   },
 
   getMe: async () => {
+    const token = localStorage.getItem("littroi_token");
+    if (!token) return null;
     try {
       const res = await fetch(`${API_BASE_URL}/auth/me`, {
         headers: getAuthHeaders()
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Session invalid");
+      if (!res.ok || !data.success) {
+        localStorage.removeItem("littroi_token");
+        localStorage.removeItem("littroi_user");
+        return null;
+      }
       return data.user;
     } catch {
-      const user = localStorage.getItem("littroi_user");
-      return user ? JSON.parse(user) : null;
+      return null;
     }
   },
 
@@ -86,73 +63,50 @@ export const caseStudiesAPI = {
     try {
       const res = await fetch(`${API_BASE_URL}/case-studies`);
       const data = await res.json();
-      if (data.success && data.data?.length) {
-        setLocalData("case_studies", data.data);
+      if (data.success && Array.isArray(data.data)) {
         return data.data;
       }
-    } catch {
-      // fallback
+    } catch (err) {
+      console.warn("Case studies fetch fallback:", err);
     }
-    return getLocalData("case_studies", fallbackCaseStudies);
+    return fallbackCaseStudies;
   },
 
   create: async (item) => {
-    try {
-      const res = await fetch(`${API_BASE_URL}/case-studies`, {
-        method: "POST",
-        headers: getAuthHeaders(),
-        body: JSON.stringify(item)
-      });
-      const data = await res.json();
-      if (data.success) {
-        const current = getLocalData("case_studies", fallbackCaseStudies);
-        setLocalData("case_studies", [data.data, ...current]);
-        return data.data;
-      }
-    } catch {
-      // fallback
+    const res = await fetch(`${API_BASE_URL}/case-studies`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(item)
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.message || "Failed to save case study to MongoDB");
     }
-    const current = getLocalData("case_studies", fallbackCaseStudies);
-    const newItem = { ...item, id: `cs-${Date.now()}`, _id: `cs-${Date.now()}` };
-    setLocalData("case_studies", [newItem, ...current]);
-    return newItem;
+    return data.data;
   },
 
   update: async (id, item) => {
-    try {
-      const res = await fetch(`${API_BASE_URL}/case-studies/${id}`, {
-        method: "PUT",
-        headers: getAuthHeaders(),
-        body: JSON.stringify(item)
-      });
-      const data = await res.json();
-      if (data.success) {
-        const current = getLocalData("case_studies", fallbackCaseStudies);
-        const updated = current.map((c) => ((c._id === id || c.id === id) ? data.data : c));
-        setLocalData("case_studies", updated);
-        return data.data;
-      }
-    } catch {
-      // fallback
+    const res = await fetch(`${API_BASE_URL}/case-studies/${id}`, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(item)
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.message || "Failed to update case study in MongoDB");
     }
-    const current = getLocalData("case_studies", fallbackCaseStudies);
-    const updated = current.map((c) => ((c._id === id || c.id === id) ? { ...c, ...item } : c));
-    setLocalData("case_studies", updated);
-    return item;
+    return data.data;
   },
 
   delete: async (id) => {
-    try {
-      await fetch(`${API_BASE_URL}/case-studies/${id}`, {
-        method: "DELETE",
-        headers: getAuthHeaders()
-      });
-    } catch {
-      // fallback
+    const res = await fetch(`${API_BASE_URL}/case-studies/${id}`, {
+      method: "DELETE",
+      headers: getAuthHeaders()
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.message || "Failed to delete case study from MongoDB");
     }
-    const current = getLocalData("case_studies", fallbackCaseStudies);
-    const filtered = current.filter((c) => c._id !== id && c.id !== id);
-    setLocalData("case_studies", filtered);
     return true;
   }
 };
@@ -163,14 +117,13 @@ export const blogAPI = {
     try {
       const res = await fetch(`${API_BASE_URL}/blog`);
       const data = await res.json();
-      if (data.success && data.data?.length) {
-        setLocalData("blogs", data.data);
+      if (data.success && Array.isArray(data.data)) {
         return data.data;
       }
-    } catch {
-      // fallback
+    } catch (err) {
+      console.warn("Blog fetch fallback:", err);
     }
-    return getLocalData("blogs", fallbackBlogs);
+    return fallbackBlogs;
   },
 
   getBySlug: async (slug) => {
@@ -183,67 +136,44 @@ export const blogAPI = {
     } catch {
       // fallback
     }
-    const current = getLocalData("blogs", fallbackBlogs);
-    return current.find((b) => b.slug === slug || b.id === slug || b._id === slug) || null;
+    return fallbackBlogs.find((b) => b.slug === slug || b.id === slug || b._id === slug) || null;
   },
 
   create: async (item) => {
-    try {
-      const res = await fetch(`${API_BASE_URL}/blog`, {
-        method: "POST",
-        headers: getAuthHeaders(),
-        body: JSON.stringify(item)
-      });
-      const data = await res.json();
-      if (data.success) {
-        const current = getLocalData("blogs", fallbackBlogs);
-        setLocalData("blogs", [data.data, ...current]);
-        return data.data;
-      }
-    } catch {
-      // fallback
+    const res = await fetch(`${API_BASE_URL}/blog`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(item)
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.message || "Failed to publish article to MongoDB");
     }
-    const current = getLocalData("blogs", fallbackBlogs);
-    const newItem = { ...item, id: `b-${Date.now()}`, _id: `b-${Date.now()}` };
-    setLocalData("blogs", [newItem, ...current]);
-    return newItem;
+    return data.data;
   },
 
   update: async (id, item) => {
-    try {
-      const res = await fetch(`${API_BASE_URL}/blog/${id}`, {
-        method: "PUT",
-        headers: getAuthHeaders(),
-        body: JSON.stringify(item)
-      });
-      const data = await res.json();
-      if (data.success) {
-        const current = getLocalData("blogs", fallbackBlogs);
-        const updated = current.map((b) => ((b._id === id || b.id === id) ? data.data : b));
-        setLocalData("blogs", updated);
-        return data.data;
-      }
-    } catch {
-      // fallback
+    const res = await fetch(`${API_BASE_URL}/blog/${id}`, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(item)
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.message || "Failed to update article in MongoDB");
     }
-    const current = getLocalData("blogs", fallbackBlogs);
-    const updated = current.map((b) => ((b._id === id || b.id === id) ? { ...b, ...item } : b));
-    setLocalData("blogs", updated);
-    return item;
+    return data.data;
   },
 
   delete: async (id) => {
-    try {
-      await fetch(`${API_BASE_URL}/blog/${id}`, {
-        method: "DELETE",
-        headers: getAuthHeaders()
-      });
-    } catch {
-      // fallback
+    const res = await fetch(`${API_BASE_URL}/blog/${id}`, {
+      method: "DELETE",
+      headers: getAuthHeaders()
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.message || "Failed to delete article from MongoDB");
     }
-    const current = getLocalData("blogs", fallbackBlogs);
-    const filtered = current.filter((b) => b._id !== id && b.id !== id);
-    setLocalData("blogs", filtered);
     return true;
   }
 };
@@ -254,73 +184,50 @@ export const jobsAPI = {
     try {
       const res = await fetch(`${API_BASE_URL}/jobs`);
       const data = await res.json();
-      if (data.success && data.data?.length) {
-        setLocalData("jobs", data.data);
+      if (data.success && Array.isArray(data.data)) {
         return data.data;
       }
-    } catch {
-      // fallback
+    } catch (err) {
+      console.warn("Jobs fetch fallback:", err);
     }
-    return getLocalData("jobs", fallbackJobs);
+    return fallbackJobs;
   },
 
   create: async (item) => {
-    try {
-      const res = await fetch(`${API_BASE_URL}/jobs`, {
-        method: "POST",
-        headers: getAuthHeaders(),
-        body: JSON.stringify(item)
-      });
-      const data = await res.json();
-      if (data.success) {
-        const current = getLocalData("jobs", fallbackJobs);
-        setLocalData("jobs", [data.data, ...current]);
-        return data.data;
-      }
-    } catch {
-      // fallback
+    const res = await fetch(`${API_BASE_URL}/jobs`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(item)
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.message || "Failed to save job opening to MongoDB");
     }
-    const current = getLocalData("jobs", fallbackJobs);
-    const newItem = { ...item, id: `job-${Date.now()}`, _id: `job-${Date.now()}` };
-    setLocalData("jobs", [newItem, ...current]);
-    return newItem;
+    return data.data;
   },
 
   update: async (id, item) => {
-    try {
-      const res = await fetch(`${API_BASE_URL}/jobs/${id}`, {
-        method: "PUT",
-        headers: getAuthHeaders(),
-        body: JSON.stringify(item)
-      });
-      const data = await res.json();
-      if (data.success) {
-        const current = getLocalData("jobs", fallbackJobs);
-        const updated = current.map((j) => ((j._id === id || j.id === id) ? data.data : j));
-        setLocalData("jobs", updated);
-        return data.data;
-      }
-    } catch {
-      // fallback
+    const res = await fetch(`${API_BASE_URL}/jobs/${id}`, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(item)
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.message || "Failed to update job opening in MongoDB");
     }
-    const current = getLocalData("jobs", fallbackJobs);
-    const updated = current.map((j) => ((j._id === id || j.id === id) ? { ...j, ...item } : j));
-    setLocalData("jobs", updated);
-    return item;
+    return data.data;
   },
 
   delete: async (id) => {
-    try {
-      await fetch(`${API_BASE_URL}/jobs/${id}`, {
-        method: "DELETE",
-        headers: getAuthHeaders()
-      });
-    } catch {
-      // fallback
+    const res = await fetch(`${API_BASE_URL}/jobs/${id}`, {
+      method: "DELETE",
+      headers: getAuthHeaders()
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.message || "Failed to delete job from MongoDB");
     }
-    const current = getLocalData("jobs", fallbackJobs);
-    const filtered = current.filter((j) => j._id !== id && j.id !== id);
-    setLocalData("jobs", filtered);
     return true;
   }
 };
@@ -328,36 +235,16 @@ export const jobsAPI = {
 // ==================== CONTACT / INQUIRIES API ====================
 export const contactAPI = {
   submit: async (formData) => {
-    try {
-      const res = await fetch(`${API_BASE_URL}/contact`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData)
-      });
-      const data = await res.json();
-      if (data.success) return data;
-    } catch {
-      // fallback
+    const res = await fetch(`${API_BASE_URL}/contact`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData)
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.message || "Failed to submit inquiry");
     }
-    const current = getLocalData("enquiries", [
-      {
-        id: "enq-1",
-        name: "David Sterling",
-        email: "david@vertex.ai",
-        company: "Vertex AI",
-        message: "Looking for a high-end SaaS launch video and 3D motion package.",
-        date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
-        status: "New"
-      }
-    ]);
-    const newEnq = {
-      ...formData,
-      id: `enq-${Date.now()}`,
-      date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
-      status: "New"
-    };
-    setLocalData("enquiries", [newEnq, ...current]);
-    return { success: true, message: "Inquiry submitted successfully!" };
+    return data;
   },
 
   getAll: async () => {
@@ -367,55 +254,49 @@ export const contactAPI = {
       });
       const data = await res.json();
       if (data.success && Array.isArray(data.data)) {
-        const formatted = data.data.map((item) => ({
+        return data.data.map((item) => ({
           id: item._id || item.id,
           _id: item._id || item.id,
           name: item.name,
           email: item.email,
+          phone: item.phone || "",
           company: item.company || "",
           message: item.message,
-          date: item.createdAt ? new Date(item.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : (item.date || "Recent"),
+          source: item.source || "Website",
+          date: item.createdAt ? new Date(item.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "Recent",
+          fullDate: item.createdAt ? new Date(item.createdAt).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "Recent",
           status: item.status || (item.isRead ? "Reviewed" : "New"),
           isRead: item.isRead
         }));
-        setLocalData("enquiries", formatted);
-        return formatted;
       }
-    } catch {
-      // fallback
+    } catch (err) {
+      console.warn("Enquiries fetch error:", err);
     }
-    return getLocalData("enquiries", []);
+    return [];
   },
 
-
   updateStatus: async (id, status) => {
-    try {
-      await fetch(`${API_BASE_URL}/contact/${id}`, {
-        method: "PUT",
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ status })
-      });
-    } catch {
-      // fallback
+    const res = await fetch(`${API_BASE_URL}/contact/${id}`, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ status })
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.message || "Failed to update inquiry status");
     }
-    const current = getLocalData("enquiries", []);
-    const updated = current.map((e) => ((e._id === id || e.id === id) ? { ...e, status } : e));
-    setLocalData("enquiries", updated);
-    return true;
+    return data.data;
   },
 
   delete: async (id) => {
-    try {
-      await fetch(`${API_BASE_URL}/contact/${id}`, {
-        method: "DELETE",
-        headers: getAuthHeaders()
-      });
-    } catch {
-      // fallback
+    const res = await fetch(`${API_BASE_URL}/contact/${id}`, {
+      method: "DELETE",
+      headers: getAuthHeaders()
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.message || "Failed to delete inquiry");
     }
-    const current = getLocalData("enquiries", []);
-    const filtered = current.filter((e) => e._id !== id && e.id !== id);
-    setLocalData("enquiries", filtered);
     return true;
   }
 };
@@ -426,7 +307,9 @@ export const servicesAPI = {
     try {
       const res = await fetch(`${API_BASE_URL}/services`);
       const data = await res.json();
-      if (data.success && data.data?.length) return data.data;
+      if (data.success && Array.isArray(data.data) && data.data.length) {
+        return data.data;
+      }
     } catch {
       // fallback
     }
@@ -442,70 +325,48 @@ export const projectsAPI = {
       const res = await fetch(url);
       const data = await res.json();
       if (data.success && Array.isArray(data.data)) {
-        setLocalData(`projects_${category || "all"}`, data.data);
         return data.data;
       }
-    } catch {
-      // fallback
+    } catch (err) {
+      console.warn("Projects fetch error:", err);
     }
-    return getLocalData(`projects_${category || "all"}`, []);
+    return [];
   },
 
   create: async (item) => {
-    try {
-      const res = await fetch(`${API_BASE_URL}/projects`, {
-        method: "POST",
-        headers: getAuthHeaders(),
-        body: JSON.stringify(item)
-      });
-      const data = await res.json();
-      if (data.success) {
-        const all = getLocalData("projects_all", []);
-        setLocalData("projects_all", [data.data, ...all]);
-        if (item.category) {
-          const catList = getLocalData(`projects_${item.category}`, []);
-          setLocalData(`projects_${item.category}`, [data.data, ...catList]);
-        }
-        return data.data;
-      }
-    } catch {
-      // fallback
+    const res = await fetch(`${API_BASE_URL}/projects`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(item)
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.message || "Failed to save video project to MongoDB");
     }
-    const newItem = { ...item, id: `proj-${Date.now()}`, _id: `proj-${Date.now()}`, createdAt: new Date().toISOString() };
-    const all = getLocalData("projects_all", []);
-    setLocalData("projects_all", [newItem, ...all]);
-    if (item.category) {
-      const catList = getLocalData(`projects_${item.category}`, []);
-      setLocalData(`projects_${item.category}`, [newItem, ...catList]);
-    }
-    return newItem;
+    return data.data;
   },
 
   update: async (id, item) => {
-    try {
-      const res = await fetch(`${API_BASE_URL}/projects/${id}`, {
-        method: "PUT",
-        headers: getAuthHeaders(),
-        body: JSON.stringify(item)
-      });
-      const data = await res.json();
-      if (data.success) return data.data;
-    } catch {
-      // fallback
+    const res = await fetch(`${API_BASE_URL}/projects/${id}`, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(item)
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.message || "Failed to update project in MongoDB");
     }
-    return item;
+    return data.data;
   },
 
   delete: async (id) => {
-    try {
-      const res = await fetch(`${API_BASE_URL}/projects/${id}`, {
-        method: "DELETE",
-        headers: getAuthHeaders()
-      });
-      const data = await res.json();
-      if (data.success) return true;
-    } catch {
-      // fallback
+    const res = await fetch(`${API_BASE_URL}/projects/${id}`, {
+      method: "DELETE",
+      headers: getAuthHeaders()
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.message || "Failed to delete project from MongoDB");
     }
     return true;
   }
@@ -514,57 +375,34 @@ export const projectsAPI = {
 // ==================== UPLOAD / CLOUDINARY API ====================
 export const uploadAPI = {
   uploadSingle: async (file) => {
-    try {
-      const formData = new FormData();
-      formData.append("image", file);
-      const token = localStorage.getItem("littroi_token");
-      const res = await fetch(`${API_BASE_URL}/upload/single`, {
-        method: "POST",
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-        body: formData
-      });
-      const data = await res.json();
-      if (data.success && data.url) {
-        return data.url;
-      }
-    } catch {
-      // fallback to data url
-    }
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result);
-      reader.readAsDataURL(file);
+    const formData = new FormData();
+    formData.append("image", file);
+    const token = localStorage.getItem("littroi_token");
+    const res = await fetch(`${API_BASE_URL}/upload/single`, {
+      method: "POST",
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: formData
     });
+    const data = await res.json();
+    if (!res.ok || !data.success || !data.url) {
+      throw new Error(data.message || "Image upload failed");
+    }
+    return data.url;
   },
 
   uploadMultiple: async (files) => {
-    try {
-      const formData = new FormData();
-      Array.from(files).forEach((file) => formData.append("images", file));
-      const token = localStorage.getItem("littroi_token");
-      const res = await fetch(`${API_BASE_URL}/upload/multiple`, {
-        method: "POST",
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-        body: formData
-      });
-      const data = await res.json();
-      if (data.success && Array.isArray(data.urls) && data.urls.length) {
-        return data.urls;
-      }
-    } catch {
-      // fallback
+    const formData = new FormData();
+    Array.from(files).forEach((file) => formData.append("images", file));
+    const token = localStorage.getItem("littroi_token");
+    const res = await fetch(`${API_BASE_URL}/upload/multiple`, {
+      method: "POST",
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: formData
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success || !Array.isArray(data.urls)) {
+      throw new Error(data.message || "Multiple upload failed");
     }
-    const promises = Array.from(files).map(
-      (file) =>
-        new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result);
-          reader.readAsDataURL(file);
-        })
-    );
-    return Promise.all(promises);
+    return data.urls;
   }
 };
-
-
-

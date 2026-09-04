@@ -33,7 +33,11 @@ import {
   PieChart,
   Activity,
   ArrowUpRight,
-  Calendar
+  Calendar,
+  Mail,
+  Phone,
+  Building,
+  MessageSquare
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { SEO } from "../utils/seo";
@@ -56,6 +60,7 @@ export function Admin() {
   const [credentials, setCredentials] = useState({ email: "admin@littroi.com", password: "" });
   const [loginError, setLoginError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   // Dynamic Data Lists
   const [caseStudiesList, setCaseStudiesList] = useState([]);
@@ -129,7 +134,8 @@ export function Admin() {
     salary: "Competitive",
     experience: "2+ Years",
     description: "",
-    requirements: "Adobe Premiere, After Effects, DaVinci Resolve"
+    responsibilities: "",
+    requirements: ""
   });
 
   const showToast = (msg) => {
@@ -137,13 +143,33 @@ export function Admin() {
     setTimeout(() => setToastMessage(""), 3500);
   };
 
-  // Check Existing Session
+  // Check Existing Session — validates token against real server, clears any stale mock tokens
   useEffect(() => {
     const checkSession = async () => {
-      const user = await authAPI.getMe();
-      if (user) {
-        setAdminUser(user);
-        setIsAuthenticated(true);
+      // Clear any stale mock token that can't actually save to DB
+      const token = localStorage.getItem("littroi_token");
+      if (token === "mock_jwt_token_littroi_admin_active") {
+        localStorage.removeItem("littroi_token");
+        localStorage.removeItem("littroi_user");
+        return; // Force re-login with real credentials
+      }
+
+      // Validate the token against the real server
+      try {
+        const res = await fetch("http://localhost:5000/api/auth/me", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (res.ok && data.success && data.user) {
+          setAdminUser(data.user);
+          setIsAuthenticated(true);
+          return;
+        }
+        // Token invalid — clear and force re-login
+        localStorage.removeItem("littroi_token");
+        localStorage.removeItem("littroi_user");
+      } catch {
+        // Server unreachable — check local user just to show UI, but don't set authenticated
       }
     };
     checkSession();
@@ -196,9 +222,15 @@ export function Admin() {
   };
 
   const handleLogout = () => {
+    setShowLogoutConfirm(true);
+  };
+
+  const handleConfirmLogout = () => {
     authAPI.logout();
     setIsAuthenticated(false);
     setAdminUser(null);
+    setShowLogoutConfirm(false);
+    showToast("Logged out successfully");
   };
 
   // ==================== UNIFIED DELETE HANDLER ====================
@@ -454,12 +486,13 @@ export function Admin() {
       setJobForm({
         title: item.title || "",
         department: item.department || "Post-Production",
-        type: item.type || "Full-time",
+        type: item.type || item.employmentType || "Full-time",
         location: item.location || "Bareilly (Studio / Remote)",
         salary: item.salary || "Competitive",
         experience: item.experience || "2+ Years",
-        description: item.description || "",
-        requirements: Array.isArray(item.requirements) ? item.requirements.join(", ") : (item.requirements || "")
+        description: item.description || item.overview || "",
+        responsibilities: Array.isArray(item.responsibilities) ? item.responsibilities.join("\n") : (item.responsibilities || ""),
+        requirements: Array.isArray(item.requirements) ? item.requirements.join("\n") : (item.requirements || "")
       });
     } else {
       setEditingItem(null);
@@ -471,6 +504,7 @@ export function Admin() {
         salary: "Competitive",
         experience: "2+ Years",
         description: "",
+        responsibilities: "",
         requirements: ""
       });
     }
@@ -479,29 +513,72 @@ export function Admin() {
 
   const handleSaveJob = async (e) => {
     e.preventDefault();
+    const requirementsArr = typeof jobForm.requirements === "string" 
+      ? jobForm.requirements.split(/[\n,]/).map((r) => r.trim()).filter(Boolean)
+      : (Array.isArray(jobForm.requirements) ? jobForm.requirements : []);
+
+    const responsibilitiesArr = typeof jobForm.responsibilities === "string"
+      ? jobForm.responsibilities.split(/[\n,]/).map((r) => r.trim()).filter(Boolean)
+      : (Array.isArray(jobForm.responsibilities) ? jobForm.responsibilities : []);
+
     const payload = {
       ...jobForm,
+      overview: jobForm.description || jobForm.overview || "Exciting role at Littroi Media.",
+      description: jobForm.description || jobForm.overview || "Exciting role at Littroi Media.",
+      employmentType: jobForm.type || "Full-time",
+      type: jobForm.type || "Full-time",
       slug: jobForm.title.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
-      requirements: jobForm.requirements.split(",").map((r) => r.trim()).filter(Boolean)
+      responsibilities: responsibilitiesArr,
+      requirements: requirementsArr
     };
 
-    if (editingItem) {
-      await jobsAPI.update(editingItem._id || editingItem.id, payload);
-      showToast("Career opening updated");
-    } else {
-      await jobsAPI.create(payload);
-      showToast("New job vacancy posted");
+    try {
+      if (editingItem) {
+        await jobsAPI.update(editingItem._id || editingItem.id, payload);
+        showToast("Career opening updated ✓");
+      } else {
+        await jobsAPI.create(payload);
+        showToast("New job vacancy posted ✓");
+      }
+      await loadAllData();
+      setModalType(null);
+    } catch (err) {
+      console.error("Job save error:", err);
+      showToast(`❌ Error: ${err.message || "Could not save job. Make sure you are logged in."}`);
     }
-    await loadAllData();
-    setModalType(null);
   };
 
   // ==================== ENQUIRIES ====================
   const handleToggleEnquiryStatus = async (id, currentStatus) => {
     const nextStatus = currentStatus === "New" ? "Reviewed" : (currentStatus === "Reviewed" ? "Contacted" : "New");
-    await contactAPI.updateStatus(id, nextStatus);
-    showToast(`Inquiry marked as ${nextStatus}`);
-    await loadAllData();
+    try {
+      await contactAPI.updateStatus(id, nextStatus);
+      showToast(`Inquiry marked as ${nextStatus}`);
+      if (selectedEnquiry && (selectedEnquiry._id === id || selectedEnquiry.id === id)) {
+        setSelectedEnquiry({ ...selectedEnquiry, status: nextStatus });
+      }
+      await loadAllData();
+    } catch (err) {
+      showToast(`❌ Error: ${err.message}`);
+    }
+  };
+
+  const handleSetEnquiryStatus = async (id, status) => {
+    try {
+      await contactAPI.updateStatus(id, status);
+      showToast(`Inquiry status updated to ${status}`);
+      if (selectedEnquiry && (selectedEnquiry._id === id || selectedEnquiry.id === id)) {
+        setSelectedEnquiry({ ...selectedEnquiry, status });
+      }
+      await loadAllData();
+    } catch (err) {
+      showToast(`❌ Error: ${err.message}`);
+    }
+  };
+
+  const handleViewEnquiry = (enq) => {
+    setSelectedEnquiry(enq);
+    setModalType("viewEnquiry");
   };
 
   // Filtered Lists
@@ -1633,14 +1710,15 @@ export function Admin() {
             {/* ==================== TAB: ENQUIRIES ==================== */}
             {activeTab === "enquiries" && (
               <div className="space-y-6">
-                <div className="flex flex-wrap items-center justify-between gap-4">
-                  <div className="flex items-center gap-2">
-                    {["all", "new", "reviewed", "contacted"].map((st) => (
+                {/* Header Controls & Filter Pills */}
+                <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-[#0e0e0e] border border-white/10">
+                  <div className="flex flex-wrap items-center gap-2">
+                    {["all", "new", "reviewed", "contacted", "archived"].map((st) => (
                       <button
                         key={st}
                         onClick={() => setStatusFilter(st)}
-                        className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer ${
-                          statusFilter === st ? "bg-[#B3FFC9] text-black" : "bg-white/5 text-white/60 hover:text-white"
+                        className={`px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                          statusFilter === st ? "bg-[#B3FFC9] text-black shadow-[0_0_15px_rgba(179,255,201,0.25)]" : "bg-white/5 text-white/60 hover:text-white hover:bg-white/10"
                         }`}
                         style={{ fontFamily: "'Syne', sans-serif" }}
                       >
@@ -1648,53 +1726,150 @@ export function Admin() {
                       </button>
                     ))}
                   </div>
-                  <span className="text-xs text-white/40">{filteredEnquiries.length} total leads</span>
+                  <div className="flex items-center gap-4 text-xs font-mono text-white/50">
+                    <span>Showing <strong className="text-white">{filteredEnquiries.length}</strong> of <strong className="text-white">{enquiriesList.length}</strong> leads</span>
+                  </div>
                 </div>
 
-                <div className="space-y-3">
-                  {filteredEnquiries.map((enq) => (
-                    <div
-                      key={enq.id || enq._id}
-                      className="p-5 rounded-2xl bg-[#0e0e0e] border border-white/10 hover:border-white/20 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
-                    >
-                      <div className="space-y-1 flex-1">
-                        <div className="flex items-center gap-2.5">
-                          <span className="font-bold text-white text-sm" style={{ fontFamily: "'Syne', sans-serif" }}>{enq.name}</span>
-                          <span className="text-xs text-[#B3FFC9]">({enq.company || "Direct"})</span>
-                          <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${
-                            enq.status === "New" ? "bg-[#B3FFC9]/20 text-[#B3FFC9]" : (enq.status === "Reviewed" ? "bg-amber-400/20 text-amber-300" : "bg-blue-400/20 text-blue-300")
-                          }`}>
-                            {enq.status || "New"}
-                          </span>
-                        </div>
-                        <p className="text-xs text-white/60">{enq.message}</p>
-                      </div>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <span className="text-[11px] text-white/40 font-mono mr-2">{enq.date}</span>
-                        <button
-                          onClick={() => handleToggleEnquiryStatus(enq.id || enq._id, enq.status)}
-                          className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-[11px] text-white/80 transition-colors cursor-pointer"
-                        >
-                          Cycle Status
-                        </button>
-                        <a
-                          href={`mailto:${enq.email}?subject=Littroi%20Inquiry%20Response`}
-                          className="p-1.5 rounded-lg bg-[#B3FFC9]/10 text-[#B3FFC9] hover:bg-[#B3FFC9]/20 transition-colors"
-                          title="Reply Email"
-                        >
-                          <Send size={13} />
-                        </a>
-                        <button
-                          onClick={() => setDeleteConfirm({ type: "enquiry", id: enq.id || enq._id, title: `Inquiry from ${enq.name}` })}
-                          className="p-1.5 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
-                          title="Delete Lead"
-                        >
-                          <Trash2 size={13} />
-                        </button>
-                      </div>
+                {/* Empty State */}
+                {filteredEnquiries.length === 0 ? (
+                  <div className="text-center py-20 bg-[#0d0d0d] border border-white/10 rounded-3xl space-y-3">
+                    <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/30 mx-auto">
+                      <Inbox size={26} />
                     </div>
-                  ))}
-                </div>
+                    <p className="text-sm font-bold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>No Inquiries Found</p>
+                    <p className="text-xs text-white/40">Inquiries submitted from your website will appear here in real time.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {filteredEnquiries.map((enq) => {
+                      const enqId = enq.id || enq._id;
+                      const initial = enq.name?.charAt(0)?.toUpperCase() || "L";
+                      return (
+                        <div
+                          key={enqId}
+                          className="p-6 rounded-3xl bg-[#0d0d0d] border border-white/10 hover:border-white/20 transition-all space-y-4 shadow-lg group"
+                        >
+                          {/* Top Row: Lead Overview & Quick Status */}
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-white/5">
+                            <div className="flex items-center gap-3.5">
+                              <div className="w-11 h-11 rounded-2xl bg-[#183626] border border-[#B3FFC9]/30 text-[#B3FFC9] flex items-center justify-center font-black text-sm shrink-0 shadow-[0_0_15px_rgba(179,255,201,0.15)]" style={{ fontFamily: "'Syne', sans-serif" }}>
+                                {initial}
+                              </div>
+                              <div>
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <h4 className="font-bold text-white text-base tracking-tight" style={{ fontFamily: "'Syne', sans-serif" }}>
+                                    {enq.name}
+                                  </h4>
+                                  <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${
+                                    enq.status === "New" ? "bg-[#B3FFC9]/20 text-[#B3FFC9] border border-[#B3FFC9]/30" : 
+                                    (enq.status === "Reviewed" ? "bg-amber-400/20 text-amber-300 border border-amber-400/30" : 
+                                    (enq.status === "Contacted" ? "bg-blue-400/20 text-blue-300 border border-blue-400/30" : "bg-white/10 text-white/50 border border-white/10"))
+                                  }`}>
+                                    {enq.status || "New"}
+                                  </span>
+                                </div>
+                                <p className="text-[11px] font-mono text-white/40 mt-0.5">
+                                  Submitted on: {enq.fullDate || enq.date}
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Status Selector & Quick Action Buttons */}
+                            <div className="flex flex-wrap items-center gap-2">
+                              <select
+                                value={enq.status || "New"}
+                                onChange={(e) => handleSetEnquiryStatus(enqId, e.target.value)}
+                                className="px-3 py-1.5 rounded-xl bg-[#161616] border border-white/15 text-xs text-white focus:border-[#B3FFC9] focus:outline-none cursor-pointer"
+                              >
+                                <option value="New">Status: New</option>
+                                <option value="Reviewed">Status: Reviewed</option>
+                                <option value="Contacted">Status: Contacted</option>
+                                <option value="Archived">Status: Archived</option>
+                              </select>
+
+                              <button
+                                onClick={() => handleViewEnquiry(enq)}
+                                className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/80 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                              >
+                                <Eye size={13} className="text-[#B3FFC9]" />
+                                <span>Details</span>
+                              </button>
+
+                              <a
+                                href={`mailto:${enq.email}?subject=Littroi%20Media%20Strategy%20Inquiry%20Response`}
+                                className="px-3 py-1.5 rounded-xl bg-[#183626] hover:bg-[#B3FFC9] text-[#B3FFC9] hover:text-black text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer"
+                                style={{ fontFamily: "'Syne', sans-serif" }}
+                              >
+                                <Send size={12} />
+                                <span>Reply</span>
+                              </a>
+
+                              <button
+                                onClick={() => setDeleteConfirm({ type: "enquiry", id: enqId, title: `Inquiry from ${enq.name}` })}
+                                className="p-2 rounded-xl text-white/40 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
+                                title="Delete Lead"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Contact Details Grid */}
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                            <div className="flex items-center gap-2.5 p-3 rounded-xl bg-[#131313] border border-white/5">
+                              <Mail size={14} className="text-[#B3FFC9] shrink-0" />
+                              <div className="truncate">
+                                <span className="text-[10px] text-white/40 uppercase font-mono block">Email Address</span>
+                                <a href={`mailto:${enq.email}`} className="text-white hover:text-[#B3FFC9] font-medium truncate block">
+                                  {enq.email}
+                                </a>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2.5 p-3 rounded-xl bg-[#131313] border border-white/5">
+                              <Building size={14} className="text-[#B3FFC9] shrink-0" />
+                              <div className="truncate">
+                                <span className="text-[10px] text-white/40 uppercase font-mono block">Company / URL</span>
+                                <span className="text-white font-medium truncate block">
+                                  {enq.company ? (
+                                    enq.company.startsWith("http") ? (
+                                      <a href={enq.company} target="_blank" rel="noopener noreferrer" className="hover:text-[#B3FFC9] flex items-center gap-1">
+                                        <span>{enq.company}</span>
+                                        <ExternalLink size={10} />
+                                      </a>
+                                    ) : enq.company
+                                  ) : "Direct Client / Individual"}
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2.5 p-3 rounded-xl bg-[#131313] border border-white/5">
+                              <Phone size={14} className="text-[#B3FFC9] shrink-0" />
+                              <div className="truncate">
+                                <span className="text-[10px] text-white/40 uppercase font-mono block">Phone / Source</span>
+                                <span className="text-white font-medium truncate block">
+                                  {enq.phone ? enq.phone : (enq.source ? `Source: ${enq.source}` : "Website Form")}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Message Body */}
+                          <div className="p-4 rounded-2xl bg-[#141414] border border-white/5 space-y-1.5">
+                            <span className="text-[10px] font-mono uppercase text-white/40 tracking-wider flex items-center gap-1.5">
+                              <MessageSquare size={12} className="text-[#B3FFC9]" />
+                              Client Message / Project Scope
+                            </span>
+                            <p className="text-xs sm:text-sm text-white/80 leading-relaxed whitespace-pre-wrap">
+                              {enq.message}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             )}
 
@@ -2357,7 +2532,7 @@ export function Admin() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-white/60">Location</label>
                     <input
@@ -2365,6 +2540,16 @@ export function Admin() {
                       value={jobForm.location}
                       onChange={(e) => setJobForm({ ...jobForm, location: e.target.value })}
                       placeholder="Bareilly / Remote"
+                      className="w-full px-4 py-3 rounded-xl bg-[#161616] border border-white/10 text-white text-sm focus:border-[#B3FFC9] focus:outline-none"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-white/60">Experience</label>
+                    <input
+                      type="text"
+                      value={jobForm.experience}
+                      onChange={(e) => setJobForm({ ...jobForm, experience: e.target.value })}
+                      placeholder="2+ Years"
                       className="w-full px-4 py-3 rounded-xl bg-[#161616] border border-white/10 text-white text-sm focus:border-[#B3FFC9] focus:outline-none"
                     />
                   </div>
@@ -2385,10 +2570,32 @@ export function Admin() {
                   <textarea
                     value={jobForm.description}
                     onChange={(e) => setJobForm({ ...jobForm, description: e.target.value })}
-                    rows={4}
-                    placeholder="Role responsibilities and expectations..."
+                    rows={3}
+                    placeholder="Overview of the position and role expectations..."
                     className="w-full px-4 py-3 rounded-xl bg-[#161616] border border-white/10 text-white text-xs focus:border-[#B3FFC9] focus:outline-none"
                     required
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-white/60">Key Responsibilities (One per line)</label>
+                  <textarea
+                    value={jobForm.responsibilities}
+                    onChange={(e) => setJobForm({ ...jobForm, responsibilities: e.target.value })}
+                    rows={3}
+                    placeholder="e.g.&#10;Edit high-retention short-form videos&#10;Collaborate with creative directors&#10;Audio mastering and color grading"
+                    className="w-full px-4 py-3 rounded-xl bg-[#161616] border border-white/10 text-white text-xs focus:border-[#B3FFC9] focus:outline-none font-mono"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-white/60">Requirements &amp; Skills (One per line)</label>
+                  <textarea
+                    value={jobForm.requirements}
+                    onChange={(e) => setJobForm({ ...jobForm, requirements: e.target.value })}
+                    rows={3}
+                    placeholder="e.g.&#10;2+ years Premiere Pro & After Effects&#10;Deep understanding of social media hooks&#10;Fast turnaround and attention to detail"
+                    className="w-full px-4 py-3 rounded-xl bg-[#161616] border border-white/10 text-white text-xs focus:border-[#B3FFC9] focus:outline-none font-mono"
                   />
                 </div>
 
@@ -2423,6 +2630,180 @@ export function Admin() {
                   allowFullScreen
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ==================== MODAL: VIEW ENQUIRY DETAILS ==================== */}
+        {modalType === "viewEnquiry" && selectedEnquiry && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
+            <div className="max-w-2xl w-full bg-[#0d0d0d] border border-white/15 rounded-[28px] p-6 sm:p-8 space-y-6 max-h-[90vh] overflow-y-auto relative shadow-2xl">
+              <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-[#183626] border border-[#B3FFC9]/30 text-[#B3FFC9] flex items-center justify-center font-black text-sm">
+                    {selectedEnquiry.name?.charAt(0)?.toUpperCase() || "L"}
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white tracking-tight" style={{ fontFamily: "'Syne', sans-serif" }}>
+                      {selectedEnquiry.name}
+                    </h3>
+                    <span className="text-xs text-white/40 font-mono">
+                      Lead ID: {selectedEnquiry.id || selectedEnquiry._id}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setModalType(null)}
+                  className="text-white/50 hover:text-white p-1 cursor-pointer"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* Status and Timestamp Bar */}
+              <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-2xl bg-[#141414] border border-white/5">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-white/50 font-mono">Status:</span>
+                  <select
+                    value={selectedEnquiry.status || "New"}
+                    onChange={(e) => handleSetEnquiryStatus(selectedEnquiry.id || selectedEnquiry._id, e.target.value)}
+                    className="px-3 py-1 rounded-xl bg-[#1a1a1a] border border-white/15 text-xs font-bold text-white focus:border-[#B3FFC9] focus:outline-none cursor-pointer"
+                  >
+                    <option value="New">🟢 New</option>
+                    <option value="Reviewed">🟡 Reviewed</option>
+                    <option value="Contacted">🔵 Contacted</option>
+                    <option value="Archived">⚪ Archived</option>
+                  </select>
+                </div>
+                <div className="text-xs font-mono text-white/40 flex items-center gap-1.5">
+                  <Calendar size={13} className="text-[#B3FFC9]" />
+                  <span>{selectedEnquiry.fullDate || selectedEnquiry.date}</span>
+                </div>
+              </div>
+
+              {/* Detail Fields 2-Column Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="p-4 rounded-2xl bg-[#121212] border border-white/5 space-y-1">
+                  <span className="text-[10px] uppercase font-mono text-white/40 block">Email Address</span>
+                  <div className="flex items-center justify-between gap-2">
+                    <a href={`mailto:${selectedEnquiry.email}`} className="text-sm font-semibold text-white hover:text-[#B3FFC9] truncate">
+                      {selectedEnquiry.email}
+                    </a>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-[#121212] border border-white/5 space-y-1">
+                  <span className="text-[10px] uppercase font-mono text-white/40 block">Company / Project URL</span>
+                  <div className="text-sm font-semibold text-white truncate">
+                    {selectedEnquiry.company ? (
+                      selectedEnquiry.company.startsWith("http") ? (
+                        <a href={selectedEnquiry.company} target="_blank" rel="noopener noreferrer" className="hover:text-[#B3FFC9] flex items-center gap-1.5">
+                          <span className="truncate">{selectedEnquiry.company}</span>
+                          <ExternalLink size={12} className="shrink-0" />
+                        </a>
+                      ) : selectedEnquiry.company
+                    ) : "Direct Client / Individual"}
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-[#121212] border border-white/5 space-y-1">
+                  <span className="text-[10px] uppercase font-mono text-white/40 block">Phone Number</span>
+                  <div className="text-sm font-semibold text-white">
+                    {selectedEnquiry.phone ? (
+                      <a href={`tel:${selectedEnquiry.phone}`} className="hover:text-[#B3FFC9]">
+                        {selectedEnquiry.phone}
+                      </a>
+                    ) : "Not Provided"}
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-[#121212] border border-white/5 space-y-1">
+                  <span className="text-[10px] uppercase font-mono text-white/40 block">Lead Source</span>
+                  <div className="text-sm font-semibold text-white">
+                    {selectedEnquiry.source || "Website Contact Form"}
+                  </div>
+                </div>
+              </div>
+
+              {/* Full Message Section */}
+              <div className="space-y-2">
+                <span className="text-xs font-bold text-white/70 uppercase tracking-wider flex items-center gap-1.5 font-mono">
+                  <MessageSquare size={13} className="text-[#B3FFC9]" />
+                  Full Client Message &amp; Requirements
+                </span>
+                <div className="p-5 rounded-2xl bg-[#141414] border border-white/10 text-white/90 text-sm leading-relaxed whitespace-pre-wrap">
+                  {selectedEnquiry.message}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-white/10">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setModalType(null);
+                    setDeleteConfirm({ type: "enquiry", id: selectedEnquiry.id || selectedEnquiry._id, title: `Inquiry from ${selectedEnquiry.name}` });
+                  }}
+                  className="px-4 py-2.5 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5"
+                >
+                  <Trash2 size={13} />
+                  <span>Delete Inquiry</span>
+                </button>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setModalType(null)}
+                    className="px-5 py-2.5 rounded-full text-xs font-bold text-white/60 hover:text-white bg-white/5 hover:bg-white/10 cursor-pointer transition-colors"
+                  >
+                    Close
+                  </button>
+                  <a
+                    href={`mailto:${selectedEnquiry.email}?subject=Response%20to%20your%20Littroi%20Inquiry`}
+                    className="px-6 py-2.5 rounded-full bg-[#B3FFC9] hover:bg-[#9effba] text-black font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-[0_0_20px_rgba(179,255,201,0.2)]"
+                    style={{ fontFamily: "'Syne', sans-serif" }}
+                  >
+                    <Send size={13} />
+                    <span>Send Reply Email</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ==================== MODAL: LOGOUT CONFIRMATION ==================== */}
+        {showLogoutConfirm && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
+            <div className="max-w-md w-full bg-[#0d0d0d] border border-white/15 rounded-[28px] p-6 sm:p-8 space-y-6 relative shadow-2xl text-center">
+              <div className="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center mx-auto shadow-lg">
+                <LogOut size={26} />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-xl font-bold text-white tracking-tight" style={{ fontFamily: "'Syne', sans-serif" }}>
+                  Log Out of Admin Console?
+                </h3>
+                <p className="text-xs text-white/50 leading-relaxed">
+                  Your active session and authorization token will be cleared. You will need to enter your admin credentials to access the studio again.
+                </p>
+              </div>
+              <div className="flex items-center justify-center gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowLogoutConfirm(false)}
+                  className="px-5 py-2.5 rounded-full text-xs font-bold text-white/60 hover:text-white bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmLogout}
+                  className="px-6 py-2.5 rounded-full bg-red-500 hover:bg-red-600 text-white font-bold text-xs uppercase tracking-wider transition-all cursor-pointer shadow-[0_0_20px_rgba(239,68,68,0.3)]"
+                  style={{ fontFamily: "'Syne', sans-serif" }}
+                >
+                  Confirm Log Out
+                </button>
               </div>
             </div>
           </div>
