@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import { Search, ArrowUpRight, Plus, ChevronDown } from "lucide-react";
 import { SEO } from "../utils/seo";
 import { FadeIn } from "../components/animations/FadeIn";
@@ -111,16 +112,28 @@ export function Blog() {
         {/* ==================== PAGE HEADER HERO ==================== */}
         <section className="pt-32 sm:pt-40 pb-16 px-6 sm:px-10 lg:px-16 max-w-[1400px] w-full mx-auto">
           {/* Eyebrow */}
-          <div className="flex items-center gap-2 mb-6">
-            <span className="w-5 h-[2px] bg-[#B3FFC9]" />
-            <span className="text-xs font-mono tracking-[0.2em] uppercase text-white font-bold">
-              BLOG
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="mb-6 sm:mb-8"
+          >
+            <span
+              className="text-xs sm:text-[13px] font-bold tracking-[0.16em] uppercase text-white hover:text-[#B3FFC9] transition-colors duration-300 cursor-pointer select-none inline-block"
+              style={{ fontFamily: "'Syne', sans-serif" }}
+            >
+              — BLOG &amp; INSIGHTS
             </span>
-          </div>
+          </motion.div>
 
           {/* Title and Subtitle Row */}
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 sm:gap-12">
-            <div className="flex-1">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.9, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+              className="flex-1"
+            >
               <h1
                 className="text-white tracking-[0.4px] m-0 whitespace-normal sm:whitespace-nowrap"
                 style={{
@@ -134,9 +147,14 @@ export function Blog() {
                 Ideas that<br />
                 <span style={{ color: "#B3FFC9", fontStyle: "italic" }}> move</span> markets.
               </h1>
-            </div>
+            </motion.div>
 
-            <div className="shrink-0 text-left lg:text-right pb-1">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.9, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              className="shrink-0 text-left lg:text-right pb-1"
+            >
               <p
                 className="m-0"
                 style={{
@@ -152,7 +170,7 @@ export function Blog() {
                 no gatekeeping. Just what <br className="hidden sm:inline" />
                 actually works.
               </p>
-            </div>
+            </motion.div>
           </div>
         </section>
 

@@ -1,41 +1,102 @@
 import React, { useEffect, useState, useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import { motion } from "framer-motion";
 import { SEO } from "../utils/seo";
 
-// Animated counter component for Proven Results
-function AnimatedCounter({ toValue, duration = 2000, suffix = "" }) {
+// Animated counter card component for Proven Results with reload and scroll animation
+function StatCounterCard({ label, value, suffix, delay = 0 }) {
   const [count, setCount] = useState(0);
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-40px" });
+  const cardRef = useRef(null);
 
   useEffect(() => {
-    if (!inView) return;
-    let startTimestamp = null;
-    const target = parseInt(toValue, 10);
+    const el = cardRef.current;
+    if (!el) return;
 
-    const step = (timestamp) => {
-      if (!startTimestamp) startTimestamp = timestamp;
-      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-      // Ease out cubic
-      const easeOut = 1 - Math.pow(1 - progress, 3);
-      setCount(Math.floor(easeOut * target));
-      if (progress < 1) {
-        window.requestAnimationFrame(step);
-      } else {
-        setCount(target);
-      }
+    let frameId;
+    let startTimestamp = null;
+    let timeoutId = null;
+    const duration = 1800;
+    const target = parseInt(value, 10);
+
+    const runCountAnimation = () => {
+      setCount(0);
+      startTimestamp = null;
+      if (frameId) window.cancelAnimationFrame(frameId);
+      if (timeoutId) clearTimeout(timeoutId);
+
+      const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        // Smooth ease-out cubic curve
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        const current = Math.floor(easeOut * target);
+        setCount(current);
+        if (progress < 1) {
+          frameId = window.requestAnimationFrame(step);
+        } else {
+          setCount(target); // Stop cleanly when target reached
+        }
+      };
+
+      timeoutId = setTimeout(() => {
+        frameId = window.requestAnimationFrame(step);
+      }, delay * 1000);
     };
 
-    window.requestAnimationFrame(step);
-  }, [inView, toValue, duration]);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            runCountAnimation();
+          } else {
+            // Reset to 0 when out of view so re-entry replays
+            setCount(0);
+          }
+        });
+      },
+      { threshold: 0.15 }
+    );
+
+    observer.observe(el);
+
+    return () => {
+      observer.disconnect();
+      if (timeoutId) clearTimeout(timeoutId);
+      if (frameId) window.cancelAnimationFrame(frameId);
+    };
+  }, [value, delay]);
 
   return (
-    <span ref={ref} className="elementor-counter-number">
-      {count}
-      <span className="elementor-counter-number-suffix" style={{ color: "#B3FFC9" }}>
-        {suffix}
-      </span>
-    </span>
+    <motion.div
+      ref={cardRef}
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: false, margin: "-40px" }}
+      transition={{ duration: 1.1, delay, ease: [0.16, 1, 0.3, 1] }}
+      className="elementor-counter p-6 sm:p-8 rounded-2xl bg-[#0c0c0c] border border-white/10 flex flex-col justify-between"
+    >
+      <div
+        className="elementor-counter-title text-white/60 text-xs sm:text-sm font-semibold uppercase tracking-wider mb-4"
+        style={{ fontFamily: "'Syne', sans-serif" }}
+      >
+        {label}
+      </div>
+      <div
+        className="elementor-counter-number-wrapper text-white font-extrabold tracking-tight"
+        style={{
+          fontFamily: "'Syne', sans-serif",
+          fontSize: "clamp(36px, 4.5vw, 64px)",
+          fontWeight: 800,
+          lineHeight: 1,
+        }}
+      >
+        <span className="elementor-counter-number inline-flex items-baseline">
+          <span>{count}</span>
+          <span className="elementor-counter-number-suffix ml-0.5" style={{ color: "#B3FFC9" }}>
+            {suffix}
+          </span>
+        </span>
+      </div>
+    </motion.div>
   );
 }
 
@@ -51,47 +112,47 @@ export function About() {
     {
       name: "Harpreet Singh",
       role: "COO",
-      image: "https://littroi.com/wp-content/uploads/2026/06/Harpreet-Singh-COO-scaled.png",
+      image: "https://res.cloudinary.com/eikgki2a/image/upload/v1788583462/Harpreet-Singh-COO-scaled_1.png",
     },
     {
       name: "Nishant Nair",
       role: "Media & Sales Manager",
-      image: "https://littroi.com/wp-content/uploads/2026/06/Nishant-Nair-Media-Sales-Manager-scaled.png",
+      image: "https://res.cloudinary.com/eikgki2a/image/upload/v1788583675/Nishant-Nair-Media-Sales-Manager-scaled.png",
     },
     {
       name: "Snehdeep Kaur",
       role: "Sales Executive",
-      image: "https://littroi.com/wp-content/uploads/2026/06/Snehdeep-Kaur-Sales-Executive-scaled.png",
+      image: "https://res.cloudinary.com/eikgki2a/image/upload/v1788583724/Snehdeep-Kaur-Sales-Executive-scaled.png",
     },
     {
       name: "Mansi",
       role: "Creative Designer",
-      image: "https://littroi.com/wp-content/uploads/2026/06/Mansi-Saxena-Creative-Designer-scaled.png",
+      image: "https://res.cloudinary.com/eikgki2a/image/upload/v1788583570/Mansi-Saxena-Creative-Designer-scaled.png",
     },
     {
       name: "Ankit Kumar",
       role: "Video Editor",
-      image: "https://littroi.com/wp-content/uploads/2026/06/Ankit-Kumar-Video-Editor-scaled.png",
+      image: "https://res.cloudinary.com/eikgki2a/image/upload/v1788583261/Ankit-Kumar-Video-Editor-scaled.png",
     },
     {
       name: "Akshar Pahari",
       role: "Video Editor",
-      image: "https://littroi.com/wp-content/uploads/2026/06/Akshar-Pahari-Video-Editor-scaled.png",
+      image: "https://res.cloudinary.com/eikgki2a/image/upload/v1788583196/Akshar-Pahari-Video-Editor-scaled.png",
     },
     {
       name: "Arun Rawat",
       role: "Video Editor",
-      image: "https://littroi.com/wp-content/uploads/2026/06/Arun-Rawat-Video-Editor-scaled.png",
+      image: "https://res.cloudinary.com/eikgki2a/image/upload/v1788583342/Arun-Rawat-Video-Editor-scaled_1.png",
     },
     {
       name: "Nirdesh Kumar",
       role: "Video Editor",
-      image: "https://littroi.com/wp-content/uploads/2026/06/Nirdesh-Kumar-Video-Editor-scaled.png",
+      image: "https://res.cloudinary.com/eikgki2a/image/upload/v1788583624/Nirdesh-Kumar-Video-Editor-scaled.png",
     },
     {
       name: "Vasu Kumar",
       role: "Video Editor",
-      image: "https://littroi.com/wp-content/uploads/2026/06/Vasu-Verma-Video-Editor-scaled.png",
+      image: "https://res.cloudinary.com/eikgki2a/image/upload/v1788583781/Vasu-Verma-Video-Editor-scaled.png",
     },
   ];
 
@@ -112,51 +173,72 @@ export function About() {
 
       <div className="bg-black text-white min-h-screen select-none overflow-hidden">
         {/* 1. Page Header (elementor-element-ed9e992) */}
-        <section className="pt-32 sm:pt-44 pb-14 sm:pb-20 max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-14">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 sm:gap-14">
-            {/* Left: Huge "About Us" with smooth bottom-to-top transition */}
-            <motion.div
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1.2, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-              className="shrink-0"
+        <section className="pt-32 sm:pt-44 pb-12 sm:pb-16 max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-16">
+          {/* Eyebrow */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="mb-6 sm:mb-8"
+          >
+            <span
+              className="text-xs sm:text-[13px] font-bold tracking-[0.16em] uppercase text-white hover:text-[#B3FFC9] transition-colors duration-300 cursor-pointer select-none inline-block"
+              style={{ fontFamily: "'Syne', sans-serif" }}
             >
-              <h1
+              — ABOUT US
+            </span>
+          </motion.div>
+
+          <div className="elementor-element elementor-element-ed9e992 flex flex-col md:flex-row md:items-center justify-between gap-8 sm:gap-14">
+            {/* Left: About Us Heading (elementor-element-cbfa4ce) */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+              className="elementor-element elementor-element-cbfa4ce shrink-0"
+            >
+              <h2
                 className="elementor-heading-title elementor-size-default m-0 text-white tracking-tight"
                 style={{
-                  fontFamily: "'Syne', sans-serif",
-                  fontSize: "clamp(48px, 6.8vw, 88px)",
-                  fontWeight: 800,
-                  lineHeight: 1.05,
+                  fontFamily: "'benzine', 'Benzin', sans-serif",
+                  fontSize: "clamp(34px, 4.4vw, 56px)",
+                  fontWeight: 900,
+                  lineHeight: 1.1,
                 }}
               >
                 About <span style={{ color: "#B3FFC9" }}>Us</span>
-              </h1>
+              </h2>
             </motion.div>
 
-            {/* Right: Subtitle paragraph with smooth bottom-to-top transition */}
+            {/* Right: Subtitle paragraph (elementor-element-cb57ad8) */}
             <motion.div
-              initial={{ opacity: 0, y: 50 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1.2, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-              className="max-w-[560px]"
+              transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="elementor-element elementor-element-cb57ad8 w-full max-w-[680px]"
             >
-              <p
-                className="text-white/70 text-sm sm:text-base leading-relaxed m-0"
-                style={{
-                  fontFamily: "'Syne', sans-serif",
-                  fontWeight: 400,
-                  lineHeight: 1.6,
-                }}
-              >
-                A media and brand studio built for the era of attention scarcity — where every word, frame, and idea earns its place.A media and brand studio built for the era of attention scarcity — where every word, frame, and idea earns its place.
-              </p>
+              <div className="page-header">
+                <p
+                  className="sec-sub fade in m-0"
+                  style={{
+                    fontFamily: "'benzine', 'Benzin', sans-serif",
+                    fontSize: "13px",
+                    fontWeight: 200,
+                    lineHeight: "22px",
+                    color: "#FFFFFF94",
+                  }}
+                >
+                  A media and brand studio built for the era of attention scarcity — where every word,<br className="hidden md:block" />
+                  frame, and idea earns its place.A media and brand studio built for the era of attention<br className="hidden md:block" />
+                  scarcity — where every word, frame, and idea earns its place.
+                </p>
+              </div>
             </motion.div>
           </div>
         </section>
 
         {/* 2. Team Picture Banner (elementor-element-6b06f57) */}
-        <section className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-14 mb-24 sm:mb-32">
+        <section className="max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-16 mb-28 sm:mb-40">
           <motion.div
             initial={{ opacity: 0, scale: 0.97 }}
             whileInView={{ opacity: 1, scale: 1 }}
@@ -169,7 +251,7 @@ export function About() {
               decoding="async"
               width={2560}
               height={1588}
-              src="https://littroi.com/wp-content/uploads/2026/06/Team-Picture-scaled.png"
+              src="https://res.cloudinary.com/eikgki2a/image/upload/v1788583870/Team-Picture-scaled.png"
               alt="Littroi Team"
               className="w-full h-auto object-cover block"
               onError={(e) => {
@@ -180,7 +262,7 @@ export function About() {
         </section>
 
         {/* 3. Our Belief Section (elementor-element-d74a0bf & e4f0fdc) */}
-        <section className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-14 mb-28 sm:mb-36">
+        <section className="max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-16 mb-28 sm:mb-40">
           <div className="flex flex-col space-y-16 sm:space-y-20">
             {/* Top Belief Statement */}
             <div className="space-y-6 max-w-[1340px]">
@@ -282,7 +364,7 @@ export function About() {
         </section>
 
         {/* 4. Our Proven Result Section (elementor-element-7363700 & 242664f) */}
-        <section className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-14 mb-28 sm:mb-36">
+        <section className="max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-16 mb-28 sm:mb-40">
           <motion.div {...smoothFadeInUp} className="mb-12">
             <h2
               className="elementor-heading-title elementor-size-default m-0 text-white font-extrabold"
@@ -299,38 +381,19 @@ export function About() {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
             {stats.map((stat) => (
-              <motion.div
+              <StatCounterCard
                 key={stat.label}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 1.1, delay: stat.delay, ease: [0.16, 1, 0.3, 1] }}
-                className="elementor-counter p-6 sm:p-8 rounded-2xl bg-[#0c0c0c] border border-white/10 flex flex-col justify-between"
-              >
-                <div
-                  className="elementor-counter-title text-white/60 text-xs sm:text-sm font-semibold uppercase tracking-wider mb-4"
-                  style={{ fontFamily: "'Syne', sans-serif" }}
-                >
-                  {stat.label}
-                </div>
-                <div
-                  className="elementor-counter-number-wrapper text-white font-extrabold tracking-tight"
-                  style={{
-                    fontFamily: "'Syne', sans-serif",
-                    fontSize: "clamp(36px, 4.5vw, 64px)",
-                    fontWeight: 800,
-                    lineHeight: 1,
-                  }}
-                >
-                  <AnimatedCounter toValue={stat.value} suffix={stat.suffix} />
-                </div>
-              </motion.div>
+                label={stat.label}
+                value={stat.value}
+                suffix={stat.suffix}
+                delay={stat.delay}
+              />
             ))}
           </div>
         </section>
 
         {/* 5. Our Founder Section (elementor-element-56ff36b) */}
-        <section className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-14 mb-28 sm:mb-36">
+        <section className="max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-16 mb-28 sm:mb-40">
           <motion.div {...smoothFadeInUp} className="mb-12">
             <h2
               className="elementor-heading-title elementor-size-default m-0 font-extrabold"
@@ -356,11 +419,11 @@ export function About() {
               className="lg:col-span-5 rounded-2xl overflow-hidden border border-white/10 bg-[#0d0d0d]"
             >
               <img
-                src="https://littroi.com/wp-content/uploads/2026/06/Vishal-Singh-Mahar-Founder-scaled.png"
+                src="https://res.cloudinary.com/eikgki2a/image/upload/v1788583992/Vishal-Singh-Mahar-Founder-scaled.png"
                 alt="Vishal Singh Mahar"
                 className="w-full h-auto object-cover block"
                 onError={(e) => {
-                  e.target.src = "https://littroi.com/wp-content/uploads/2026/06/Vishal-Singh-Mahar-Founder-685x1024.png";
+                  e.target.src = "https://res.cloudinary.com/eikgki2a/image/upload/v1788584201/Vishal-Singh-Mahar-Founder-685x1024_1.png";
                 }}
               />
             </motion.div>
@@ -444,7 +507,7 @@ export function About() {
         </section>
 
         {/* 6. Team Grid Section (elementor-element-c92ad94) */}
-        <section className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-14 mb-28 sm:mb-36">
+        <section className="max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-16 mb-28 sm:mb-40">
           <motion.div {...smoothFadeInUp} className="mb-12">
             <h2
               className="elementor-heading-title elementor-size-default m-0 font-extrabold"
@@ -496,7 +559,7 @@ export function About() {
         </section>
 
         {/* 7. Bottom CTA Section (elementor-element-743a65f) */}
-        <section className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-14 pb-24 sm:pb-32 text-center">
+        <section className="max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-16 pb-28 sm:pb-40 text-center">
           <motion.div
             {...smoothFadeInUp}
             className="p-10 sm:p-20 rounded-3xl bg-[#080808] border border-white/10 flex flex-col items-center justify-center space-y-8 shadow-2xl relative overflow-hidden"

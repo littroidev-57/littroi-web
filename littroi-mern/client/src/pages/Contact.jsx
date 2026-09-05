@@ -1,7 +1,7 @@
 import React, { useState } from "react";
+import { motion } from "framer-motion";
 import { Mail, MapPin, Clock, ArrowUpRight, Send, CheckCircle2, Phone } from "lucide-react";
 import { SEO } from "../utils/seo";
-import { PageHero } from "../sections/shared/PageHero";
 import { FadeIn } from "../components/animations/FadeIn";
 import { Button } from "../components/ui/Button";
 import { SITE_CONFIG } from "../utils/constants";
@@ -32,25 +32,85 @@ export function Contact() {
     }
   };
 
-
   return (
     <>
       <SEO
-        title="Contact Us"
-        description="Book a 30-minute creative strategy call with Littroi or send an inquiry to our production team in Bareilly, India."
+        title="Contact us"
+        description="Tell us about your project and we’ll get back to you within 24 hours. Or just book a call directly."
         canonical="/contact-us"
       />
 
-      <div className="flex flex-col">
-        <PageHero
-          tag="Let's Connect"
-          title="Schedule Your Strategy Call"
-          subtitle="Select a convenient time directly on our calendar below to discuss your brand's video and media objectives."
-        />
+      <div className="bg-black text-white min-h-screen select-none overflow-hidden">
+        {/* Contact Page Header (elementor-element-01c0f77) */}
+        <section className="pt-32 sm:pt-44 pb-12 sm:pb-16 max-w-[1400px] w-full mx-auto px-6 sm:px-10 lg:px-16">
+          {/* Eyebrow */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="mb-6 sm:mb-8"
+          >
+            <span
+              className="text-xs sm:text-[13px] font-bold tracking-[0.16em] uppercase text-white hover:text-[#B3FFC9] transition-colors duration-300 cursor-pointer select-none inline-block"
+              style={{ fontFamily: "'Syne', sans-serif" }}
+            >
+              — CONTACT
+            </span>
+          </motion.div>
+
+          <div className="elementor-element elementor-element-01c0f77">
+            <div className="elementor-element elementor-element-fb84f66 flex flex-col md:flex-row md:items-end justify-between gap-8 sm:gap-14">
+              {/* Left: Heading (elementor-element-8a8d6d7) */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+                className="elementor-element elementor-element-8a8d6d7 shrink-0"
+              >
+                <h1
+                  className="elementor-heading-title elementor-size-default m-0 text-white"
+                  style={{
+                    fontFamily: "'Syne', sans-serif",
+                    fontSize: "clamp(32px, 4vw, 52px)",
+                    fontWeight: 800,
+                    lineHeight: 1.05,
+                    letterSpacing: "-0.03em",
+                  }}
+                >
+                  Let's Work<br />
+                  <span style={{ color: "#B3FFC9" }}>Together</span>
+                </h1>
+              </motion.div>
+
+              {/* Right: Subtitle paragraph (elementor-element-170e791) */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                className="elementor-element elementor-element-170e791 w-full max-w-[480px] md:pb-2"
+              >
+                <div className="page-header">
+                  <p
+                    className="sec-sub fade in m-0"
+                    style={{
+                      fontFamily: "'benzine', 'Benzin', sans-serif",
+                      fontSize: "13px",
+                      fontWeight: 200,
+                      lineHeight: "22px",
+                      color: "#FFFFFF94",
+                    }}
+                  >
+                    Tell us about your project and we’ll get back to you within 24<br className="hidden sm:inline" /> hours. Or just book a call directly.
+                  </p>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </section>
 
         {/* Main Calendly & Contact Container */}
-        <section className="py-16 sm:py-24 bg-brand-bg relative">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+        <section className="pb-24 sm:pb-32 bg-black relative">
+          <div className="max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-16 space-y-16">
             
             {/* Direct Calendly Embed Experience */}
             <FadeIn>
@@ -74,7 +134,7 @@ export function Contact() {
                 {/* Embedded Responsive Calendly iFrame */}
                 <div className="w-full min-h-[700px] sm:min-h-[750px] rounded-2xl overflow-hidden bg-brand-surface border border-white/5">
                   <iframe
-                    src={`${SITE_CONFIG.calendlyUrl}?embed_domain=${window.location.hostname}&embed_type=Inline&background_color=0f1117&text_color=f8fafc&primary_color=046bd2`}
+                    src={`${SITE_CONFIG.calendlyUrl}?embed_domain=${window.location.hostname}&embed_type=Inline&background_color=000000&text_color=ffffff&primary_color=b3ffc9`}
                     width="100%"
                     height="750"
                     frameBorder="0"

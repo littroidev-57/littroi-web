@@ -2659,7 +2659,7 @@ export function Admin() {
                       required
                       value={testimonialForm.name}
                       onChange={(e) => setTestimonialForm({ ...testimonialForm, name: e.target.value })}
-                      placeholder="e.g. Marc Babin"
+                      placeholder="Enter client name..."
                       className="w-full px-4 py-2.5 rounded-xl bg-[#161616] border border-white/10 text-white text-xs focus:border-[#B3FFC9] focus:outline-none"
                     />
                   </div>
@@ -2671,7 +2671,7 @@ export function Admin() {
                       required
                       value={testimonialForm.role}
                       onChange={(e) => setTestimonialForm({ ...testimonialForm, role: e.target.value })}
-                      placeholder="e.g. Founder of The Podcast Blueprint"
+                      placeholder="e.g. Founder / Creator / CEO..."
                       className="w-full px-4 py-2.5 rounded-xl bg-[#161616] border border-white/10 text-white text-xs focus:border-[#B3FFC9] focus:outline-none"
                     />
                   </div>
@@ -2684,7 +2684,7 @@ export function Admin() {
                       type="text"
                       value={testimonialForm.company}
                       onChange={(e) => setTestimonialForm({ ...testimonialForm, company: e.target.value })}
-                      placeholder="e.g. The Podcast Blueprint"
+                      placeholder="Company or Brand name..."
                       className="w-full px-4 py-2.5 rounded-xl bg-[#161616] border border-white/10 text-white text-xs focus:border-[#B3FFC9] focus:outline-none"
                     />
                   </div>
@@ -2695,7 +2695,7 @@ export function Admin() {
                       type="number"
                       value={testimonialForm.order}
                       onChange={(e) => setTestimonialForm({ ...testimonialForm, order: Number(e.target.value) })}
-                      placeholder="0, 1, 2..."
+                      placeholder="0"
                       className="w-full px-4 py-2.5 rounded-xl bg-[#161616] border border-white/10 text-white text-xs focus:border-[#B3FFC9] focus:outline-none"
                     />
                   </div>
@@ -2718,7 +2718,7 @@ export function Admin() {
                             videoId: match ? match[1] : url
                           });
                         }}
-                        placeholder="e.g. https://www.youtube.com/watch?v=FApmJphhF9Y"
+                        placeholder="https://www.youtube.com/watch?v=..."
                         className="w-full pl-4 pr-10 py-2.5 rounded-xl bg-[#1c1c1c] border border-white/10 text-white text-xs focus:border-[#B3FFC9] focus:outline-none"
                       />
                       <Video size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/40" />
@@ -2821,7 +2821,7 @@ export function Admin() {
                     rows={4}
                     value={testimonialForm.quote}
                     onChange={(e) => setTestimonialForm({ ...testimonialForm, quote: e.target.value })}
-                    placeholder="Describe their experience working with Littroi... e.g. Working with Littroi freed us up to focus on what we do best and the content hasn't stopped since."
+                    placeholder="Write client testimonial quote / feedback here..."
                     className="w-full px-4 py-3 rounded-xl bg-[#161616] border border-white/10 text-white text-xs focus:border-[#B3FFC9] focus:outline-none leading-relaxed"
                   />
                 </div>

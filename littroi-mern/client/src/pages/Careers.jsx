@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
 import {
   ArrowUpRight,
   Briefcase,
@@ -17,6 +18,79 @@ import { FadeIn } from "../components/animations/FadeIn";
 import { Badge } from "../components/ui/Badge";
 import { jobsAPI } from "../services/api";
 import { jobs as fallbackJobs } from "../data/jobs";
+
+// Animated counter component for Career stats with reload and scroll animation
+function CareerStatCounter({ value, suffix = "", duration = 1800, delay = 0 }) {
+  const [count, setCount] = useState(0);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    let frameId;
+    let startTimestamp = null;
+    let timeoutId = null;
+    const target = parseInt(value, 10) || 0;
+
+    const runCountAnimation = () => {
+      setCount(0);
+      startTimestamp = null;
+      if (frameId) window.cancelAnimationFrame(frameId);
+      if (timeoutId) clearTimeout(timeoutId);
+
+      const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        // Smooth ease-out cubic curve
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        const current = Math.floor(easeOut * target);
+        setCount(current);
+        if (progress < 1) {
+          frameId = window.requestAnimationFrame(step);
+        } else {
+          setCount(target);
+        }
+      };
+
+      timeoutId = setTimeout(() => {
+        frameId = window.requestAnimationFrame(step);
+      }, delay * 1000);
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            runCountAnimation();
+          } else {
+            setCount(0);
+          }
+        });
+      },
+      { threshold: 0.15 }
+    );
+
+    observer.observe(el);
+
+    return () => {
+      observer.disconnect();
+      if (timeoutId) clearTimeout(timeoutId);
+      if (frameId) window.cancelAnimationFrame(frameId);
+    };
+  }, [value, duration, delay]);
+
+  return (
+    <span ref={ref} className="inline-flex items-baseline">
+      <span>{count}</span>
+      {suffix && (
+        <span className="ml-0.5" style={{ color: "#B3FFC9" }}>
+          {suffix}
+        </span>
+      )}
+    </span>
+  );
+}
 
 const MARQUEE_WORDS = [
   "Kill average",
@@ -99,15 +173,26 @@ export function Careers() {
         {/* ==================== HERO SECTION ==================== */}
         <section className="pt-32 sm:pt-40 pb-16 px-6 sm:px-10 lg:px-16 max-w-[1400px] w-full mx-auto space-y-10">
           {/* Eyebrow */}
-          <div className="flex items-center gap-2">
-            <span className="w-5 h-[2px] bg-[#B3FFC9]" />
-            <span className="text-xs font-mono tracking-[0.2em] uppercase text-white font-bold">
-              CAREERS
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="mb-6 sm:mb-8"
+          >
+            <span
+              className="text-xs sm:text-[13px] font-bold tracking-[0.16em] uppercase text-white hover:text-[#B3FFC9] transition-colors duration-300 cursor-pointer select-none inline-block"
+              style={{ fontFamily: "'Syne', sans-serif" }}
+            >
+              — CAREERS
             </span>
-          </div>
+          </motion.div>
 
           {/* Full Width Main Heading */}
-          <div>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+          >
             <h1
               className="text-4xl sm:text-6xl lg:text-[72px] font-extrabold text-white tracking-tight leading-[1.05] m-0"
               style={{ fontFamily: "'Syne', sans-serif" }}
@@ -115,10 +200,15 @@ export function Careers() {
               Join the team <br />
               <span style={{ color: "#B3FFC9" }}>behind the cut.</span>
             </h1>
-          </div>
+          </motion.div>
 
           {/* Subtitle (Left) & 3 Counters (Right) */}
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 sm:gap-12 pt-4">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 sm:gap-12 pt-4"
+          >
             <div className="max-w-lg">
               <p
                 className="m-0 leading-relaxed"
@@ -134,14 +224,14 @@ export function Careers() {
               </p>
             </div>
 
-            {/* 3 Metric Counters */}
+            {/* 3 Metric Counters with Counting Transition */}
             <div className="flex items-center justify-start lg:justify-end gap-10 sm:gap-14">
               <div className="space-y-1 text-left">
                 <div
                   className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-none"
                   style={{ fontFamily: "'Syne', sans-serif" }}
                 >
-                  8+
+                  <CareerStatCounter value={8} suffix="+" delay={0.1} />
                 </div>
                 <div className="text-[11px] uppercase font-mono text-white/40 tracking-wider">
                   Open roles
@@ -153,7 +243,7 @@ export function Careers() {
                   className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-none"
                   style={{ fontFamily: "'Syne', sans-serif" }}
                 >
-                  15+
+                  <CareerStatCounter value={15} suffix="+" delay={0.2} />
                 </div>
                 <div className="text-[11px] uppercase font-mono text-white/40 tracking-wider">
                   Team members
@@ -165,14 +255,14 @@ export function Careers() {
                   className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-none"
                   style={{ fontFamily: "'Syne', sans-serif" }}
                 >
-                  100%
+                  <CareerStatCounter value={100} suffix="%" delay={0.3} />
                 </div>
                 <div className="text-[11px] uppercase font-mono text-white/40 tracking-wider">
                   On-Site
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </section>
 
         {/* ==================== CONTINUOUS MARQUEE RIBBON ==================== */}

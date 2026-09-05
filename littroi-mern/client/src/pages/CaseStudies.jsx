@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { SEO } from "../utils/seo";
 import { caseStudiesAPI } from "../services/api";
 import { caseStudies as fallbackCaseStudies } from "../data/caseStudies";
@@ -99,14 +100,14 @@ export function CaseStudies() {
         }
 
         .cs-hero-container {
-          max-width: 1440px;
+          max-width: 1400px;
           margin: 0 auto;
-          padding: 120px 32px 40px;
+          padding: 150px 48px 48px;
           display: flex;
           justify-content: space-between;
           align-items: flex-end;
           flex-wrap: wrap;
-          gap: 24px;
+          gap: 28px;
         }
 
         .cs-hero-eyebrow {
@@ -115,11 +116,14 @@ export function CaseStudies() {
           font-weight: 700;
           letter-spacing: 0.16em;
           text-transform: uppercase;
+          color: #ffffff;
+          display: inline-block;
+          transition: color 0.3s ease;
+          cursor: pointer;
+          user-select: none;
+        }
+        .cs-hero-eyebrow:hover {
           color: #B3FFC9;
-          margin-bottom: 20px;
-          display: flex;
-          align-items: center;
-          gap: 8px;
         }
 
         .cs-hero-title {
@@ -138,26 +142,27 @@ export function CaseStudies() {
         }
 
         .cs-hero-sub {
-          color: rgba(255,255,255,0.45);
-          font-size: 15px;
-          line-height: 1.6;
+          color: #FFFFFF94;
+          font-size: 13px;
+          font-weight: 200;
+          line-height: 22px;
           text-align: right;
           max-width: 320px;
-          font-family: 'Poppins', sans-serif;
+          font-family: 'benzine', 'Benzin', sans-serif;
         }
 
         @media (max-width: 768px) {
-          .cs-hero-container { padding: 90px 20px 24px; }
+          .cs-hero-container { padding: 120px 20px 28px; }
           .cs-hero-sub { text-align: left; }
         }
 
         /* Tabs */
         .cs-tabs-wrap {
-          max-width: 1440px;
+          max-width: 1400px;
           margin: 0 auto;
-          padding: 20px 32px 30px;
+          padding: 20px 48px 36px;
           display: flex;
-          gap: 8px;
+          gap: 10px;
           overflow-x: auto;
           scrollbar-width: none;
           -webkit-overflow-scrolling: touch;
@@ -171,7 +176,7 @@ export function CaseStudies() {
           font-weight: 700;
           letter-spacing: 0.08em;
           text-transform: uppercase;
-          padding: 8px 18px;
+          padding: 9px 20px;
           border-radius: 999px;
           border: 1px solid rgba(255,255,255,0.14);
           background: transparent;
@@ -193,12 +198,12 @@ export function CaseStudies() {
 
         /* Grid */
         .cs-grid-container {
-          max-width: 1440px;
+          max-width: 1400px;
           margin: 0 auto;
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 22px;
-          padding: 0 32px 80px;
+          gap: 28px;
+          padding: 0 48px 120px;
           background: #000;
         }
 
@@ -641,23 +646,39 @@ export function CaseStudies() {
         
         {/* ==================== HERO ==================== */}
         <section className="cs-hero-container">
-          <div>
-            <div className="cs-hero-eyebrow">
-              <span>—</span> <span>CASE STUDIES</span>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <div className="mb-6 sm:mb-8">
+              <span className="cs-hero-eyebrow">
+                — CASE STUDIES
+              </span>
             </div>
             <h1 className="cs-hero-title">
               Work that<br />
               <em>speaks.</em>
             </h1>
-          </div>
-          <div className="cs-hero-sub">
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            className="cs-hero-sub"
+          >
             Real clients, real challenges,<br />
             real results — no fluff.
-          </div>
+          </motion.div>
         </section>
 
         {/* ==================== TABS ==================== */}
-        <section className="cs-tabs-wrap">
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
+          className="cs-tabs-wrap"
+        >
           {tabs.map((tab) => (
             <button
               key={tab.key}
@@ -672,7 +693,7 @@ export function CaseStudies() {
               {tab.label}
             </button>
           ))}
-        </section>
+        </motion.section>
 
         {/* ==================== 2-COL CARD GRID ==================== */}
         <section className="cs-grid-container">

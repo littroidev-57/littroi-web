@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, NavLink } from "react-router-dom";
+import { motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { SITE_CONFIG } from "../../utils/constants";
 import litroiLogo from "../../assets/littroi-logo.png";
@@ -16,14 +17,19 @@ export function Navbar() {
 
   const navLinks = [
     { name: "Home", path: "/" },
-    { name: "About us", path: "/about-us" },
-    { name: "Case studies", path: "/case-studies" },
+    { name: "About Us", path: "/about-us" },
+    { name: "Case Studies", path: "/case-studies" },
     { name: "Careers", path: "/careers" },
     { name: "Blog", path: "/blog" },
     { name: "Contact Us", path: "/contact-us" },
-    { name: "Legal-policies", path: "/legal-policies" },
+    { name: "Legal Policies", path: "/legal-policies" },
   ];
 
+  const linkMotion = {
+    whileHover: { scale: 1.14 },
+    whileTap: { scale: 1.32 },
+    transition: { type: "spring", stiffness: 420, damping: 16 }
+  };
 
   return (
     <header
@@ -43,22 +49,28 @@ export function Navbar() {
             <div className="ast-builder-layout-element ast-flex site-header-focus-item" data-section="title_tagline">
               <div className="site-branding ast-site-identity flex items-center" itemType="https://schema.org/Organization" itemScope>
                 <span className="site-logo-img inline-block">
-                  <Link
-                    to="/"
-                    onClick={() => window.scrollTo({ top: 0, left: 0, behavior: "smooth" })}
-                    className="custom-logo-link block focus:outline-none"
-                    rel="home"
-                    aria-current="page"
+                  <motion.div
+                    whileHover={{ scale: 1.06 }}
+                    whileTap={{ scale: 1.15 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 18 }}
                   >
-                    <img
-                      width="95"
-                      height="95"
-                      src={litroiLogo}
-                      className="custom-logo h-[75px] sm:h-[85px] w-auto object-contain transition-transform duration-300 hover:scale-105"
-                      alt="Littroi"
-                      decoding="async"
-                    />
-                  </Link>
+                    <Link
+                      to="/"
+                      onClick={() => window.scrollTo({ top: 0, left: 0, behavior: "smooth" })}
+                      className="custom-logo-link block focus:outline-none"
+                      rel="home"
+                      aria-current="page"
+                    >
+                      <img
+                        width="95"
+                        height="95"
+                        src={litroiLogo}
+                        className="custom-logo h-[75px] sm:h-[85px] w-auto object-contain"
+                        alt="Littroi"
+                        decoding="async"
+                      />
+                    </Link>
+                  </motion.div>
                 </span>
                 <div className="ast-site-title-wrap sr-only">
                   <span className="site-title" itemProp="name">
@@ -87,12 +99,16 @@ export function Navbar() {
                         className="main-header-menu ast-menu-shadow ast-nav-menu ast-flex submenu-with-border ast-menu-hover-style-zoom stack-on-mobile flex items-center gap-6 lg:gap-9 list-none m-0 p-0"
                       >
                         {navLinks.map((link) => (
-                          <li key={link.path} className="menu-item">
+                          <motion.li
+                            key={link.path}
+                            className="menu-item"
+                            {...linkMotion}
+                          >
                             <NavLink
                               to={link.path}
                               end={link.path === "/"}
                               className={({ isActive }) =>
-                                `menu-link text-[15px] font-semibold tracking-wide transition-colors duration-200 ${
+                                `menu-link text-[15px] font-semibold tracking-wide transition-colors duration-200 inline-block select-none ${
                                   isActive
                                     ? "text-[#B3FFC9]"
                                     : "text-white hover:text-[#B3FFC9]"
@@ -102,7 +118,7 @@ export function Navbar() {
                             >
                               {link.name}
                             </NavLink>
-                          </li>
+                          </motion.li>
                         ))}
                       </ul>
                     </div>
@@ -115,7 +131,12 @@ export function Navbar() {
           {/* RIGHT: Book a Call Header Button */}
           <div className="site-header-primary-section-right site-header-section ast-flex ast-grid-right-section hidden md:flex items-center flex-shrink-0">
             <div className="ast-builder-layout-element ast-flex site-header-focus-item ast-header-button-1" data-section="section-hb-button-1">
-              <div className="ast-builder-button-wrap ast-builder-button-size-">
+              <motion.div
+                whileHover={{ scale: 1.08 }}
+                whileTap={{ scale: 1.22 }}
+                transition={{ type: "spring", stiffness: 420, damping: 16 }}
+                className="ast-builder-button-wrap ast-builder-button-size-"
+              >
                 <a
                   className="ast-custom-button-link group block"
                   href={SITE_CONFIG.calendlyUrl}
@@ -131,19 +152,20 @@ export function Navbar() {
                     Book a Call
                   </div>
                 </a>
-              </div>
+              </motion.div>
             </div>
           </div>
 
           {/* Mobile Menu Toggle */}
           <div className="md:hidden flex items-center">
-            <button
+            <motion.button
+              whileTap={{ scale: 1.25 }}
               className="text-white p-2.5 rounded-lg hover:bg-white/10 transition-colors focus:outline-none cursor-pointer"
               onClick={() => setMobileOpen(!mobileOpen)}
               aria-label="Toggle menu"
             >
               {mobileOpen ? <X size={26} className="text-[#B3FFC9]" /> : <Menu size={26} />}
-            </button>
+            </motion.button>
           </div>
 
         </div>
@@ -154,22 +176,31 @@ export function Navbar() {
         <div className="md:hidden bg-black/95 backdrop-blur-xl border-t border-white/10 px-8 pb-10 pt-6 animate-fadeIn">
           <nav className="flex flex-col gap-5">
             {navLinks.map((link) => (
-              <NavLink
+              <motion.div
                 key={link.path}
-                to={link.path}
-                className={({ isActive }) =>
-                  `text-lg font-bold transition-colors ${
-                    isActive ? "text-[#B3FFC9]" : "text-white hover:text-[#B3FFC9]"
-                  }`
-                }
-                style={{ fontFamily: "'Syne', sans-serif" }}
-                onClick={() => setMobileOpen(false)}
-                end={link.path === "/"}
+                whileTap={{ scale: 1.25 }}
+                whileHover={{ scale: 1.1 }}
+                transition={{ type: "spring", stiffness: 420, damping: 16 }}
               >
-                {link.name}
-              </NavLink>
+                <NavLink
+                  to={link.path}
+                  className={({ isActive }) =>
+                    `text-lg font-bold transition-colors inline-block ${
+                      isActive ? "text-[#B3FFC9]" : "text-white hover:text-[#B3FFC9]"
+                    }`
+                  }
+                  style={{ fontFamily: "'Syne', sans-serif" }}
+                  onClick={() => setMobileOpen(false)}
+                  end={link.path === "/"}
+                >
+                  {link.name}
+                </NavLink>
+              </motion.div>
             ))}
-            <a
+            <motion.a
+              whileTap={{ scale: 1.18 }}
+              whileHover={{ scale: 1.08 }}
+              transition={{ type: "spring", stiffness: 420, damping: 16 }}
               href={SITE_CONFIG.calendlyUrl}
               target="_blank"
               rel="noopener noreferrer"
@@ -177,7 +208,7 @@ export function Navbar() {
               style={{ fontFamily: "'Syne', sans-serif" }}
             >
               Book a Call
-            </a>
+            </motion.a>
           </nav>
         </div>
       )}

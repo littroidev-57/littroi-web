@@ -25,8 +25,11 @@ export function HeroSection() {
           data-element_type="widget"
           data-widget_type="image.default"
         >
-          {/* Continuous floating translate animation matching floatUpDown 3.8s */}
-          <img
+          {/* Gentle subtle floating animation with minimal fade */}
+          <motion.img
+            initial={{ opacity: 0.85, scale: 0.99 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.9, ease: "easeOut" }}
             fetchPriority="high"
             decoding="async"
             width={2048}
@@ -40,7 +43,7 @@ export function HeroSection() {
               maxHeight: "56vh",
               userSelect: "none",
               pointerEvents: "none",
-              animation: "floatUpDown 3.8s ease-in-out infinite",
+              animation: "floatUpDown 4.6s ease-in-out infinite",
             }}
           />
         </div>

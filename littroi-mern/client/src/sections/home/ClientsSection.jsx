@@ -1,69 +1,66 @@
 import React from "react";
 import { motion } from "framer-motion";
 
-// Row 1 logos — exact order from littroi.com WP HTML (forward, 50.51s)
-import g1082 from "../../assets/Group 1082.png";
-import g1080 from "../../assets/Group 1080.png";
-import g1079 from "../../assets/Group 1079.png";
-import g1078 from "../../assets/Group 1078.png";
-import g1077 from "../../assets/Group 1077.png";
-import g1076 from "../../assets/Group 1076.png";
-import g1075 from "../../assets/Group 1075.png";
-import mindset90 from "../../assets/Mindset90.png";
-import g1072 from "../../assets/Group 1072.png";
-import g1073 from "../../assets/Group 1073.png";
-import g1070 from "../../assets/Group 1070.png";
-import g1052 from "../../assets/Group 1052.png";
-import g1049 from "../../assets/Group 1049.png";
-
-// Row 2 logos — exact order from littroi.com WP HTML (reverse, 54.42s)
-import g1100 from "../../assets/Group 1100.png";
-import g1099 from "../../assets/Group 1099.png";
-import g1098 from "../../assets/Group 1098.png";
-import g1097 from "../../assets/Group 1097.png";
-import g1096 from "../../assets/Group 1096.png";
-import g1094 from "../../assets/Group 1094.png";
-import g1093 from "../../assets/Group 1093.png";
-import g1091 from "../../assets/Group 1091.png";
-import g1090 from "../../assets/Group 1090.png";
+// Valid Client Brand Logos from littroi.com
+import g1082 from "../../assets/Group 1082.png"; // CRTA
+import mindset90 from "../../assets/Mindset90.png"; // Mindset90
+import g1076 from "../../assets/Group 1076.png"; // Social Lite
+import g1075 from "../../assets/Group 1075.png"; // Dream Talks
+import g1073 from "../../assets/Group 1073.png"; // KG Loan Experts
+import g1070 from "../../assets/Group 1070.png"; // Coffee Bike
+import g1052 from "../../assets/Group 1052.png"; // Hair Rescue
+import g1049 from "../../assets/Group 1049.png"; // TC
 import g1089 from "../../assets/Group 1089.png";
 import g1085 from "../../assets/Group 1085.png";
 import g1084 from "../../assets/Group 1084.png";
-import treeline from "../../assets/TreelinePress.png";
-import tst from "../../assets/TST.png";
+
+import g1100 from "../../assets/Group 1100.png"; // Retail in America
+import g1099 from "../../assets/Group 1099.png"; // Dreams Consultants
+import g1098 from "../../assets/Group 1098.png"; // Maitly.ai
+import treeline from "../../assets/TreelinePress.png"; // TreelinePress
+import g1097 from "../../assets/Group 1097.png"; // OA 70
+import g1096 from "../../assets/Group 1096.png"; // The Podcast Blueprint
+import g1094 from "../../assets/Group 1094.png"; // ReeThink Podcast
+import g1093 from "../../assets/Group 1093.png"; // LOCUS
+import g1091 from "../../assets/Group 1091.png"; // The Journey
+import g1090 from "../../assets/Group 1090.png";
+import tst from "../../assets/TST.png"; // TST
 
 const ROW1 = [
-  { src: g1082, alt: "Group 1082" },
-  { src: g1080, alt: "Group 1080" },
-  { src: g1079, alt: "Group 1079" },
-  { src: g1078, alt: "Group 1078" },
-  { src: g1077, alt: "Group 1077" },
-  { src: g1076, alt: "Group 1076" },
-  { src: g1075, alt: "Group 1075" },
+  { src: g1082, alt: "CRTA" },
   { src: mindset90, alt: "Mindset90" },
-  { src: g1072, alt: "Group 1072" },
-  { src: g1073, alt: "Group 1073" },
-  { src: g1070, alt: "Group 1070" },
-  { src: g1052, alt: "Group 1052" },
-  { src: g1049, alt: "Group 1049" },
+  { src: g1076, alt: "Social Lite" },
+  { src: g1075, alt: "Dream Talks" },
+  { src: g1073, alt: "KG Loan Experts" },
+  { src: g1070, alt: "Coffee Bike" },
+  { src: g1052, alt: "Hair Rescue" },
+  { src: g1049, alt: "TC Brand" },
+  { src: g1089, alt: "Client Brand" },
+  { src: g1085, alt: "Client Partner" },
+  { src: g1084, alt: "Client Logo" },
 ];
 
 const ROW2 = [
-  { src: g1100, alt: "Group 1100" },
-  { src: g1099, alt: "Group 1099" },
-  { src: g1098, alt: "Group 1098" },
-  { src: g1097, alt: "Group 1097" },
-  { src: g1096, alt: "Group 1096" },
-  { src: g1094, alt: "Group 1094" },
-  { src: g1093, alt: "Group 1093" },
-  { src: g1091, alt: "Group 1091" },
-  { src: g1090, alt: "Group 1090" },
-  { src: g1089, alt: "Group 1089" },
-  { src: g1085, alt: "Group 1085" },
-  { src: g1084, alt: "Group 1084" },
+  { src: g1100, alt: "Retail in America" },
+  { src: g1099, alt: "Dreams Consultants" },
+  { src: g1098, alt: "Maitly.ai" },
   { src: treeline, alt: "TreelinePress" },
-  { src: tst, alt: "TST" },
+  { src: g1097, alt: "OA 70" },
+  { src: g1096, alt: "The Podcast Blueprint" },
+  { src: g1094, alt: "ReeThink Podcast" },
+  { src: g1093, alt: "LOCUS" },
+  { src: g1091, alt: "The Journey" },
+  { src: g1090, alt: "Client Studio" },
+  { src: tst, alt: "TST Media" },
 ];
+
+// Preload marquee images in memory for instant painting
+if (typeof window !== "undefined") {
+  [...ROW1, ...ROW2].forEach((item) => {
+    const img = new Image();
+    img.src = item.src;
+  });
+}
 
 function MarqueeGroup({ logos, isReverse = false }) {
   return (
@@ -72,7 +69,13 @@ function MarqueeGroup({ logos, isReverse = false }) {
         <div key={i} className="masscie-team-member">
           <div className="masscie-team-member-content">
             <div className="masscie-team-member-image">
-              <img decoding="async" src={logo.src} alt={logo.alt} loading="lazy" />
+              <img
+                src={logo.src}
+                alt={logo.alt}
+                loading="eager"
+                decoding="sync"
+                draggable={false}
+              />
             </div>
           </div>
         </div>

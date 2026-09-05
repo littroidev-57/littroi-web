@@ -7,60 +7,34 @@ import avatarMarc from "../../assets/Group 1100.png";
 import avatarSpencer from "../../assets/Group 1082.png";
 import avatarHarrison from "../../assets/Group 1079.png";
 
-const INITIAL_TESTIMONIALS = [
-  {
-    _id: "t1",
-    id: 1,
-    videoId: "FApmJphhF9Y",
-    title: "Marc Babin - Founder of The Podcast Blueprint (Testimonial)",
-    quote:
-      "Marc is big on values alignment and communication and when you find a team that gets it, you hold onto them. Knowing every episode is in good hands, without having to think twice about it, is exactly the kind of support network he was looking for.",
-    avatar: avatarMarc,
-    name: "Marc Babin",
-    role: "Founder of The Podcast Blueprint",
-    videoFirst: true,
-  },
-  {
-    _id: "t2",
-    id: 2,
-    videoId: "EIJg4p4MHpI",
-    title: "Spencer Gilmore - Founder of Hair Rescue",
-    quote:
-      "Spencer is prolific with content but editing was slowing him down. Working with us freed him up to focus on what he does best and the content hasn't stopped since.",
-    avatar: avatarSpencer,
-    name: "Spencer Gilmore",
-    role: "Founder of Hair Rescue",
-    videoFirst: false,
-  },
-  {
-    _id: "t3",
-    id: 3,
-    videoId: "lpFoyBWzrUE",
-    title: "Harison Saunders - Podcast host of The Growth Voyage (Testimonial)",
-    quote:
-      "Harrison hosts conversations with top entrepreneurs and investors, the content was already there. The production just needed to match it. Three months in, people were reaching out commenting on the quality unprompted.\n\nTime saved, standards met, and a clear step up from everything before. The difference was audible.",
-    avatar: avatarHarrison,
-    name: "Harison Saunders",
-    role: "Host of the Growth Voyage podcast",
-    videoFirst: true,
-  },
-];
-
 export function TestimonialsSection() {
-  const [testimonials, setTestimonials] = useState(INITIAL_TESTIMONIALS);
+  const [testimonials, setTestimonials] = useState([]);
+  const [hasLoaded, setHasLoaded] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
-    testimonialsAPI.getAll().then((data) => {
-      if (isMounted && Array.isArray(data) && data.length > 0) {
-        setTestimonials(data);
-      }
-    }).catch(() => {});
+    testimonialsAPI
+      .getAll()
+      .then((data) => {
+        if (isMounted) {
+          if (Array.isArray(data)) {
+            setTestimonials(data);
+          }
+          setHasLoaded(true);
+        }
+      })
+      .catch(() => {
+        if (isMounted) setHasLoaded(true);
+      });
 
     return () => {
       isMounted = false;
     };
   }, []);
+
+  if (hasLoaded && testimonials.length === 0) {
+    return null;
+  }
 
   return (
     <section
