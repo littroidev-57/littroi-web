@@ -29,30 +29,48 @@ export function ProjectsSection() {
   const [projectList, setProjectList] = useState(DEFAULT_PROJECTS);
 
   useEffect(() => {
+    let isMounted = true;
     const fetchProjects = async () => {
-      const data = await projectsAPI.getAll("our-projects");
-      if (data && data.length) {
-        const formatted = data.map((p) => {
-          const yId = extractYoutubeId(p.youtubeId || p.videoUrl);
-          return {
-            id: yId,
-            thumb: p.thumbnail || `https://img.youtube.com/vi/${yId}/maxresdefault.jpg`,
-            title: p.title
-          };
-        });
-        setProjectList(formatted);
+      try {
+        const data = await projectsAPI.getAll("our-projects");
+        if (isMounted && data && Array.isArray(data) && data.length > 0) {
+          const formatted = data.map((p) => {
+            const yId = extractYoutubeId(p.youtubeId || p.videoUrl || p.id);
+            return {
+              id: yId,
+              thumb: p.thumbnail || p.thumb || `https://img.youtube.com/vi/${yId}/maxresdefault.jpg`,
+              title: p.title || "Project Video"
+            };
+          });
+          setProjectList(formatted);
+        }
+      } catch (err) {
+        console.warn("Projects fetch notice:", err);
       }
     };
     fetchProjects();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
+  const moveSlider = (direction) => {
+    if (!sliderRef.current) return;
+    const { scrollLeft, scrollWidth, clientWidth } = sliderRef.current;
+    const step = Math.min(clientWidth * 0.85, 750);
 
-  const moveSlider = (offset) => {
-    if (sliderRef.current) {
-      sliderRef.current.scrollBy({
-        left: offset,
-        behavior: "smooth",
-      });
+    if (direction > 0) {
+      if (scrollLeft + clientWidth >= scrollWidth - 60) {
+        sliderRef.current.scrollTo({ left: 0, behavior: "smooth" });
+      } else {
+        sliderRef.current.scrollBy({ left: step, behavior: "smooth" });
+      }
+    } else {
+      if (scrollLeft <= 60) {
+        sliderRef.current.scrollTo({ left: scrollWidth, behavior: "smooth" });
+      } else {
+        sliderRef.current.scrollBy({ left: -step, behavior: "smooth" });
+      }
     }
   };
 
@@ -76,7 +94,7 @@ export function ProjectsSection() {
         </div>
       </div>
 
-      {/* Header: Our Projects with fadeInLeft transition */}
+      {/* Header: Our Projects */}
       <div className="max-w-[1400px] w-full mx-auto px-6 sm:px-10 lg:px-14 mb-8">
         <motion.div
           initial={{ opacity: 0, x: -80 }}
@@ -107,18 +125,20 @@ export function ProjectsSection() {
       <div className="slider-wrapper relative w-full bg-black">
         {/* Navigation Left Arrow */}
         <button
-          onClick={() => moveSlider(-750)}
-          className="nav-arrow arrow-left absolute top-1/2 -translate-y-1/2 left-6 sm:left-10 w-[52px] h-[52px] rounded-full bg-[#111111]/90 border border-white/20 text-white flex items-center justify-center cursor-pointer z-40 transition-all duration-300 hover:bg-[#6ecf97] hover:text-black hover:border-[#6ecf97] hover:shadow-[0_0_25px_rgba(110,207,151,0.6)] text-xl hidden md:flex shadow-2xl"
+          onClick={() => moveSlider(-1)}
+          className="nav-arrow arrow-left absolute top-1/2 -translate-y-1/2 left-6 sm:left-10 w-[52px] h-[52px] rounded-full bg-[#111111]/90 border border-white/20 text-white flex items-center justify-center cursor-pointer z-40 transition-all duration-300 hover:bg-[#6ecf97] hover:text-black hover:border-[#6ecf97] hover:shadow-[0_0_25px_rgba(110,207,151,0.6)] text-xl hidden md:flex shadow-2xl active:scale-95"
           aria-label="Previous Project"
+          title="Previous Project"
         >
           ❮
         </button>
 
         {/* Navigation Right Arrow */}
         <button
-          onClick={() => moveSlider(750)}
-          className="nav-arrow arrow-right absolute top-1/2 -translate-y-1/2 right-6 sm:right-10 w-[52px] h-[52px] rounded-full bg-[#111111]/90 border border-white/20 text-white flex items-center justify-center cursor-pointer z-40 transition-all duration-300 hover:bg-[#6ecf97] hover:text-black hover:border-[#6ecf97] hover:shadow-[0_0_25px_rgba(110,207,151,0.6)] text-xl hidden md:flex shadow-2xl"
+          onClick={() => moveSlider(1)}
+          className="nav-arrow arrow-right absolute top-1/2 -translate-y-1/2 right-6 sm:right-10 w-[52px] h-[52px] rounded-full bg-[#111111]/90 border border-white/20 text-white flex items-center justify-center cursor-pointer z-40 transition-all duration-300 hover:bg-[#6ecf97] hover:text-black hover:border-[#6ecf97] hover:shadow-[0_0_25px_rgba(110,207,151,0.6)] text-xl hidden md:flex shadow-2xl active:scale-95"
           aria-label="Next Project"
+          title="Next Project"
         >
           ❯
         </button>
@@ -156,17 +176,23 @@ export function ProjectsSection() {
                     allow="autoplay; encrypted-media"
                     allowFullScreen
                     className="w-full h-full border-none"
-                    title={`Project video ${proj.id}`}
+                    title={proj.title || `Project video ${proj.id}`}
                   />
                 ) : (
-                  <div
-                    className="video-overlay w-full h-full flex relative bg-cover bg-center bg-no-repeat"
-                    style={{ backgroundImage: `url('${proj.thumb}')` }}
-                  >
+                  <div className="video-overlay w-full h-full relative overflow-hidden bg-[#111111]">
+                    {/* Lazy-loaded optimized thumbnail */}
+                    <img
+                      src={proj.thumb}
+                      alt={proj.title || "Project thumbnail"}
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+
                     {/* Gradient Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/20 to-black/60 pointer-events-none z-[1]" />
 
-                    {/* Play Button: dark transparent with green border by default, fills solid green on card hover */}
+                    {/* Play Button */}
                     <div className="play-btn absolute bottom-6 right-7 w-[48px] h-[48px] rounded-full border border-[#6ecf97]/60 bg-black/60 backdrop-blur-[6px] text-[#6ecf97] flex items-center justify-center text-sm transition-all duration-300 z-[2] group-hover:bg-[#6ecf97] group-hover:text-black group-hover:scale-110 group-hover:border-[#6ecf97] group-hover:shadow-[0_0_25px_rgba(110,207,151,0.7)]">
                       ▶
                     </div>

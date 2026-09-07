@@ -23,32 +23,51 @@ export function SaasVideoSection() {
   const [activeVideo, setActiveVideo] = useState(null);
   const [saasList, setSaasList] = useState(DEFAULT_SAAS);
 
-  const moveSlider = (offset) => {
-    if (sliderRef.current) {
-      sliderRef.current.scrollBy({
-        left: offset,
-        behavior: "smooth",
-      });
-    }
-  };
-
   useEffect(() => {
+    let isMounted = true;
     const fetchSaas = async () => {
-      const data = await projectsAPI.getAll("saas-video");
-      if (data && data.length) {
-        const formatted = data.map((p) => {
-          const yId = extractYoutubeId(p.youtubeId || p.videoUrl);
-          return {
-            id: yId,
-            thumb: p.thumbnail || `https://img.youtube.com/vi/${yId}/maxresdefault.jpg`,
-            title: p.title
-          };
-        });
-        setSaasList(formatted);
+      try {
+        const data = await projectsAPI.getAll("saas-video");
+        if (isMounted && data && Array.isArray(data) && data.length > 0) {
+          const formatted = data.map((p) => {
+            const yId = extractYoutubeId(p.youtubeId || p.videoUrl || p.id);
+            return {
+              id: yId,
+              thumb: p.thumbnail || p.thumb || `https://img.youtube.com/vi/${yId}/maxresdefault.jpg`,
+              title: p.title || "SaaS Video"
+            };
+          });
+          setSaasList(formatted);
+        }
+      } catch (err) {
+        console.warn("SaaS videos fetch notice:", err);
       }
     };
     fetchSaas();
+    return () => {
+      isMounted = false;
+    };
   }, []);
+
+  const moveSlider = (direction) => {
+    if (!sliderRef.current) return;
+    const { scrollLeft, scrollWidth, clientWidth } = sliderRef.current;
+    const step = Math.min(clientWidth * 0.85, 750);
+
+    if (direction > 0) {
+      if (scrollLeft + clientWidth >= scrollWidth - 60) {
+        sliderRef.current.scrollTo({ left: 0, behavior: "smooth" });
+      } else {
+        sliderRef.current.scrollBy({ left: step, behavior: "smooth" });
+      }
+    } else {
+      if (scrollLeft <= 60) {
+        sliderRef.current.scrollTo({ left: scrollWidth, behavior: "smooth" });
+      } else {
+        sliderRef.current.scrollBy({ left: -step, behavior: "smooth" });
+      }
+    }
+  };
 
   return (
     <section
@@ -70,7 +89,7 @@ export function SaasVideoSection() {
         </div>
       </div>
 
-      {/* Header: Saas Video with fadeInLeft transition (elementor-element-b475ecf) */}
+      {/* Header: Saas Video */}
       <div className="max-w-[1400px] w-full mx-auto px-6 sm:px-10 lg:px-14 mb-8">
         <motion.div
           initial={{ opacity: 0, x: -80 }}
@@ -99,23 +118,25 @@ export function SaasVideoSection() {
 
       {/* Video Container Wrapper (elementor-element-74cd85a) */}
       <div className="slider-wrapper relative w-full bg-black">
-        {/* Navigation Left Arrow (shown when 2 or more videos) */}
+        {/* Navigation Left Arrow */}
         {saasList.length >= 2 && (
           <button
-            onClick={() => moveSlider(-750)}
-            className="nav-arrow arrow-left absolute top-1/2 -translate-y-1/2 left-6 sm:left-10 w-[52px] h-[52px] rounded-full bg-[#111111]/90 border border-white/20 text-white flex items-center justify-center cursor-pointer z-40 transition-all duration-300 hover:bg-[#6ecf97] hover:text-black hover:border-[#6ecf97] hover:shadow-[0_0_25px_rgba(110,207,151,0.6)] text-xl hidden md:flex shadow-2xl"
+            onClick={() => moveSlider(-1)}
+            className="nav-arrow arrow-left absolute top-1/2 -translate-y-1/2 left-6 sm:left-10 w-[52px] h-[52px] rounded-full bg-[#111111]/90 border border-white/20 text-white flex items-center justify-center cursor-pointer z-40 transition-all duration-300 hover:bg-[#6ecf97] hover:text-black hover:border-[#6ecf97] hover:shadow-[0_0_25px_rgba(110,207,151,0.6)] text-xl hidden md:flex shadow-2xl active:scale-95"
             aria-label="Previous SaaS Video"
+            title="Previous SaaS Video"
           >
             ❮
           </button>
         )}
 
-        {/* Navigation Right Arrow (shown when 2 or more videos) */}
+        {/* Navigation Right Arrow */}
         {saasList.length >= 2 && (
           <button
-            onClick={() => moveSlider(750)}
-            className="nav-arrow arrow-right absolute top-1/2 -translate-y-1/2 right-6 sm:right-10 w-[52px] h-[52px] rounded-full bg-[#111111]/90 border border-white/20 text-white flex items-center justify-center cursor-pointer z-40 transition-all duration-300 hover:bg-[#6ecf97] hover:text-black hover:border-[#6ecf97] hover:shadow-[0_0_25px_rgba(110,207,151,0.6)] text-xl hidden md:flex shadow-2xl"
+            onClick={() => moveSlider(1)}
+            className="nav-arrow arrow-right absolute top-1/2 -translate-y-1/2 right-6 sm:right-10 w-[52px] h-[52px] rounded-full bg-[#111111]/90 border border-white/20 text-white flex items-center justify-center cursor-pointer z-40 transition-all duration-300 hover:bg-[#6ecf97] hover:text-black hover:border-[#6ecf97] hover:shadow-[0_0_25px_rgba(110,207,151,0.6)] text-xl hidden md:flex shadow-2xl active:scale-95"
             aria-label="Next SaaS Video"
+            title="Next SaaS Video"
           >
             ❯
           </button>
@@ -157,10 +178,16 @@ export function SaasVideoSection() {
                     title={item.title || "Saas Video"}
                   />
                 ) : (
-                  <div
-                    className="video-overlay w-full h-full flex relative bg-cover bg-center bg-no-repeat"
-                    style={{ backgroundImage: `url('${item.thumb}')` }}
-                  >
+                  <div className="video-overlay w-full h-full relative overflow-hidden bg-[#111111]">
+                    {/* Lazy thumbnail */}
+                    <img
+                      src={item.thumb}
+                      alt={item.title || "Saas Video thumbnail"}
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+
                     {/* Gradient Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/20 to-black/50 pointer-events-none z-[1]" />
 

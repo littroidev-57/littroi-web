@@ -2,8 +2,47 @@ import { CaseStudy } from "../models/CaseStudy.js";
 
 export const getCaseStudies = async (req, res, next) => {
   try {
-    const studies = await CaseStudy.find({ isPublished: true }).sort({ createdAt: -1 });
-    res.json({ success: true, count: studies.length, data: studies });
+    const { category, search, page, limit, all } = req.query;
+    const filter = all === "true" ? {} : { isPublished: true };
+
+    if (category && category !== "all") {
+      filter.category = { $regex: new RegExp(category, "i") };
+    }
+
+    if (search) {
+      filter.$or = [
+        { title: { $regex: search, $options: "i" } },
+        { client: { $regex: search, $options: "i" } },
+        { tags: { $regex: search, $options: "i" } }
+      ];
+    }
+
+    const total = await CaseStudy.countDocuments(filter);
+    let query = CaseStudy.find(filter).sort({ createdAt: -1 });
+
+    if (page && limit) {
+      const pageNum = Math.max(1, parseInt(page, 10) || 1);
+      const limitNum = Math.max(1, parseInt(limit, 10) || 10);
+      query = query.skip((pageNum - 1) * limitNum).limit(limitNum);
+
+      const studies = await query;
+      return res.json({
+        success: true,
+        count: studies.length,
+        total,
+        totalPages: Math.ceil(total / limitNum) || 1,
+        currentPage: pageNum,
+        data: studies
+      });
+    }
+
+    const studies = await query;
+    res.json({
+      success: true,
+      count: studies.length,
+      total,
+      data: studies
+    });
   } catch (error) {
     next(error);
   }

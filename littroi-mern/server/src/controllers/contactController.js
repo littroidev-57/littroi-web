@@ -33,8 +33,49 @@ export const submitContact = async (req, res, next) => {
 
 export const getEnquiries = async (req, res, next) => {
   try {
-    const enquiries = await ContactEnquiry.find().sort({ createdAt: -1 });
-    res.json({ success: true, count: enquiries.length, data: enquiries });
+    const { status, search, page, limit } = req.query;
+    const filter = {};
+
+    if (status && status !== "all") {
+      filter.status = status;
+    }
+
+    if (search) {
+      filter.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
+        { company: { $regex: search, $options: "i" } },
+        { message: { $regex: search, $options: "i" } },
+        { phone: { $regex: search, $options: "i" } }
+      ];
+    }
+
+    const total = await ContactEnquiry.countDocuments(filter);
+    let query = ContactEnquiry.find(filter).sort({ createdAt: -1 });
+
+    if (page && limit) {
+      const pageNum = Math.max(1, parseInt(page, 10) || 1);
+      const limitNum = Math.max(1, parseInt(limit, 10) || 10);
+      query = query.skip((pageNum - 1) * limitNum).limit(limitNum);
+
+      const enquiries = await query;
+      return res.json({
+        success: true,
+        count: enquiries.length,
+        total,
+        totalPages: Math.ceil(total / limitNum) || 1,
+        currentPage: pageNum,
+        data: enquiries
+      });
+    }
+
+    const enquiries = await query;
+    res.json({
+      success: true,
+      count: enquiries.length,
+      total,
+      data: enquiries
+    });
   } catch (error) {
     next(error);
   }

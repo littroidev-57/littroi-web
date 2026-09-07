@@ -2,9 +2,44 @@ import { Testimonial } from "../models/Testimonial.js";
 
 export const getTestimonials = async (req, res, next) => {
   try {
-    const filter = req.query.all === "true" ? {} : { isActive: true };
-    const testimonials = await Testimonial.find(filter).sort({ order: 1, createdAt: -1 });
-    res.json({ success: true, count: testimonials.length, data: testimonials });
+    const { search, page, limit, all } = req.query;
+    const filter = all === "true" ? {} : { isActive: true };
+
+    if (search) {
+      filter.$or = [
+        { clientName: { $regex: search, $options: "i" } },
+        { company: { $regex: search, $options: "i" } },
+        { quote: { $regex: search, $options: "i" } },
+        { role: { $regex: search, $options: "i" } }
+      ];
+    }
+
+    const total = await Testimonial.countDocuments(filter);
+    let query = Testimonial.find(filter).sort({ order: 1, createdAt: -1 });
+
+    if (page && limit) {
+      const pageNum = Math.max(1, parseInt(page, 10) || 1);
+      const limitNum = Math.max(1, parseInt(limit, 10) || 10);
+      query = query.skip((pageNum - 1) * limitNum).limit(limitNum);
+
+      const testimonials = await query;
+      return res.json({
+        success: true,
+        count: testimonials.length,
+        total,
+        totalPages: Math.ceil(total / limitNum) || 1,
+        currentPage: pageNum,
+        data: testimonials
+      });
+    }
+
+    const testimonials = await query;
+    res.json({
+      success: true,
+      count: testimonials.length,
+      total,
+      data: testimonials
+    });
   } catch (error) {
     next(error);
   }

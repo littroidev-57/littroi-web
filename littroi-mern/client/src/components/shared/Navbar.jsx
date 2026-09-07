@@ -7,13 +7,37 @@ import litroiLogo from "../../assets/littroi-logo.png";
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
+  const [visible, setVisible] = useState(() =>
+    typeof window !== "undefined" ? window.scrollY <= 40 : true
+  );
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
+    const onScroll = () => {
+      const currentScrollY = Math.max(0, window.scrollY);
+      setScrolled(currentScrollY > 20);
+
+      // Keep navbar visible if mobile drawer is open
+      if (mobileOpen) {
+        setVisible(true);
+        return;
+      }
+
+      // Show navbar ONLY at the start of the website (top of page)
+      // When scrolling down OR scrolling up anywhere else on the page, hide it
+      if (currentScrollY <= 40) {
+        setVisible(true);
+      } else {
+        setVisible(false);
+      }
+    };
+
     window.addEventListener("scroll", onScroll, { passive: true });
+    // Check initial position on mount
+    onScroll();
+
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [mobileOpen]);
 
   const navLinks = [
     { name: "Home", path: "/" },
@@ -33,9 +57,15 @@ export function Navbar() {
 
   return (
     <header
-      className={`ast-primary-header-bar ast-primary-header main-header-bar site-header-focus-item fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
+      className={`ast-primary-header-bar ast-primary-header main-header-bar site-header-focus-item fixed top-0 inset-x-0 z-[9999] ${
+        visible ? "pointer-events-auto" : "pointer-events-none"
+      } ${
         scrolled ? "bg-black/95 backdrop-blur-md shadow-2xl border-b border-white/5" : "bg-transparent"
       }`}
+      style={{
+        transform: visible ? "translateY(0)" : "translateY(-100%)",
+        transition: "transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s ease",
+      }}
       data-section="section-primary-header-builder"
     >
       <div

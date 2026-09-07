@@ -120,9 +120,11 @@ export const authAPI = {
 
 // ==================== CASE STUDIES API ====================
 export const caseStudiesAPI = {
-  getAll: async () => {
+  getAll: async (params = {}) => {
     try {
-      const res = await fetch(`${API_BASE_URL}/case-studies`);
+      const query = typeof params === "object" ? new URLSearchParams(params).toString() : "";
+      const url = query ? `${API_BASE_URL}/case-studies?${query}` : `${API_BASE_URL}/case-studies`;
+      const res = await fetch(url);
       const data = await res.json();
       if (data.success && Array.isArray(data.data)) {
         return data.data;
@@ -174,9 +176,11 @@ export const caseStudiesAPI = {
 
 // ==================== BLOG API ====================
 export const blogAPI = {
-  getAll: async () => {
+  getAll: async (params = {}) => {
     try {
-      const res = await fetch(`${API_BASE_URL}/blog`);
+      const query = typeof params === "object" ? new URLSearchParams(params).toString() : "";
+      const url = query ? `${API_BASE_URL}/blog?${query}` : `${API_BASE_URL}/blog`;
+      const res = await fetch(url);
       const data = await res.json();
       if (data.success && Array.isArray(data.data)) {
         return data.data;
@@ -241,9 +245,11 @@ export const blogAPI = {
 
 // ==================== JOBS / CAREERS API ====================
 export const jobsAPI = {
-  getAll: async () => {
+  getAll: async (params = {}) => {
     try {
-      const res = await fetch(`${API_BASE_URL}/jobs`);
+      const query = typeof params === "object" ? new URLSearchParams(params).toString() : "";
+      const url = query ? `${API_BASE_URL}/jobs?${query}` : `${API_BASE_URL}/jobs`;
+      const res = await fetch(url);
       const data = await res.json();
       if (data.success && Array.isArray(data.data)) {
         return data.data;
@@ -308,9 +314,11 @@ export const contactAPI = {
     return data;
   },
 
-  getAll: async () => {
+  getAll: async (params = {}) => {
     try {
-      const res = await fetch(`${API_BASE_URL}/contact`, {
+      const query = typeof params === "object" ? new URLSearchParams(params).toString() : "";
+      const url = query ? `${API_BASE_URL}/contact?${query}` : `${API_BASE_URL}/contact`;
+      const res = await fetch(url, {
         headers: getAuthHeaders()
       });
       const data = await res.json();
@@ -368,7 +376,7 @@ export const servicesAPI = {
     try {
       const res = await fetch(`${API_BASE_URL}/services`);
       const data = await res.json();
-      if (data.success && Array.isArray(data.data) && data.data.length) {
+      if (data.success && Array.isArray(data.data)) {
         return data.data;
       }
     } catch {
@@ -380,9 +388,15 @@ export const servicesAPI = {
 
 // ==================== PROJECTS / HOME VIDEOS API ====================
 export const projectsAPI = {
-  getAll: async (category = "") => {
+  getAll: async (categoryOrParams = "") => {
     try {
-      const url = category ? `${API_BASE_URL}/projects?category=${category}` : `${API_BASE_URL}/projects`;
+      let url = `${API_BASE_URL}/projects`;
+      if (typeof categoryOrParams === "string" && categoryOrParams) {
+        url = `${API_BASE_URL}/projects?category=${encodeURIComponent(categoryOrParams)}`;
+      } else if (typeof categoryOrParams === "object" && categoryOrParams !== null) {
+        const query = new URLSearchParams(categoryOrParams).toString();
+        url = query ? `${API_BASE_URL}/projects?${query}` : url;
+      }
       const res = await fetch(url);
       const data = await res.json();
       if (data.success && Array.isArray(data.data)) {
@@ -392,6 +406,27 @@ export const projectsAPI = {
       console.warn("Projects fetch error:", err);
     }
     return [];
+  },
+
+  getPaginated: async (category = "", page = 1, limit = 6) => {
+    try {
+      const params = { page, limit };
+      if (category && category !== "all") params.category = category;
+      const query = new URLSearchParams(params).toString();
+      const res = await fetch(`${API_BASE_URL}/projects?${query}`);
+      const data = await res.json();
+      if (data.success) {
+        return {
+          data: data.data || [],
+          total: data.total || 0,
+          totalPages: data.totalPages || 1,
+          currentPage: data.currentPage || page
+        };
+      }
+    } catch (err) {
+      console.warn("Paginated projects fetch error:", err);
+    }
+    return { data: [], total: 0, totalPages: 1, currentPage: page };
   },
 
   create: async (item) => {
@@ -435,9 +470,16 @@ export const projectsAPI = {
 
 // ==================== TESTIMONIALS API ====================
 export const testimonialsAPI = {
-  getAll: async (all = false) => {
+  getAll: async (allOrParams = false) => {
     try {
-      const res = await fetch(`${API_BASE_URL}/testimonials${all ? "?all=true" : ""}`, {
+      let url = `${API_BASE_URL}/testimonials`;
+      if (typeof allOrParams === "boolean") {
+        url = `${API_BASE_URL}/testimonials${allOrParams ? "?all=true" : ""}`;
+      } else if (typeof allOrParams === "object" && allOrParams !== null) {
+        const query = new URLSearchParams(allOrParams).toString();
+        url = query ? `${API_BASE_URL}/testimonials?${query}` : url;
+      }
+      const res = await fetch(url, {
         headers: getAuthHeaders()
       });
       const data = await res.json();

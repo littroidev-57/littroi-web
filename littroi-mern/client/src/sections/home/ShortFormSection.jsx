@@ -29,23 +29,41 @@ export function ShortFormSection() {
   const [shortsList, setShortsList] = useState(DEFAULT_SHORTS);
 
   useEffect(() => {
+    let isMounted = true;
     const fetchShorts = async () => {
-      const data = await projectsAPI.getAll("short-form");
-      if (data && data.length) {
-        const ids = data.map((p) => extractYoutubeId(p.youtubeId || p.videoUrl)).filter(Boolean);
-        if (ids.length) setShortsList(ids);
+      try {
+        const data = await projectsAPI.getAll("short-form");
+        if (isMounted && data && Array.isArray(data) && data.length > 0) {
+          const ids = data.map((p) => extractYoutubeId(p.youtubeId || p.videoUrl || p.id)).filter(Boolean);
+          if (ids.length > 0) setShortsList(ids);
+        }
+      } catch (err) {
+        console.warn("Short form fetch notice:", err);
       }
     };
     fetchShorts();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
+  const scrollReels = (direction) => {
+    if (!stageRef.current) return;
+    const { scrollLeft, scrollWidth, clientWidth } = stageRef.current;
+    const step = Math.min(clientWidth * 0.75, 480);
 
-  const scrollReels = (scrollOffset) => {
-    if (stageRef.current) {
-      stageRef.current.scrollBy({
-        left: scrollOffset,
-        behavior: "smooth",
-      });
+    if (direction > 0) {
+      if (scrollLeft + clientWidth >= scrollWidth - 40) {
+        stageRef.current.scrollTo({ left: 0, behavior: "smooth" });
+      } else {
+        stageRef.current.scrollBy({ left: step, behavior: "smooth" });
+      }
+    } else {
+      if (scrollLeft <= 40) {
+        stageRef.current.scrollTo({ left: scrollWidth, behavior: "smooth" });
+      } else {
+        stageRef.current.scrollBy({ left: -step, behavior: "smooth" });
+      }
     }
   };
 
@@ -69,7 +87,7 @@ export function ShortFormSection() {
         </div>
       </div>
 
-      {/* Header: Short Form Content with fadeInLeft transition (elementor-element-5ce9fe8) */}
+      {/* Header: Short Form Content */}
       <div className="max-w-[1400px] w-full mx-auto px-6 sm:px-10 lg:px-14 mb-8">
         <motion.div
           initial={{ opacity: 0, x: -80 }}
@@ -100,18 +118,20 @@ export function ShortFormSection() {
       <div className="littroi-reels-container-wrapper relative w-full bg-black overflow-hidden">
         {/* Navigation Left Arrow */}
         <button
-          onClick={() => scrollReels(-400)}
-          className="littroi-scroll-arrow littroi-arrow-left absolute top-1/2 -translate-y-1/2 left-4 sm:left-8 w-[50px] h-[50px] rounded-full bg-[#111111]/85 border border-white/15 text-white flex items-center justify-center cursor-pointer z-40 transition-all duration-300 hover:bg-[#6ecf97] hover:text-black hover:border-[#6ecf97] hover:shadow-[0_0_20px_rgba(110,207,151,0.6)] text-xl hidden md:flex shadow-2xl"
+          onClick={() => scrollReels(-1)}
+          className="littroi-scroll-arrow littroi-arrow-left absolute top-1/2 -translate-y-1/2 left-4 sm:left-8 w-[50px] h-[50px] rounded-full bg-[#111111]/85 border border-white/15 text-white flex items-center justify-center cursor-pointer z-40 transition-all duration-300 hover:bg-[#6ecf97] hover:text-black hover:border-[#6ecf97] hover:shadow-[0_0_20px_rgba(110,207,151,0.6)] text-xl hidden md:flex shadow-2xl active:scale-95"
           aria-label="Previous Short Form Content"
+          title="Previous Short Form Content"
         >
           ❮
         </button>
 
         {/* Navigation Right Arrow */}
         <button
-          onClick={() => scrollReels(400)}
-          className="littroi-scroll-arrow littroi-arrow-right absolute top-1/2 -translate-y-1/2 right-4 sm:right-8 w-[50px] h-[50px] rounded-full bg-[#111111]/85 border border-white/15 text-white flex items-center justify-center cursor-pointer z-40 transition-all duration-300 hover:bg-[#6ecf97] hover:text-black hover:border-[#6ecf97] hover:shadow-[0_0_20px_rgba(110,207,151,0.6)] text-xl hidden md:flex shadow-2xl"
+          onClick={() => scrollReels(1)}
+          className="littroi-scroll-arrow littroi-arrow-right absolute top-1/2 -translate-y-1/2 right-4 sm:right-8 w-[50px] h-[50px] rounded-full bg-[#111111]/85 border border-white/15 text-white flex items-center justify-center cursor-pointer z-40 transition-all duration-300 hover:bg-[#6ecf97] hover:text-black hover:border-[#6ecf97] hover:shadow-[0_0_20px_rgba(110,207,151,0.6)] text-xl hidden md:flex shadow-2xl active:scale-95"
           aria-label="Next Short Form Content"
+          title="Next Short Form Content"
         >
           ❯
         </button>
@@ -145,15 +165,21 @@ export function ShortFormSection() {
                     title={`Short form content ${videoId}`}
                   />
                 ) : (
-                  <div
-                    className="littroi-reel-body w-full h-full flex relative overflow-hidden bg-cover bg-center bg-no-repeat"
-                    style={{
-                      backgroundImage: `url('https://img.youtube.com/vi/${videoId}/maxresdefault.jpg')`,
-                      animation: isOdd
-                        ? "littroi-rUp 3.4s ease-in-out infinite"
-                        : "littroi-rDown 3.4s ease-in-out infinite",
-                    }}
-                  >
+                  <div className="littroi-reel-body w-full h-full relative overflow-hidden bg-[#111111]">
+                    {/* Lazy thumbnail */}
+                    <img
+                      src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
+                      alt="Short form content thumbnail"
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      style={{
+                        animation: isOdd
+                          ? "littroi-rUp 3.4s ease-in-out infinite"
+                          : "littroi-rDown 3.4s ease-in-out infinite",
+                      }}
+                    />
+
                     {/* Gradient Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/15 to-black/60 pointer-events-none z-[1]" />
 

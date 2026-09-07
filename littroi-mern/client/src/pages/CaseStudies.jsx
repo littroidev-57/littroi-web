@@ -232,40 +232,34 @@ export function CaseStudies() {
           top: 0; left: 0; right: 0;
           bottom: var(--bar-h);
           z-index: 0;
+          overflow: hidden;
+          background: #111;
         }
 
-        .cs-thumb-bg {
+        .cs-thumb-img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          object-position: center;
+          transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease;
+        }
+        .cs-card:hover .cs-thumb-img {
+          transform: scale(1.06);
+        }
+
+        .cs-thumb-overlay {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.45) 55%, rgba(0,0,0,0.9) 100%);
+          pointer-events: none;
+          z-index: 1;
+        }
+
+        .cs-thumb-fallback {
           position: absolute; inset: 0; z-index: 0;
           background:
-            radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--thumb-color, #B3FFC9) 30%, transparent), transparent 65%),
-            linear-gradient(160deg, #131313 0%, #060606 100%);
-          transition: background 0.4s ease;
-        }
-        .cs-card:hover .cs-thumb-bg {
-          background:
-            radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--thumb-color, #B3FFC9) 42%, transparent), transparent 65%),
-            linear-gradient(160deg, #161616 0%, #050505 100%);
-        }
-
-        .cs-initials-badge {
-          position: absolute;
-          top: 40%; left: 50%;
-          transform: translate(-50%, -50%);
-          z-index: 5;
-          width: 84px; height: 84px;
-          border-radius: 50%;
-          display: flex; align-items: center; justify-content: center;
-          font-family: 'Syne', sans-serif;
-          font-weight: 800;
-          font-size: 28px;
-          color: #fff;
-          background: color-mix(in srgb, var(--thumb-color, #B3FFC9) 35%, #0a0a0a);
-          border: 1px solid color-mix(in srgb, var(--thumb-color, #B3FFC9) 55%, transparent);
-          box-shadow: 0 0 0 6px color-mix(in srgb, var(--thumb-color, #B3FFC9) 10%, transparent);
-          transition: transform 0.25s ease;
-        }
-        .cs-card:hover .cs-initials-badge {
-          transform: translate(-50%, -50%) scale(1.06);
+            radial-gradient(circle at 50% 50%, color-mix(in srgb, #B3FFC9 20%, transparent), transparent 65%),
+            linear-gradient(160deg, #181818 0%, #080808 100%);
         }
 
         .cs-card-detail {
@@ -698,26 +692,11 @@ export function CaseStudies() {
         {/* ==================== 2-COL CARD GRID ==================== */}
         <section className="cs-grid-container">
           {visibleStudies.map((study, idx) => {
-            const initials =
-              study.initials ||
-              (study.name || study.title || "LT")
-                .split(" ")
-                .map((w) => w[0])
-                .slice(0, 2)
-                .join("")
-                .toUpperCase();
-
-            const thumbColor =
-              study.thumbColor ||
-              (idx % 5 === 0
-                ? "#4C8DFF"
-                : idx % 5 === 1
-                ? "#FF7A45"
-                : idx % 5 === 2
-                ? "#B3FFC9"
-                : idx % 5 === 3
-                ? "#C084FC"
-                : "#FFD166");
+            const thumbImg =
+              study.thumbnail ||
+              study.coverImage ||
+              (Array.isArray(study.images) && study.images[0]) ||
+              "";
 
             const numStr = study.num || `0${idx + 1}`;
             const stats = study.stats || [];
@@ -726,13 +705,24 @@ export function CaseStudies() {
               <div
                 key={study.id || study._id || idx}
                 onClick={() => setActiveModalStudy(study)}
-                className="cs-card"
-                style={{ "--thumb-color": thumbColor }}
+                className="cs-card group"
               >
-                {/* Thumb Area with Glowing Gradient & Center Initials Badge */}
+                {/* Thumb Area with Cover Image & Gradient Overlay */}
                 <div className="cs-thumb">
-                  <div className="cs-thumb-bg" />
-                  <div className="cs-initials-badge">{initials}</div>
+                  {thumbImg ? (
+                    <>
+                      <img
+                        src={thumbImg}
+                        alt={study.name || study.title || "Case study thumbnail"}
+                        loading="lazy"
+                        decoding="async"
+                        className="cs-thumb-img"
+                      />
+                      <div className="cs-thumb-overlay" />
+                    </>
+                  ) : (
+                    <div className="cs-thumb-fallback" />
+                  )}
                 </div>
 
                 {/* Hover Detail Overlay (above the bar) */}

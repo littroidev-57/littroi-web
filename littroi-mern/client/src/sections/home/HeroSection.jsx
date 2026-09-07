@@ -12,15 +12,17 @@ export function HeroSection() {
     <>
       {/* ── elementor-element-7938d47: Hero Full 100vh Viewport Container ── */}
       <section
-        className="elementor-element elementor-element-7938d47 e-con-full e-flex wpr-particle-no wpr-jarallax-no wpr-parallax-no wpr-sticky-section-no wpr-column-slider-no wpr-equal-height-no e-con e-parent e-lazyloaded relative bg-[#000000] overflow-hidden flex items-center justify-center w-full select-none"
+        className="elementor-element elementor-element-7938d47 e-con-full e-flex wpr-particle-no wpr-jarallax-no wpr-parallax-no wpr-sticky-section-no wpr-column-slider-no wpr-equal-height-no e-con e-parent e-lazyloaded relative bg-[#000000] overflow-hidden flex flex-col items-center justify-between w-full select-none min-h-[100svh] h-[100svh] py-6 sm:py-8 lg:py-10"
         data-id="7938d47"
         data-element_type="container"
         data-e-type="container"
-        style={{ minHeight: "100vh", height: "100vh" }}
       >
-        {/* ── elementor-element-7bf9d12 fronttextt: EXACT DEAD CENTER in 100vh Viewport ── */}
+        {/* Spacer for top navigation */}
+        <div className="w-full h-12 sm:h-16 flex-shrink-0 pointer-events-none" />
+
+        {/* ── elementor-element-7bf9d12 fronttextt: EXACT DEAD CENTER in Viewport ── */}
         <div
-          className="elementor-element elementor-element-7bf9d12 fronttextt exad-sticky-section-no exad-glass-effect-no elementor-widget elementor-widget-image flex items-center justify-center overflow-hidden w-full px-2 sm:px-4 text-center select-none"
+          className="elementor-element elementor-element-7bf9d12 fronttextt exad-sticky-section-no exad-glass-effect-no elementor-widget elementor-widget-image flex items-center justify-center overflow-hidden w-full max-w-[1400px] px-3 sm:px-6 md:px-8 text-center select-none my-auto"
           data-id="7bf9d12"
           data-element_type="widget"
           data-widget_type="image.default"
@@ -40,7 +42,7 @@ export function HeroSection() {
             alt="Littroi"
             className="attachment-full size-full wp-image-4133 w-full max-w-full h-auto object-contain block mx-auto opacity-100 visible"
             style={{
-              maxHeight: "56vh",
+              maxHeight: "clamp(160px, 44vh, 380px)",
               userSelect: "none",
               pointerEvents: "none",
               animation: "floatUpDown 4.6s ease-in-out infinite",
@@ -48,9 +50,9 @@ export function HeroSection() {
           />
         </div>
 
-        {/* ── elementor-element-5e2e98b: Hero Bottom Text Row — Positioned beneath LITTROI logo ── */}
+        {/* ── elementor-element-5e2e98b: Hero Bottom Text Row — Positioned cleanly beneath LITTROI logo ── */}
         <div
-          className="elementor-element elementor-element-5e2e98b e-con-full e-flex wpr-particle-no wpr-jarallax-no wpr-parallax-no wpr-sticky-section-no wpr-column-slider-no wpr-equal-height-no e-con e-child absolute bottom-12 sm:bottom-26 md:bottom-30 lg:bottom-[calc(var(--spacing)*50)] left-1/2 -translate-x-1/2 w-[94%] max-w-[1400px] flex items-end justify-between px-4 sm:px-8 pointer-events-auto z-20"
+          className="elementor-element elementor-element-5e2e98b e-con-full e-flex wpr-particle-no wpr-jarallax-no wpr-parallax-no wpr-sticky-section-no wpr-column-slider-no wpr-equal-height-no e-con e-child w-[94%] max-w-[1400px] flex flex-col sm:flex-row items-start sm:items-end justify-between gap-3 sm:gap-6 px-4 sm:px-8 pointer-events-auto z-20 flex-shrink-0"
           data-id="5e2e98b"
           data-element_type="container"
           data-e-type="container"
@@ -66,7 +68,7 @@ export function HeroSection() {
               className="elementor-heading-title elementor-size-default m-0"
               style={{
                 fontFamily: "'Syne', 'benzine', sans-serif",
-                fontSize: "clamp(15px, 1.4vw, 20px)",
+                fontSize: "clamp(14px, 1.25vw, 19px)",
                 fontWeight: 600,
                 color: "#B3FFC9",
                 letterSpacing: "0.01em",
@@ -79,7 +81,7 @@ export function HeroSection() {
 
           {/* Right Subtitle: We've killed average for a living since day one */}
           <div
-            className="elementor-element elementor-element-76094d2 exad-sticky-section-no exad-glass-effect-no elementor-widget elementor-widget-heading text-left"
+            className="elementor-element elementor-element-76094d2 exad-sticky-section-no exad-glass-effect-no elementor-widget elementor-widget-heading text-left sm:text-right"
             data-id="76094d2"
             data-element_type="widget"
             data-widget_type="heading.default"
@@ -88,14 +90,14 @@ export function HeroSection() {
               className="elementor-heading-title elementor-size-default m-0"
               style={{
                 fontFamily: "'Syne', 'benzine', sans-serif",
-                fontSize: "clamp(14px, 1.4vw, 20px)",
+                fontSize: "clamp(13px, 1.25vw, 19px)",
                 fontWeight: 600,
                 color: "#B3FFC9",
                 letterSpacing: "0.01em",
-                lineHeight: 1.4,
+                lineHeight: 1.35,
               }}
             >
-              We've killed average for<br />
+              We've killed average for<br className="hidden sm:inline" />{" "}
               a living since day one
             </h2>
           </div>

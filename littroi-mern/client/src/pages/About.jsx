@@ -72,31 +72,209 @@ function StatCounterCard({ label, value, suffix, delay = 0 }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: false, margin: "-40px" }}
       transition={{ duration: 1.1, delay, ease: [0.16, 1, 0.3, 1] }}
-      className="elementor-counter p-6 sm:p-8 rounded-2xl bg-[#0c0c0c] border border-white/10 flex flex-col justify-between"
+      className="elementor-counter p-4 sm:p-5 md:p-6 lg:p-7 rounded-2xl bg-[#0c0c0c] border border-white/10 flex flex-col justify-between overflow-hidden min-w-0"
     >
       <div
-        className="elementor-counter-title text-white/60 text-xs sm:text-sm font-semibold uppercase tracking-wider mb-4"
+        className="elementor-counter-title text-white/60 text-xs sm:text-sm font-semibold uppercase tracking-wider mb-3 sm:mb-4 truncate"
         style={{ fontFamily: "'Syne', sans-serif" }}
       >
         {label}
       </div>
       <div
-        className="elementor-counter-number-wrapper text-white font-extrabold tracking-tight"
+        className="elementor-counter-number-wrapper text-white font-extrabold tracking-tight min-w-0"
         style={{
           fontFamily: "'Syne', sans-serif",
-          fontSize: "clamp(36px, 4.5vw, 64px)",
+          fontSize: "clamp(26px, 3.2vw, 48px)",
           fontWeight: 800,
-          lineHeight: 1,
+          lineHeight: 1.05,
         }}
       >
-        <span className="elementor-counter-number inline-flex items-baseline">
+        <span className="elementor-counter-number inline-flex items-baseline flex-nowrap min-w-0">
           <span>{count}</span>
-          <span className="elementor-counter-number-suffix ml-0.5" style={{ color: "#B3FFC9" }}>
+          <span className="elementor-counter-number-suffix ml-0.5 flex-shrink-0" style={{ color: "#B3FFC9" }}>
             {suffix}
           </span>
         </span>
       </div>
     </motion.div>
+  );
+}
+
+// Interactive Cursor Arrow Spotlight Blur Reveal component for Our Belief statement
+function BlurHoverBeliefText() {
+  const [isHovered, setIsHovered] = useState(false);
+  const [mousePos, setMousePos] = useState({ x: -9999, y: -9999 });
+  const containerRef = useRef(null);
+
+  const statement =
+    "Most brands look the same because most studios play it safe. We don't. We believe the best brand work is specific, honest, and a little uncomfortable — the kind that makes people stop and actually look.";
+
+  const handleMouseMove = (e) => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    setMousePos({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    });
+  };
+
+  const handleTouchMove = (e) => {
+    if (!containerRef.current || !e.touches[0]) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    setMousePos({
+      x: e.touches[0].clientX - rect.left,
+      y: e.touches[0].clientY - rect.top,
+    });
+  };
+
+  // Radius in pixels around the mouse arrow where text is sharp and unblurred
+  const spotlightRadius = 180;
+
+  return (
+    <div
+      ref={containerRef}
+      onMouseMove={handleMouseMove}
+      onTouchMove={handleTouchMove}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => {
+        setIsHovered(false);
+        setMousePos({ x: -9999, y: -9999 });
+      }}
+      className="relative cursor-default select-none py-2"
+    >
+
+
+      {/* Text Container with Dual Layer Mask Effect */}
+      <div className="relative">
+        {/* BASE LAYER: Always frosted & blurred across entire statement */}
+        <h2
+          className="elementor-heading-title elementor-size-default m-0 font-bold leading-[1.22] text-white"
+          style={{
+            fontFamily: "'Syne', sans-serif",
+            fontSize: "clamp(26px, 3.8vw, 54px)",
+            fontWeight: 700,
+            letterSpacing: "-0.01em",
+            filter: "blur(9px)",
+            opacity: 0.25,
+            transition: "opacity 0.4s ease",
+            userSelect: "none",
+          }}
+          aria-hidden={isHovered ? "true" : "false"}
+        >
+          {statement}
+        </h2>
+
+        {/* SHARP LAYER: Revealed ONLY in circular radius directly around cursor arrow */}
+        <h2
+          className="elementor-heading-title elementor-size-default m-0 font-bold leading-[1.22] text-white absolute inset-0 pointer-events-none"
+          style={{
+            fontFamily: "'Syne', sans-serif",
+            fontSize: "clamp(26px, 3.8vw, 54px)",
+            fontWeight: 700,
+            letterSpacing: "-0.01em",
+            filter: "none",
+            opacity: isHovered ? 1 : 0,
+            transition: "opacity 0.25s ease",
+            WebkitMaskImage: isHovered
+              ? `radial-gradient(circle ${spotlightRadius}px at ${mousePos.x}px ${mousePos.y}px, black 35%, transparent 100%)`
+              : "none",
+            maskImage: isHovered
+              ? `radial-gradient(circle ${spotlightRadius}px at ${mousePos.x}px ${mousePos.y}px, black 35%, transparent 100%)`
+              : "none",
+            userSelect: "none",
+          }}
+        >
+          {statement}
+        </h2>
+
+        {/* Subtle mint aura halo following the mouse arrow */}
+        {isHovered && mousePos.x > -100 && (
+          <div
+            className="pointer-events-none absolute w-[360px] h-[360px] -translate-x-1/2 -translate-y-1/2 rounded-full transition-opacity duration-300"
+            style={{
+              left: `${mousePos.x}px`,
+              top: `${mousePos.y}px`,
+              background: "radial-gradient(circle, rgba(179,255,201,0.14) 0%, rgba(179,255,201,0.03) 50%, transparent 70%)",
+            }}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Interactive CTA Heading where lines 2 & 3 highlight on hover
+function CtaBuildHeading() {
+  const [hoveredLine, setHoveredLine] = useState(null);
+  const [isBlockHovered, setIsBlockHovered] = useState(false);
+
+  return (
+    <h2
+      className="elementor-heading-title elementor-size-default m-0 text-white font-extrabold leading-tight relative z-10 select-none"
+      style={{
+        fontFamily: "'Syne', sans-serif",
+        fontSize: "clamp(32px, 4.5vw, 68px)",
+        fontWeight: 800,
+        letterSpacing: "-0.02em",
+      }}
+    >
+      <span className="block text-white">Let's build</span>
+      <span
+        className="block cursor-pointer"
+        onMouseEnter={() => setIsBlockHovered(true)}
+        onMouseLeave={() => {
+          setIsBlockHovered(false);
+          setHoveredLine(null);
+        }}
+      >
+        <span
+          onMouseEnter={() => setHoveredLine(2)}
+          onMouseLeave={() => setHoveredLine(null)}
+          className="block transition-all duration-300 ease-out"
+          style={{
+            color:
+              hoveredLine === 2
+                ? "#B3FFC9"
+                : isBlockHovered
+                ? "#ffffff"
+                : "rgba(255, 255, 255, 0.4)",
+            textShadow:
+              hoveredLine === 2
+                ? "0 0 35px rgba(179, 255, 201, 0.65), 0 0 10px rgba(179, 255, 201, 0.3)"
+                : isBlockHovered
+                ? "0 0 20px rgba(255, 255, 255, 0.35)"
+                : "none",
+            transform:
+              hoveredLine === 2 ? "scale(1.02) translateY(-2px)" : "none",
+          }}
+        >
+          something worth
+        </span>
+        <span
+          onMouseEnter={() => setHoveredLine(3)}
+          onMouseLeave={() => setHoveredLine(null)}
+          className="block transition-all duration-300 ease-out"
+          style={{
+            color:
+              hoveredLine === 3
+                ? "#B3FFC9"
+                : isBlockHovered
+                ? "#ffffff"
+                : "rgba(255, 255, 255, 0.4)",
+            textShadow:
+              hoveredLine === 3
+                ? "0 0 35px rgba(179, 255, 201, 0.65), 0 0 10px rgba(179, 255, 201, 0.3)"
+                : isBlockHovered
+                ? "0 0 20px rgba(255, 255, 255, 0.35)"
+                : "none",
+            transform:
+              hoveredLine === 3 ? "scale(1.02) translateY(-2px)" : "none",
+          }}
+        >
+          talking about.
+        </span>
+      </span>
+    </h2>
   );
 }
 
@@ -229,8 +407,7 @@ export function About() {
                   }}
                 >
                   A media and brand studio built for the era of attention scarcity — where every word,<br className="hidden md:block" />
-                  frame, and idea earns its place.A media and brand studio built for the era of attention<br className="hidden md:block" />
-                  scarcity — where every word, frame, and idea earns its place.
+                  frame, and idea earns its place.
                 </p>
               </div>
             </motion.div>
@@ -276,22 +453,12 @@ export function About() {
                 </h2>
               </motion.div>
 
-              {/* Big Belief statement */}
+              {/* Big Belief statement with interactive hover reveal */}
               <motion.div
                 {...smoothFadeInUp}
                 transition={{ duration: 1.3, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
               >
-                <h2
-                  className="elementor-heading-title elementor-size-default m-0 text-white font-bold leading-[1.22]"
-                  style={{
-                    fontFamily: "'Syne', sans-serif",
-                    fontSize: "clamp(26px, 3.8vw, 54px)",
-                    fontWeight: 700,
-                    letterSpacing: "-0.01em",
-                  }}
-                >
-                  Most brands look the same because most studios play it safe. We don't. We believe the best brand work is specific, honest, and a little uncomfortable — the kind that makes people stop and actually look.
-                </h2>
+                <BlurHoverBeliefText />
               </motion.div>
             </div>
 
@@ -379,7 +546,7 @@ export function About() {
             </h2>
           </motion.div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
             {stats.map((stat) => (
               <StatCounterCard
                 key={stat.label}
@@ -566,22 +733,7 @@ export function About() {
           >
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#B3FFC9]/5 rounded-full blur-3xl pointer-events-none" />
 
-            <h2
-              className="elementor-heading-title elementor-size-default m-0 text-white font-extrabold leading-tight relative z-10"
-              style={{
-                fontFamily: "'Syne', sans-serif",
-                fontSize: "clamp(32px, 4.5vw, 68px)",
-                fontWeight: 800,
-                letterSpacing: "-0.02em",
-              }}
-            >
-              Let's build <br />
-              <span style={{ color: "rgba(255, 255, 255, 0.4)" }}>
-                something worth
-                <br />
-                talking about.
-              </span>
-            </h2>
+            <CtaBuildHeading />
 
             <a
               href="https://calendly.com/littroi-info/strategy-call"

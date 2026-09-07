@@ -1,5 +1,6 @@
-import React from "react";
-import { motion } from "framer-motion";
+import React, { useEffect, useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 import iconSaas from "../../assets/b0761bef-fcd0-4a41-aa6a-ea8d8560f385.png";
 import iconPodcast from "../../assets/9dba0400-26dd-416a-9cad-7fb6b32e4972.png";
@@ -10,185 +11,347 @@ import iconStatic from "../../assets/e6ea29c0-73ce-4918-bd46-d34cf5b57ed0.png";
 import iconBrand from "../../assets/180b64fe-108b-429d-a9ca-1993185ed871.png";
 import iconThumb from "../../assets/5025f549-4411-4e72-b344-5de673b2c154.png";
 
-const SERVICES_DATA = [
+gsap.registerPlugin(ScrollTrigger);
+
+const SERVICES = [
   {
     num: "01",
     icon: iconSaas,
     title: "SAAS Video",
-    desc: "We turn complex products into clear, engaging videos that people actually understand. From demos to launch videos, we help your product feel simple, valuable and worth trying.",
-    dur: "3.8s",
-    delay: "0s",
+    tag: "Software & Tech",
+    desc: "We turn complex software and SaaS products into clear, engaging videos people instantly understand. From product demos to high-converting launch films, we make your value obvious.",
+    bg: "#0a1a0f",
+    accent: "#B3FFC9",
   },
   {
     num: "02",
     icon: iconPodcast,
     title: "Podcast Editing",
-    desc: "Clean cuts, smooth pacing and polished audio that keeps listeners locked in. We handle the edits so your podcast sounds professional without losing its personality.",
-    dur: "4.4s",
-    delay: "0.3s",
+    tag: "Audio & Video",
+    desc: "Clean cuts, engaging visual pacing, and crystal-clear audio engineering. We edit your episodes and turn conversations into magnetic clips that expand your reach.",
+    bg: "#0a0f1a",
+    accent: "#A8EDFF",
   },
   {
     num: "03",
     icon: iconLongForm,
     title: "Long Form Content",
-    desc: "Videos built to hold attention, tell stories and keep viewers watching till the end. Perfect for YouTube, interviews, educational content and deep-dive storytelling.",
-    dur: "3.5s",
-    delay: "0.6s",
+    tag: "YouTube & Streaming",
+    desc: "High-retention storytelling crafted to keep viewers watching till the very end. Perfect for YouTube documentary-style videos, in-depth breakdowns, and educational authority.",
+    bg: "#150a1a",
+    accent: "#D4B3FF",
   },
   {
     num: "04",
     icon: iconShortForm,
     title: "Short Form Content",
-    desc: "Fast, sharp and built for attention. We create short-form videos designed to stop the scroll and perform across Reels, TikTok and Shorts.",
-    dur: "4.8s",
-    delay: "0.9s",
+    tag: "Reels & TikTok",
+    desc: "Fast, punchy, scroll-stopping videos designed for Reels, TikTok, and YouTube Shorts to maximise virality and audience acquisition.",
+    bg: "#1a120a",
+    accent: "#FFD6A5",
   },
   {
     num: "05",
     icon: iconMotion,
     title: "Motion Graphics",
-    desc: "Fast, sharp and built for attention. We create animated graphics designed to stop the scroll and perform across Reels, TikTok and Shorts.",
-    dur: "4.1s",
-    delay: "0.2s",
+    tag: "Animation & VFX",
+    desc: "Fluid 2D & 3D kinetic animations that elevate your brand perception. Custom kinetic typography, visual explainers, and dynamic overlays.",
+    bg: "#1a0a10",
+    accent: "#FF9DE2",
   },
   {
     num: "06",
     icon: iconStatic,
     title: "Static Creatives & Carousels",
-    desc: "Designs that grab attention and communicate fast. From promotional posts to informative carousels, visuals that look sharp, feel on-brand and keep audiences engaged.",
-    dur: "3.6s",
-    delay: "0.5s",
+    tag: "Design & Graphics",
+    desc: "High-impact visual designs that communicate value within seconds. Promotional graphics to informative slide decks that drive organic shares.",
+    bg: "#0a1510",
+    accent: "#B3FFC9",
   },
   {
     num: "07",
     icon: iconBrand,
     title: "Brand Identity Development",
-    desc: "Your brand is more than just visuals. We build identities that feel consistent, memorable and instantly recognizable across every platform and touchpoint.",
-    dur: "4.9s",
-    delay: "0.8s",
+    tag: "Identity & Strategy",
+    desc: "We build cohesive visual systems, logo design, typography, and color guidelines that make your business instantly recognisable and memorable everywhere.",
+    bg: "#080a18",
+    accent: "#A8EDFF",
   },
   {
     num: "08",
     icon: iconThumb,
     title: "Thumbnails Creation",
-    desc: "Thumbnails that make people click before they even think twice. Bold visuals, strong emotions and clear focus designed to boost curiosity and views.",
-    dur: "3.3s",
-    delay: "1.1s",
+    tag: "Click-through & CTR",
+    desc: "High-CTR visual packaging with psychology-driven compositions, vivid contrast, and emotive framing that command attention and boost click-through rates.",
+    bg: "#1a150a",
+    accent: "#FFD6A5",
   },
 ];
 
-export function ServicesSection() {
+function ServiceCard({ srv, index }) {
+  const cardRef  = useRef(null);
+  const numRef   = useRef(null);
+  const titleRef = useRef(null);
+  const descRef  = useRef(null);
+  const tagRef   = useRef(null);
+  const lineRef  = useRef(null);
+
+  useEffect(() => {
+    const card = cardRef.current;
+    if (!card) return;
+
+    const ctx = gsap.context(() => {
+      // Animate inner content when card enters the sticky position
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: card,
+          start: "top 80%",
+          toggleActions: "play none none reverse",
+        },
+      });
+
+      tl.fromTo(
+        [numRef.current, tagRef.current],
+        { opacity: 0, x: -30 },
+        { opacity: 1, x: 0, duration: 0.6, ease: "power3.out", stagger: 0.05 }
+      )
+        .fromTo(
+          titleRef.current,
+          { opacity: 0, y: 40, clipPath: "inset(100% 0 0 0)" },
+          { opacity: 1, y: 0, clipPath: "inset(0% 0 0 0)", duration: 0.8, ease: "power3.out" },
+          "-=0.3"
+        )
+        .fromTo(
+          lineRef.current,
+          { scaleX: 0, transformOrigin: "left" },
+          { scaleX: 1, duration: 0.7, ease: "power3.out" },
+          "-=0.5"
+        )
+        .fromTo(
+          descRef.current,
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" },
+          "-=0.4"
+        );
+    }, card);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <section
-      className="elementor-element elementor-element-abe7507 e-con-full e-flex wpr-particle-no wpr-jarallax-no wpr-parallax-no wpr-sticky-section-no wpr-column-slider-no wpr-equal-height-no e-con e-parent e-lazyloaded bg-black relative py-16 sm:py-24 overflow-hidden select-none"
-      data-id="abe7507"
-      data-element_type="container"
-      data-e-type="container"
-      id="services"
+    <div
+      ref={cardRef}
+      className="sticky top-0 w-full"
+      style={{ height: "100dvh", zIndex: 10 + index }}
     >
-      {/* Spacer (elementor-element-fa8c9a3) */}
+      {/* Full bleed background */}
       <div
-        className="elementor-element elementor-element-fa8c9a3 exad-sticky-section-no exad-glass-effect-no elementor-widget elementor-widget-spacer"
-        data-id="fa8c9a3"
-        data-element_type="widget"
-        data-widget_type="spacer.default"
+        className="relative w-full h-full flex flex-col justify-between overflow-hidden"
+        style={{ backgroundColor: srv.bg }}
       >
-        <div className="elementor-spacer h-[20px]">
-          <div className="elementor-spacer-inner"></div>
-        </div>
-      </div>
+        {/* Top noise/grain texture overlay */}
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E")`,
+            mixBlendMode: "overlay",
+            opacity: 0.4,
+          }}
+        />
 
-      {/* Header: Our Services with fadeInLeft transition (elementor-element-3fed575) */}
-      <div className="max-w-[1480px] w-full mx-auto px-6 sm:px-10 lg:px-14 mb-8 sm:mb-12">
-        <motion.div
-          initial={{ opacity: 0, x: -80 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
-          className="elementor-element elementor-element-3fed575 animated-slow exad-sticky-section-no exad-glass-effect-no elementor-widget elementor-widget-heading"
-          data-id="3fed575"
-          data-element_type="widget"
-          data-widget_type="heading.default"
+        {/* Accent radial glow */}
+        <div
+          className="pointer-events-none absolute top-0 right-0 w-[50vw] h-[50vh]"
+          style={{
+            background: `radial-gradient(ellipse at top right, ${srv.accent}18 0%, transparent 70%)`,
+          }}
+        />
+        <div
+          className="pointer-events-none absolute bottom-0 left-0 w-[30vw] h-[30vh]"
+          style={{
+            background: `radial-gradient(ellipse at bottom left, ${srv.accent}0a 0%, transparent 70%)`,
+          }}
+        />
+
+        {/* ─── TOP BAR ─── */}
+        <div
+          className="flex items-center justify-between px-6 sm:px-10 lg:px-14 pt-7 pb-0"
+          style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
         >
-          <h2
-            className="elementor-heading-title elementor-size-default m-0 text-white"
-            style={{
-              fontFamily: "'Syne', sans-serif",
-              fontSize: "clamp(32px, 4vw, 48px)",
-              fontWeight: 800,
-              lineHeight: 1.1,
-              letterSpacing: "-0.01em",
-            }}
-          >
-            Our <span style={{ color: "#B3FFC9" }}>Services</span>
-          </h2>
-        </motion.div>
-      </div>
-
-      {/* Services Grid Container (elementor-element-817fe6e) */}
-      <div className="wrapper max-w-[1480px] w-full mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Mobile Horizontal Scroll / Desktop 4-column Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 max-sm:flex max-sm:overflow-x-auto max-sm:pb-4 max-sm:no-scrollbar max-sm:snap-x">
-          {SERVICES_DATA.map((srv, idx) => (
-            <div
-              key={idx}
-              className="card bg-black border border-[#222222] rounded-[16px] p-[1.6rem_1.1rem_1.8rem] flex flex-col gap-[14px] relative overflow-hidden transition-all duration-350 hover:border-[#86D9B1] group max-sm:flex-shrink-0 max-sm:w-[82vw] max-sm:min-w-[260px] max-sm:snap-start"
+          <div className="flex items-center gap-4">
+            <span
+              ref={numRef}
+              className="font-mono text-xs tracking-[0.2em] uppercase"
+              style={{ color: srv.accent }}
+            >
+              {srv.num} / {String(SERVICES.length).padStart(2, "0")}
+            </span>
+            <span
+              ref={tagRef}
+              className="hidden sm:inline-block text-xs px-3 py-1 rounded-full border"
               style={{
-                animation: `floatCard ${srv.dur} ease-in-out infinite`,
-                animationDelay: srv.delay,
+                color: `${srv.accent}cc`,
+                borderColor: `${srv.accent}33`,
+                background: `${srv.accent}0d`,
+                fontFamily: "'Syne', sans-serif",
+                letterSpacing: "0.05em",
               }}
             >
-              {/* Service Icon with drop shadow on hover */}
-              <div className="icon w-[60px] h-[60px] flex items-center justify-center">
-                <img
-                  src={srv.icon}
-                  alt={`${srv.title} Icon`}
-                  className="w-full h-full object-contain transition-all duration-350 group-hover:drop-shadow-[0_0_8px_rgba(134,217,177,0.6)]"
+              {srv.tag}
+            </span>
+          </div>
+
+          {/* Service icon – top right */}
+          <div
+            className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center p-2"
+            style={{
+              background: `${srv.accent}12`,
+              border: `1px solid ${srv.accent}28`,
+            }}
+          >
+            <img src={srv.icon} alt={srv.title} className="w-full h-full object-contain" />
+          </div>
+        </div>
+
+        {/* ─── MAIN CONTENT ─── */}
+        <div className="flex-1 flex flex-col justify-center px-6 sm:px-10 lg:px-14 py-10">
+          {/* Large title */}
+          <div style={{ overflow: "hidden" }}>
+            <h3
+              ref={titleRef}
+              className="m-0 font-extrabold text-white leading-none tracking-tight"
+              style={{
+                fontFamily: "'Syne', sans-serif",
+                fontSize: "clamp(42px, 7vw, 110px)",
+              }}
+            >
+              {srv.title}
+            </h3>
+          </div>
+
+          {/* Divider */}
+          <div
+            ref={lineRef}
+            className="my-8 h-px"
+            style={{
+              background: `linear-gradient(to right, ${srv.accent}66, rgba(255,255,255,0.06))`,
+            }}
+          />
+
+          {/* Description — constrained width */}
+          <p
+            ref={descRef}
+            className="m-0 leading-relaxed"
+            style={{
+              color: "rgba(255,255,255,0.55)",
+              fontSize: "clamp(15px, 1.5vw, 20px)",
+              maxWidth: "55ch",
+            }}
+          >
+            {srv.desc}
+          </p>
+        </div>
+
+        {/* ─── BOTTOM BAR ─── */}
+        <div
+          className="flex items-center justify-between px-6 sm:px-10 lg:px-14 py-5"
+          style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
+        >
+          <p
+            className="m-0 text-xs uppercase tracking-widest"
+            style={{ color: "rgba(255,255,255,0.25)", fontFamily: "'Syne', sans-serif" }}
+          >
+            [ WHAT WE DO ]
+          </p>
+          {/* Scroll hint on last card removed, else show arrow */}
+          {index < SERVICES.length - 1 ? (
+            <div className="flex items-center gap-2" style={{ color: "rgba(255,255,255,0.25)" }}>
+              <span className="text-xs tracking-widest uppercase font-mono">Scroll</span>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path
+                  d="M8 3v10M8 13l-4-4M8 13l4-4"
+                  stroke="currentColor"
+                  strokeWidth="1.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 />
-              </div>
-
-              {/* Service Card Title */}
-              <h3
-                className="card-title text-white font-bold uppercase transition-colors duration-350 group-hover:text-[#86D9B1]"
-                style={{
-                  fontFamily: "'Syne', sans-serif",
-                  fontSize: "22px",
-                  lineHeight: "26px",
-                  letterSpacing: "0.02em",
-                }}
-              >
-                {srv.title}
-              </h3>
-
-              {/* Service Card Description */}
-              <p
-                className="card-desc text-gray-400 font-light text-[12.5px] leading-relaxed transition-colors duration-350 group-hover:text-gray-300"
-                style={{
-                  fontFamily: "'benzine', 'Poppins', sans-serif",
-                }}
-              >
-                {srv.desc}
-              </p>
-
-              {/* Bottom Subtle Divider Line */}
-              <div className="card-line mt-auto h-[1px] bg-[#1a1a1a]" />
+              </svg>
             </div>
-          ))}
+          ) : (
+            <p className="m-0 text-xs tracking-widest uppercase font-mono" style={{ color: srv.accent }}>
+              That's all our services ↑
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function ServicesSection() {
+  const wrapperRef = useRef(null);
+
+  /* Section header entrance */
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        ".services-header-anim",
+        { opacity: 0, y: 30 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 1,
+          ease: "power3.out",
+          stagger: 0.12,
+          scrollTrigger: {
+            trigger: wrapperRef.current,
+            start: "top 80%",
+            toggleActions: "play none none reverse",
+          },
+        }
+      );
+    }, wrapperRef);
+    return () => ctx.revert();
+  }, []);
+
+  return (
+    <section ref={wrapperRef} id="services" className="relative bg-black select-none">
+      {/* ── Intro header (scrolls away before cards start) ── */}
+      <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-14 pt-20 pb-16">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <p
+              className="services-header-anim m-0 text-xs sm:text-sm font-semibold tracking-widest uppercase mb-3"
+              style={{ color: "#B3FFC9", fontFamily: "'Syne', sans-serif" }}
+            >
+              [ WHAT WE DO ]
+            </p>
+            <h2
+              className="services-header-anim text-white font-extrabold m-0 tracking-tight"
+              style={{
+                fontFamily: "'Syne', sans-serif",
+                fontSize: "clamp(36px, 5vw, 64px)",
+                lineHeight: 1.06,
+              }}
+            >
+              Our{" "}
+              <span style={{ color: "#B3FFC9" }}>Services</span>
+            </h2>
+          </div>
+          <p
+            className="services-header-anim text-white/50 text-sm sm:text-base max-w-sm leading-relaxed m-0 md:text-right"
+          >
+            Scroll through to explore every service we craft for your brand.
+          </p>
         </div>
       </div>
 
-      {/* Spacer (elementor-element-1f878f2) */}
-      <div
-        className="elementor-element elementor-element-1f878f2 exad-sticky-section-no exad-glass-effect-no elementor-widget elementor-widget-spacer mt-8"
-        data-id="1f878f2"
-        data-element_type="widget"
-        data-widget_type="spacer.default"
-      >
-        <div className="elementor-spacer h-[20px]">
-          <div className="elementor-spacer-inner"></div>
-        </div>
+      {/* ── Sticky stacked cards (dzinrstudio-style) ── */}
+      <div>
+        {SERVICES.map((srv, i) => (
+          <ServiceCard key={i} srv={srv} index={i} />
+        ))}
       </div>
     </section>
   );
 }
-
