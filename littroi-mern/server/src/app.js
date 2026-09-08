@@ -17,6 +17,7 @@ import jobsRoutes from "./routes/jobs.js";
 import testimonialsRoutes from "./routes/testimonials.js";
 import contactRoutes from "./routes/contact.js";
 import uploadRoutes from "./routes/upload.js";
+import jobApplicationsRoutes from "./routes/jobApplications.js";
 
 dotenv.config();
 
@@ -90,6 +91,7 @@ app.use("/api/jobs", jobsRoutes);
 app.use("/api/testimonials", testimonialsRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/upload", uploadRoutes);
+app.use("/api/job-applications", jobApplicationsRoutes);
 
 // Error Handling Middleware
 app.use(errorHandler);

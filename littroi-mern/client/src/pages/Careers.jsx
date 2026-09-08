@@ -11,12 +11,18 @@ import {
   Target,
   Rocket,
   Globe2,
-  Mail
+  Mail,
+  X,
+  Send,
+  Sparkles,
+  ExternalLink,
+  FileText,
+  AlertCircle
 } from "lucide-react";
 import { SEO } from "../utils/seo";
 import { FadeIn } from "../components/animations/FadeIn";
 import { Badge } from "../components/ui/Badge";
-import { jobsAPI } from "../services/api";
+import { jobsAPI, jobApplicationsAPI } from "../services/api";
 import { jobs as fallbackJobs } from "../data/jobs";
 
 // Animated counter component for Career stats with reload and scroll animation
@@ -142,6 +148,142 @@ const CORE_VALUES = [
 export function Careers() {
   const [jobList, setJobList] = useState(fallbackJobs);
   const [expandedJob, setExpandedJob] = useState(fallbackJobs[0]?.id || null);
+
+  // Application Modal States
+  const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
+  const [selectedJobForApply, setSelectedJobForApply] = useState(null);
+  const [applicantForm, setApplicantForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    portfolioUrl: "",
+    resumeUrl: "",
+    experience: "1-2 Years",
+    coverLetter: ""
+  });
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [isSubmittingApp, setIsSubmittingApp] = useState(false);
+  const [submitAppSuccess, setSubmitAppSuccess] = useState(false);
+  const [submitAppError, setSubmitAppError] = useState("");
+
+  const handleOpenApplyModal = (job) => {
+    setSelectedJobForApply(job);
+    setSubmitAppSuccess(false);
+    setSubmitAppError("");
+    setFieldErrors({});
+    setIsApplyModalOpen(true);
+  };
+
+  const handleCloseApplyModal = () => {
+    setIsApplyModalOpen(false);
+    setFieldErrors({});
+    if (submitAppSuccess) {
+      setApplicantForm({
+        name: "",
+        email: "",
+        phone: "",
+        portfolioUrl: "",
+        resumeUrl: "",
+        experience: "1-2 Years",
+        coverLetter: ""
+      });
+      setSubmitAppSuccess(false);
+    }
+  };
+
+  const validateForm = () => {
+    const errors = {};
+    const trimmedName = applicantForm.name.trim();
+    const trimmedEmail = applicantForm.email.trim();
+    const trimmedPhone = applicantForm.phone.trim();
+    const trimmedPortfolio = applicantForm.portfolioUrl.trim();
+    const trimmedResume = applicantForm.resumeUrl.trim();
+    const trimmedCover = applicantForm.coverLetter.trim();
+    const trimmedExperience = (applicantForm.experience || "").trim();
+
+    // Name validation (Required)
+    if (!trimmedName) {
+      errors.name = "Full name is required";
+    } else if (trimmedName.length < 2) {
+      errors.name = "Name must be at least 2 characters";
+    } else if (!/^[a-zA-Z\s.'-]+$/.test(trimmedName)) {
+      errors.name = "Name should contain letters and standard characters only";
+    }
+
+    // Email validation (Required)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    if (!trimmedEmail) {
+      errors.email = "Email address is required";
+    } else if (!emailRegex.test(trimmedEmail)) {
+      errors.email = "Please enter a valid email address (e.g. name@domain.com)";
+    }
+
+    // Phone validation (Required)
+    if (!trimmedPhone) {
+      errors.phone = "Phone number is required";
+    } else {
+      const digits = trimmedPhone.replace(/\D/g, "");
+      if (digits.length < 7 || digits.length > 15) {
+        errors.phone = "Phone number must be between 7 and 15 digits";
+      }
+    }
+
+    // Experience validation (Required)
+    if (!trimmedExperience) {
+      errors.experience = "Please select your experience level";
+    }
+
+    // Resume URL validation (Required)
+    const urlRegex = /^(https?:\/\/)[^\s$.?#].[^\s]*$/i;
+    if (!trimmedResume) {
+      errors.resumeUrl = "Resume / CV link is required";
+    } else if (!/^https?:\/\//i.test(trimmedResume)) {
+      errors.resumeUrl = "URL must start with http:// or https://";
+    } else if (!urlRegex.test(trimmedResume)) {
+      errors.resumeUrl = "Please enter a valid web URL (e.g. https://drive.google.com/...)";
+    }
+
+    // Portfolio URL validation (Optional)
+    if (trimmedPortfolio) {
+      if (!/^https?:\/\//i.test(trimmedPortfolio)) {
+        errors.portfolioUrl = "URL must start with http:// or https://";
+      } else if (!urlRegex.test(trimmedPortfolio)) {
+        errors.portfolioUrl = "Please enter a valid web URL (e.g. https://vimeo.com/...)";
+      }
+    }
+
+    // Cover Letter validation (Optional)
+    if (trimmedCover && trimmedCover.length < 5) {
+      errors.coverLetter = "Cover note should be at least 5 characters if provided";
+    }
+
+    return errors;
+  };
+
+  const handleApplySubmit = async (e) => {
+    e.preventDefault();
+    const errors = validateForm();
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setSubmitAppError("Please fix the highlighted errors before submitting.");
+      return;
+    }
+    setFieldErrors({});
+    setIsSubmittingApp(true);
+    setSubmitAppError("");
+    try {
+      await jobApplicationsAPI.submit({
+        jobId: selectedJobForApply?.id || selectedJobForApply?._id || null,
+        jobTitle: selectedJobForApply?.title || "Career Application",
+        ...applicantForm
+      });
+      setSubmitAppSuccess(true);
+    } catch (err) {
+      setSubmitAppError(err.message || "Failed to submit application. Please try again.");
+    } finally {
+      setIsSubmittingApp(false);
+    }
+  };
 
   useEffect(() => {
     const loadJobs = async () => {
@@ -395,16 +537,19 @@ export function Careers() {
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-3 shrink-0">
-                        <a
-                          href={`mailto:${job.applyEmail || "careers@littroi.com"}?subject=Application for ${encodeURIComponent(job.title)}`}
-                          onClick={(e) => e.stopPropagation()}
-                          className="px-5 py-2.5 rounded-full bg-[#B3FFC9] hover:bg-[#9effba] text-black font-bold text-xs uppercase tracking-wider transition-all hidden sm:inline-flex items-center gap-1.5 cursor-pointer shadow-[0_0_20px_rgba(179,255,201,0.2)]"
+                      <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenApplyModal(job);
+                          }}
+                          className="px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-[#B3FFC9] hover:bg-[#9effba] text-black font-bold text-[11px] sm:text-xs uppercase tracking-wider transition-all inline-flex items-center gap-1.5 cursor-pointer shadow-[0_0_20px_rgba(179,255,201,0.2)] active:scale-95"
                           style={{ fontFamily: "'Syne', sans-serif" }}
                         >
                           Apply Now
-                        </a>
-                        <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/60">
+                        </button>
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/5 flex items-center justify-center text-white/60">
                           {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                         </div>
                       </div>
@@ -461,20 +606,7 @@ export function Careers() {
                           </div>
                         )}
 
-                        {/* Footer / Submit Application Row */}
-                        <div className="pt-5 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/5">
-                          <p className="text-xs font-mono text-white/50">
-                            Send your reel/portfolio to: <strong className="text-white">{job.applyEmail || "careers@littroi.com"}</strong>
-                          </p>
-                          <a
-                            href={`mailto:${job.applyEmail || "careers@littroi.com"}?subject=Application for ${encodeURIComponent(job.title)}`}
-                            className="px-6 py-3 rounded-full bg-[#183626] hover:bg-[#B3FFC9] text-[#B3FFC9] hover:text-black border border-[#B3FFC9]/30 text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer"
-                            style={{ fontFamily: "'Syne', sans-serif" }}
-                          >
-                            <span>Submit Application</span>
-                            <ArrowUpRight size={15} />
-                          </a>
-                        </div>
+
                       </div>
                     )}
                   </div>
@@ -483,6 +615,325 @@ export function Careers() {
             })}
           </div>
         </section>
+
+        {/* ==================== APPLICATION FORM MODAL ==================== */}
+        {isApplyModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md overflow-y-auto">
+            <div
+              className="relative w-full max-w-xl bg-[#0c0c0c] border border-white/10 rounded-[28px] p-6 sm:p-8 shadow-[0_25px_70px_rgba(0,0,0,0.9),0_0_50px_rgba(179,255,201,0.05)] my-auto overflow-hidden text-left"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Subtle green ambient accent line */}
+              <div className="absolute top-0 left-1/4 w-1/2 h-[1px] bg-gradient-to-r from-transparent via-[#B3FFC9] to-transparent pointer-events-none" />
+
+              {/* Close Button */}
+              <button
+                type="button"
+                onClick={handleCloseApplyModal}
+                className="absolute top-5 right-5 w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-white/60 hover:text-white transition-colors cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+
+              {submitAppSuccess ? (
+                /* Success State */
+                <div className="py-8 text-center space-y-5">
+                  <div className="w-16 h-16 rounded-full bg-[#183626] border border-[#B3FFC9]/40 text-[#B3FFC9] flex items-center justify-center mx-auto shadow-[0_0_30px_rgba(179,255,201,0.25)]">
+                    <CheckCircle2 size={32} />
+                  </div>
+                  <div className="space-y-2">
+                    <h3
+                      className="text-2xl font-bold text-white tracking-tight"
+                      style={{ fontFamily: "'Syne', sans-serif" }}
+                    >
+                      Application Submitted!
+                    </h3>
+                    <p className="text-sm text-white/60 max-w-md mx-auto leading-relaxed">
+                      Thank you, <strong className="text-white">{applicantForm.name}</strong>. We have received your application for{" "}
+                      <span className="text-[#B3FFC9] font-medium">{selectedJobForApply?.title}</span>. Our production team will review your portfolio and reach out.
+                    </p>
+                  </div>
+                  <div className="pt-4">
+                    <button
+                      type="button"
+                      onClick={handleCloseApplyModal}
+                      className="px-8 py-3 rounded-full bg-[#B3FFC9] text-black hover:bg-[#9effba] text-xs font-bold uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(179,255,201,0.3)] cursor-pointer"
+                      style={{ fontFamily: "'Syne', sans-serif" }}
+                    >
+                      Done
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                /* Form State */
+                <div className="space-y-6">
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="px-3 py-0.5 rounded-full bg-[#183626] border border-[#B3FFC9]/30 text-[#B3FFC9] text-[10px] font-bold uppercase tracking-wider">
+                        {selectedJobForApply?.department || "Careers"}
+                      </span>
+                      <span className="text-xs text-white/40 font-mono">
+                        {selectedJobForApply?.type || "Full-time"}
+                      </span>
+                    </div>
+                    <h3
+                      className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight"
+                      style={{ fontFamily: "'Syne', sans-serif" }}
+                    >
+                      Apply for {selectedJobForApply?.title || "Role"}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-white/50 mt-1">
+                      Share your details and showreel. We value hands-on craft and attention to detail.
+                    </p>
+                  </div>
+
+                  {submitAppError && (
+                    <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-center gap-2">
+                      <AlertCircle size={15} className="shrink-0" />
+                      <span>{submitAppError}</span>
+                    </div>
+                  )}
+
+                  <form onSubmit={handleApplySubmit} noValidate className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* Name */}
+                      <div className="space-y-1.5">
+                        <label className="text-[11px] font-bold uppercase tracking-wider text-white/70" style={{ fontFamily: "'Syne', sans-serif" }}>
+                          Full Name <span className="text-red-500 font-bold">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={applicantForm.name}
+                          onChange={(e) => {
+                            setApplicantForm({ ...applicantForm, name: e.target.value });
+                            if (fieldErrors.name) setFieldErrors((prev) => ({ ...prev, name: "" }));
+                            if (submitAppError) setSubmitAppError("");
+                          }}
+                          placeholder="e.g. Rahul Sharma"
+                          className={`w-full px-4 py-3 rounded-xl bg-[#141414] text-white text-sm placeholder:text-white/25 focus:outline-none transition-all ${fieldErrors.name
+                            ? "border border-red-500/80 ring-1 ring-red-500/30 bg-red-500/[0.03]"
+                            : "border border-white/10 focus:border-[#B3FFC9]"
+                            }`}
+                        />
+                        {fieldErrors.name && (
+                          <p className="text-[11px] text-red-400 flex items-center gap-1 mt-1 font-mono">
+                            <AlertCircle size={11} className="shrink-0" />
+                            <span>{fieldErrors.name}</span>
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Email */}
+                      <div className="space-y-1.5">
+                        <label className="text-[11px] font-bold uppercase tracking-wider text-white/70" style={{ fontFamily: "'Syne', sans-serif" }}>
+                          Email Address <span className="text-red-500 font-bold">*</span>
+                        </label>
+                        <input
+                          type="email"
+                          value={applicantForm.email}
+                          onChange={(e) => {
+                            setApplicantForm({ ...applicantForm, email: e.target.value });
+                            if (fieldErrors.email) setFieldErrors((prev) => ({ ...prev, email: "" }));
+                            if (submitAppError) setSubmitAppError("");
+                          }}
+                          placeholder="rahul@example.com"
+                          className={`w-full px-4 py-3 rounded-xl bg-[#141414] text-white text-sm placeholder:text-white/25 focus:outline-none transition-all ${fieldErrors.email
+                            ? "border border-red-500/80 ring-1 ring-red-500/30 bg-red-500/[0.03]"
+                            : "border border-white/10 focus:border-[#B3FFC9]"
+                            }`}
+                        />
+                        {fieldErrors.email && (
+                          <p className="text-[11px] text-red-400 flex items-center gap-1 mt-1 font-mono">
+                            <AlertCircle size={11} className="shrink-0" />
+                            <span>{fieldErrors.email}</span>
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* Phone */}
+                      <div className="space-y-1.5">
+                        <label className="text-[11px] font-bold uppercase tracking-wider text-white/70" style={{ fontFamily: "'Syne', sans-serif" }}>
+                          Phone Number <span className="text-red-500 font-bold">*</span>
+                        </label>
+                        <input
+                          type="tel"
+                          value={applicantForm.phone}
+                          onChange={(e) => {
+                            setApplicantForm({ ...applicantForm, phone: e.target.value });
+                            if (fieldErrors.phone) setFieldErrors((prev) => ({ ...prev, phone: "" }));
+                            if (submitAppError) setSubmitAppError("");
+                          }}
+                          placeholder="+91 98765 43210"
+                          className={`w-full px-4 py-3 rounded-xl bg-[#141414] text-white text-sm placeholder:text-white/25 focus:outline-none transition-all ${fieldErrors.phone
+                            ? "border border-red-500/80 ring-1 ring-red-500/30 bg-red-500/[0.03]"
+                            : "border border-white/10 focus:border-[#B3FFC9]"
+                            }`}
+                        />
+                        {fieldErrors.phone && (
+                          <p className="text-[11px] text-red-400 flex items-center gap-1 mt-1 font-mono">
+                            <AlertCircle size={11} className="shrink-0" />
+                            <span>{fieldErrors.phone}</span>
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Experience Level */}
+                      <div className="space-y-1.5">
+                        <label className="text-[11px] font-bold uppercase tracking-wider text-white/70" style={{ fontFamily: "'Syne', sans-serif" }}>
+                          Experience Level <span className="text-red-500 font-bold">*</span>
+                        </label>
+                        <select
+                          value={applicantForm.experience}
+                          onChange={(e) => {
+                            setApplicantForm({ ...applicantForm, experience: e.target.value });
+                            if (fieldErrors.experience) setFieldErrors((prev) => ({ ...prev, experience: "" }));
+                            if (submitAppError) setSubmitAppError("");
+                          }}
+                          className={`w-full px-4 py-3 rounded-xl bg-[#141414] text-white text-sm focus:outline-none transition-all cursor-pointer ${fieldErrors.experience
+                            ? "border border-red-500/80 ring-1 ring-red-500/30 bg-red-500/[0.03]"
+                            : "border border-white/10 focus:border-[#B3FFC9]"
+                            }`}
+                        >
+                          <option value="Fresher / < 1 Year">Fresher / &lt; 1 Year</option>
+                          <option value="1-2 Years">1 - 2 Years</option>
+                          <option value="3-5 Years">3 - 5 Years</option>
+                          <option value="5+ Years">5+ Years</option>
+                        </select>
+                        {fieldErrors.experience && (
+                          <p className="text-[11px] text-red-400 flex items-center gap-1 mt-1 font-mono">
+                            <AlertCircle size={11} className="shrink-0" />
+                            <span>{fieldErrors.experience}</span>
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Resume / CV Link */}
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <label className="text-[11px] font-bold uppercase tracking-wider text-white/70" style={{ fontFamily: "'Syne', sans-serif" }}>
+                          Resume / CV Link <span className="text-red-500 font-bold">*</span>
+                        </label>
+                        <span className="text-[10px] text-white/40 font-mono">Google Drive, Notion, LinkedIn</span>
+                      </div>
+                      <input
+                        type="url"
+                        value={applicantForm.resumeUrl}
+                        onChange={(e) => {
+                          setApplicantForm({ ...applicantForm, resumeUrl: e.target.value });
+                          if (fieldErrors.resumeUrl) setFieldErrors((prev) => ({ ...prev, resumeUrl: "" }));
+                          if (submitAppError) setSubmitAppError("");
+                        }}
+                        placeholder="https://drive.google.com/... or https://linkedin.com/in/..."
+                        className={`w-full px-4 py-3 rounded-xl bg-[#141414] text-white text-sm placeholder:text-white/25 focus:outline-none transition-all ${fieldErrors.resumeUrl
+                          ? "border border-red-500/80 ring-1 ring-red-500/30 bg-red-500/[0.03]"
+                          : "border border-white/10 focus:border-[#B3FFC9]"
+                          }`}
+                      />
+                      {fieldErrors.resumeUrl && (
+                        <p className="text-[11px] text-red-400 flex items-center gap-1 mt-1 font-mono">
+                          <AlertCircle size={11} className="shrink-0" />
+                          <span>{fieldErrors.resumeUrl}</span>
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Portfolio / Showreel */}
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <label className="text-[11px] font-bold uppercase tracking-wider text-white/70 flex items-center gap-1.5" style={{ fontFamily: "'Syne', sans-serif" }}>
+                          <span>Portfolio / Showreel URL</span>
+                          <span className="text-white/40 text-[10px] font-normal font-mono">(Optional)</span>
+                        </label>
+                        <span className="text-[10px] text-white/40 font-mono">YouTube, Vimeo, Behance, Drive</span>
+                      </div>
+                      <input
+                        type="url"
+                        value={applicantForm.portfolioUrl}
+                        onChange={(e) => {
+                          setApplicantForm({ ...applicantForm, portfolioUrl: e.target.value });
+                          if (fieldErrors.portfolioUrl) setFieldErrors((prev) => ({ ...prev, portfolioUrl: "" }));
+                          if (submitAppError) setSubmitAppError("");
+                        }}
+                        placeholder="https://vimeo.com/... or https://behance.net/..."
+                        className={`w-full px-4 py-3 rounded-xl bg-[#141414] text-white text-sm placeholder:text-white/25 focus:outline-none transition-all ${fieldErrors.portfolioUrl
+                          ? "border border-red-500/80 ring-1 ring-red-500/30 bg-red-500/[0.03]"
+                          : "border border-white/10 focus:border-[#B3FFC9]"
+                          }`}
+                      />
+                      {fieldErrors.portfolioUrl && (
+                        <p className="text-[11px] text-red-400 flex items-center gap-1 mt-1 font-mono">
+                          <AlertCircle size={11} className="shrink-0" />
+                          <span>{fieldErrors.portfolioUrl}</span>
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Note / Pitch */}
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <label className="text-[11px] font-bold uppercase tracking-wider text-white/70 flex items-center gap-1.5" style={{ fontFamily: "'Syne', sans-serif" }}>
+                          <span>Why Littroi? / Cover Note</span>
+                          <span className="text-white/40 text-[10px] font-normal font-mono">(Optional)</span>
+                        </label>
+                      </div>
+                      <textarea
+                        rows={3}
+                        value={applicantForm.coverLetter}
+                        onChange={(e) => {
+                          setApplicantForm({ ...applicantForm, coverLetter: e.target.value });
+                          if (fieldErrors.coverLetter) setFieldErrors((prev) => ({ ...prev, coverLetter: "" }));
+                          if (submitAppError) setSubmitAppError("");
+                        }}
+                        placeholder="Tell us about the edits or projects you're most proud of, your favorite tools, or why you want to work with us..."
+                        className={`w-full px-4 py-3 rounded-xl bg-[#141414] text-white text-sm placeholder:text-white/25 focus:outline-none transition-all resize-none ${fieldErrors.coverLetter
+                          ? "border border-red-500/80 ring-1 ring-red-500/30 bg-red-500/[0.03]"
+                          : "border border-white/10 focus:border-[#B3FFC9]"
+                          }`}
+                      />
+                      {fieldErrors.coverLetter && (
+                        <p className="text-[11px] text-red-400 flex items-center gap-1 mt-1 font-mono">
+                          <AlertCircle size={11} className="shrink-0" />
+                          <span>{fieldErrors.coverLetter}</span>
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="pt-2 flex items-center justify-end gap-3">
+                      <button
+                        type="button"
+                        onClick={handleCloseApplyModal}
+                        className="px-5 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 hover:text-white text-xs font-semibold transition-colors cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={isSubmittingApp}
+                        className="px-7 py-3 rounded-xl bg-[#B3FFC9] hover:bg-[#9effba] text-black text-xs font-bold uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(179,255,201,0.25)] flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                        style={{ fontFamily: "'Syne', sans-serif" }}
+                      >
+                        {isSubmittingApp ? (
+                          <>
+                            <div className="w-3.5 h-3.5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                            <span>Submitting...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>Submit Application</span>
+                            <Send size={13} />
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
       </div>
     </>

@@ -144,7 +144,7 @@ export function VideoPinSection() {
   }, []);
 
   return (
-    <section 
+    <section
       id="showreel"
       className="relative w-full bg-black overflow-hidden select-none"
     >
@@ -198,8 +198,8 @@ export function VideoPinSection() {
             toggleSound();
           }}
           className={`absolute bottom-6 right-6 z-30 flex items-center gap-2.5 px-4 py-2 rounded-full text-xs font-medium tracking-wide backdrop-blur-md border transition-all duration-300 shadow-2xl cursor-pointer ${isMuted
-              ? "bg-black/70 text-white/90 border-white/20 hover:border-[#B3FFC9] hover:text-[#B3FFC9] hover:bg-black/90"
-              : "bg-[#B3FFC9] text-black border-[#B3FFC9] font-semibold hover:bg-[#9effba]"
+            ? "bg-black/70 text-white/90 border-white/20 hover:border-[#B3FFC9] hover:text-[#B3FFC9] hover:bg-black/90"
+            : "bg-[#B3FFC9] text-black border-[#B3FFC9] font-semibold hover:bg-[#9effba]"
             }`}
         >
           <span className="relative flex h-2 w-2">
@@ -240,7 +240,7 @@ export function VideoPinSection() {
               className="text-2xl md:text-3xl lg:text-[2.6rem] xl:text-[3.1rem] text-white font-bold leading-[1.18] tracking-[-0.02em] m-0"
               style={{ fontFamily: "'Syne', sans-serif" }}
             >
-              Design on the web isn't static anymore. Today's brands need energy, personality and meaning. We bring together strategy, design and storytelling to build digital experiences that grab attention, move fast and make people feel.
+              Smart strategy backed by precise execution, because ideas alone are never enough. Get seen. Get trusted. Get chosen.
             </h2>
             <div className="clear-both" />
           </div>
@@ -268,7 +268,7 @@ export function VideoPinSection() {
             className="text-xl sm:text-2xl font-bold text-white leading-snug tracking-tight m-0"
             style={{ fontFamily: "'Syne', sans-serif" }}
           >
-            Design on the web isn't static anymore. Today's brands need energy, personality and meaning. We bring together strategy, design and storytelling to build digital experiences that grab attention, move fast and make people feel.
+            Smart strategy backed by precise execution, because ideas alone are never enough. Get seen. Get trusted. Get chosen.
           </h2>
 
           <div className="bg-white/15 h-[1px] w-full" />

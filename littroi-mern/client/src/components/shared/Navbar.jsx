@@ -43,6 +43,7 @@ export function Navbar() {
     { name: "Home", path: "/" },
     { name: "About Us", path: "/about-us" },
     { name: "Case Studies", path: "/case-studies" },
+    { name: "Testimonials", path: "/testimonials" },
     { name: "Careers", path: "/careers" },
     { name: "Blog", path: "/blog" },
     { name: "Contact Us", path: "/contact-us" },
@@ -111,8 +112,8 @@ export function Navbar() {
             </div>
           </div>
 
-          {/* CENTER: Main Desktop Navigation */}
-          <div className="site-header-primary-section-center site-header-section ast-flex ast-grid-section-center hidden md:flex items-center justify-center flex-1 mx-8">
+          {/* CENTER: Main Desktop Navigation (1024px+) */}
+          <div className="site-header-primary-section-center site-header-section ast-flex ast-grid-section-center hidden lg:flex items-center justify-center flex-1 mx-3 xl:mx-8">
             <div className="ast-builder-menu-1 ast-builder-menu ast-flex ast-builder-menu-1-focus-item ast-builder-layout-element site-header-focus-item" data-section="section-hb-menu-1">
               <div className="ast-main-header-bar-alignment">
                 <div className="main-header-bar-navigation">
@@ -126,7 +127,7 @@ export function Navbar() {
                     <div className="main-navigation ast-inline-flex">
                       <ul
                         id="ast-hf-menu-1"
-                        className="main-header-menu ast-menu-shadow ast-nav-menu ast-flex submenu-with-border ast-menu-hover-style-zoom stack-on-mobile flex items-center gap-6 lg:gap-9 list-none m-0 p-0"
+                        className="main-header-menu ast-menu-shadow ast-nav-menu ast-flex submenu-with-border ast-menu-hover-style-zoom stack-on-mobile flex items-center gap-3.5 xl:gap-8 list-none m-0 p-0"
                       >
                         {navLinks.map((link) => (
                           <motion.li
@@ -138,7 +139,7 @@ export function Navbar() {
                               to={link.path}
                               end={link.path === "/"}
                               className={({ isActive }) =>
-                                `menu-link text-[15px] font-semibold tracking-wide transition-colors duration-200 inline-block select-none ${
+                                `menu-link text-[13.5px] xl:text-[15px] font-semibold tracking-wide transition-colors duration-200 inline-block select-none whitespace-nowrap ${
                                   isActive
                                     ? "text-[#B3FFC9]"
                                     : "text-white hover:text-[#B3FFC9]"
@@ -158,8 +159,8 @@ export function Navbar() {
             </div>
           </div>
 
-          {/* RIGHT: Book a Call Header Button */}
-          <div className="site-header-primary-section-right site-header-section ast-flex ast-grid-right-section hidden md:flex items-center flex-shrink-0">
+          {/* RIGHT: Book a Call Header Button (1024px+) */}
+          <div className="site-header-primary-section-right site-header-section ast-flex ast-grid-right-section hidden lg:flex items-center flex-shrink-0">
             <div className="ast-builder-layout-element ast-flex site-header-focus-item ast-header-button-1" data-section="section-hb-button-1">
               <motion.div
                 whileHover={{ scale: 1.08 }}
@@ -176,7 +177,7 @@ export function Navbar() {
                   aria-label="Book a Call"
                 >
                   <div
-                    className="ast-custom-button px-7 py-3 rounded-full border border-[#B3FFC9] text-[#B3FFC9] text-[15px] font-bold tracking-wide transition-all duration-300 group-hover:bg-[#B3FFC9] group-hover:text-black cursor-pointer shadow-[0_0_15px_rgba(179,255,201,0.15)] group-hover:shadow-[0_0_25px_rgba(179,255,201,0.4)]"
+                    className="ast-custom-button px-5 xl:px-7 py-2.5 xl:py-3 rounded-full border border-[#B3FFC9] text-[#B3FFC9] text-[13.5px] xl:text-[15px] font-bold tracking-wide transition-all duration-300 group-hover:bg-[#B3FFC9] group-hover:text-black cursor-pointer shadow-[0_0_15px_rgba(179,255,201,0.15)] group-hover:shadow-[0_0_25px_rgba(179,255,201,0.4)] whitespace-nowrap"
                     style={{ fontFamily: "'Syne', sans-serif" }}
                   >
                     Book a Call
@@ -186,8 +187,8 @@ export function Navbar() {
             </div>
           </div>
 
-          {/* Mobile Menu Toggle */}
-          <div className="md:hidden flex items-center">
+          {/* Mobile / Tablet Menu Toggle (<1024px) */}
+          <div className="lg:hidden flex items-center">
             <motion.button
               whileTap={{ scale: 1.25 }}
               className="text-white p-2.5 rounded-lg hover:bg-white/10 transition-colors focus:outline-none cursor-pointer"
@@ -201,10 +202,10 @@ export function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Drawer Menu */}
+      {/* Mobile & Tablet Drawer Menu */}
       {mobileOpen && (
-        <div className="md:hidden bg-black/95 backdrop-blur-xl border-t border-white/10 px-8 pb-10 pt-6 animate-fadeIn">
-          <nav className="flex flex-col gap-5">
+        <div className="lg:hidden bg-black/95 backdrop-blur-xl border-t border-white/10 px-6 sm:px-10 pb-10 pt-6 animate-fadeIn">
+          <nav className="flex flex-col gap-5 max-w-md mx-auto sm:mx-0">
             {navLinks.map((link) => (
               <motion.div
                 key={link.path}

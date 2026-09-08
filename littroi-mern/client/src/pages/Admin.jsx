@@ -40,11 +40,12 @@ import {
   Building,
   MessageSquare,
   Quote,
-  Star
+  Star,
+  UserCheck
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { SEO } from "../utils/seo";
-import { authAPI, caseStudiesAPI, blogAPI, jobsAPI, contactAPI, projectsAPI, uploadAPI, testimonialsAPI, cookieUtils } from "../services/api";
+import { authAPI, caseStudiesAPI, blogAPI, jobsAPI, contactAPI, projectsAPI, uploadAPI, testimonialsAPI, jobApplicationsAPI, cookieUtils } from "../services/api";
 import litroiLogo from "../assets/littroi-logo.png";
 
 export function Admin() {
@@ -65,6 +66,7 @@ export function Admin() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [videoCategoryFilter, setVideoCategoryFilter] = useState("all");
+  const [testimonialTypeFilter, setTestimonialTypeFilter] = useState("all"); // 'all' | 'video' | 'text'
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [chartRange, setChartRange] = useState("30D"); // '7D' | '30D' | '90D' | '1Y'
   const [chartMetric, setChartMetric] = useState("all"); // 'all' | 'leads' | 'reach'
@@ -79,6 +81,7 @@ export function Admin() {
     testimonials: 1,
     blog: 1,
     jobs: 1,
+    jobApplications: 1,
     enquiries: 1
   });
 
@@ -88,6 +91,7 @@ export function Admin() {
     testimonials: 6,
     blog: 6,
     jobs: 6,
+    jobApplications: 8,
     enquiries: 8
   });
 
@@ -103,14 +107,16 @@ export function Admin() {
   const [testimonialsList, setTestimonialsList] = useState([]);
   const [blogsList, setBlogsList] = useState([]);
   const [jobsList, setJobsList] = useState([]);
+  const [jobApplicationsList, setJobApplicationsList] = useState([]);
   const [enquiriesList, setEnquiriesList] = useState([]);
   const [isLoadingData, setIsLoadingData] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
 
   // Modal States
-  const [modalType, setModalType] = useState(null); // 'caseStudy' | 'project' | 'testimonial' | 'blog' | 'job' | 'viewEnquiry' | 'videoPreview'
+  const [modalType, setModalType] = useState(null); // 'caseStudy' | 'project' | 'testimonial' | 'blog' | 'job' | 'viewEnquiry' | 'viewApplication' | 'videoPreview'
   const [editingItem, setEditingItem] = useState(null);
   const [selectedEnquiry, setSelectedEnquiry] = useState(null);
+  const [selectedApplication, setSelectedApplication] = useState(null);
   const [previewVideoUrl, setPreviewVideoUrl] = useState("");
 
   // Delete Confirmation Popup State
@@ -155,10 +161,12 @@ export function Admin() {
     company: "",
     quote: "",
     avatar: "",
+    type: "video", // 'video' | 'text'
     videoUrl: "",
     videoId: "",
     videoFirst: true,
     metric: "",
+    rating: 5,
     order: 0,
     isActive: true
   });
@@ -227,13 +235,14 @@ export function Admin() {
   const loadAllData = async () => {
     setIsLoadingData(true);
     try {
-      const [cs, projs, tests, blogs, jobs, enqs] = await Promise.all([
+      const [cs, projs, tests, blogs, jobs, enqs, jobApps] = await Promise.all([
         caseStudiesAPI.getAll(),
         projectsAPI.getAll(),
         testimonialsAPI.getAll(true),
         blogAPI.getAll(),
         jobsAPI.getAll(),
-        contactAPI.getAll()
+        contactAPI.getAll(),
+        jobApplicationsAPI.getAll()
       ]);
       setCaseStudiesList(cs || []);
       setProjectsList(projs || []);
@@ -241,6 +250,7 @@ export function Admin() {
       setBlogsList(blogs || []);
       setJobsList(jobs || []);
       setEnquiriesList(enqs || []);
+      setJobApplicationsList(jobApps || []);
     } catch (err) {
       console.warn("Data loading error:", err);
     } finally {
@@ -651,6 +661,9 @@ export function Admin() {
       } else if (type === "enquiry") {
         await contactAPI.delete(id);
         showToast("Inquiry lead deleted");
+      } else if (type === "jobApplication") {
+        await jobApplicationsAPI.delete(id);
+        showToast("Job application deleted");
       }
       await loadAllData();
     } catch (err) {
@@ -949,16 +962,19 @@ export function Admin() {
     if (item) {
       setEditingItem(item);
       const vidId = item.videoId || (item.videoUrl ? item.videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/)?.[1] : "") || "";
+      const determinedType = item.type || (vidId || item.videoUrl ? "video" : "text");
       setTestimonialForm({
         name: item.name || item.clientName || "",
         role: item.role || item.clientRole || "",
         company: item.company || item.clientCompany || "",
         quote: item.quote || item.testimonial || "",
         avatar: item.avatar || item.clientImage || "",
+        type: determinedType,
         videoUrl: item.videoUrl || (vidId ? `https://www.youtube.com/watch?v=${vidId}` : ""),
         videoId: vidId,
         videoFirst: item.videoFirst !== undefined ? item.videoFirst : true,
         metric: item.metric || "",
+        rating: item.rating !== undefined ? item.rating : 5,
         order: item.order !== undefined ? item.order : 0,
         isActive: item.isActive !== undefined ? item.isActive : true
       });
@@ -970,10 +986,12 @@ export function Admin() {
         company: "",
         quote: "",
         avatar: "",
+        type: "video",
         videoUrl: "",
         videoId: "",
         videoFirst: true,
         metric: "",
+        rating: 5,
         order: testimonialsList.length,
         isActive: true
       });
@@ -988,14 +1006,16 @@ export function Admin() {
       return;
     }
 
-    let extractedVideoId = testimonialForm.videoId;
-    if (testimonialForm.videoUrl && !extractedVideoId) {
+    let extractedVideoId = testimonialForm.type === "video" ? testimonialForm.videoId : "";
+    if (testimonialForm.type === "video" && testimonialForm.videoUrl && !extractedVideoId) {
       const match = testimonialForm.videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
       if (match) extractedVideoId = match[1];
     }
 
     const payload = {
       ...testimonialForm,
+      type: testimonialForm.type,
+      videoUrl: testimonialForm.type === "video" ? testimonialForm.videoUrl : "",
       videoId: extractedVideoId,
       clientName: testimonialForm.name,
       clientRole: testimonialForm.role,
@@ -1010,7 +1030,7 @@ export function Admin() {
         showToast("Testimonial updated successfully ✓");
       } else {
         await testimonialsAPI.create(payload);
-        showToast("New testimonial added to Home Page ✓");
+        showToast("New testimonial added successfully ✓");
       }
       await loadAllData();
       setModalType(null);
@@ -1053,6 +1073,27 @@ export function Admin() {
     setModalType("viewEnquiry");
   };
 
+  const handleSetApplicationStatus = async (id, status) => {
+    try {
+      await jobApplicationsAPI.updateStatus(id, status);
+      showToast(`Application status updated to ${status}`);
+      if (selectedApplication && (selectedApplication._id === id || selectedApplication.id === id)) {
+        setSelectedApplication({ ...selectedApplication, status });
+      }
+      await loadAllData();
+    } catch (err) {
+      showToast(`❌ Error: ${err.message}`);
+    }
+  };
+
+  const handleViewApplication = (app) => {
+    setSelectedApplication(app);
+    setModalType("viewApplication");
+    if (app.status === "New") {
+      handleSetApplicationStatus(app.id || app._id, "Reviewed");
+    }
+  };
+
   // Filtered Lists
   const filteredCaseStudies = caseStudiesList.filter((cs) => 
     (cs.title || cs.name)?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -1069,12 +1110,19 @@ export function Admin() {
     return matchesSearch && (p.category === videoCategoryFilter);
   });
 
-  const filteredTestimonials = testimonialsList.filter((t) => 
-    (t.name || t.clientName)?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (t.role || t.clientRole)?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (t.company || t.clientCompany)?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (t.quote || t.testimonial)?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredTestimonials = testimonialsList.filter((t) => {
+    const matchesSearch =
+      (t.name || t.clientName)?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (t.role || t.clientRole)?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (t.company || t.clientCompany)?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (t.quote || t.testimonial)?.toLowerCase().includes(searchQuery.toLowerCase());
+
+    if (!matchesSearch) return false;
+    const isVideo = Boolean(t.videoId || t.videoUrl || t.type === "video");
+    if (testimonialTypeFilter === "video") return isVideo;
+    if (testimonialTypeFilter === "text") return !isVideo || t.type === "text";
+    return true;
+  });
 
   const filteredBlogs = blogsList.filter((b) => 
     b.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -1097,6 +1145,18 @@ export function Admin() {
     return matchesSearch && (e.status?.toLowerCase() === statusFilter.toLowerCase());
   });
 
+  const filteredApplications = jobApplicationsList.filter((app) => {
+    const matchesSearch =
+      (app.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (app.email || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (app.jobTitle || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (app.portfolioUrl || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (app.phone || "").toLowerCase().includes(searchQuery.toLowerCase());
+    
+    if (statusFilter === "all") return matchesSearch;
+    return matchesSearch && (app.status?.toLowerCase() === statusFilter.toLowerCase());
+  });
+
   // Reset pagination on filter, search or tab change
   useEffect(() => {
     setCurrentPage({
@@ -1105,9 +1165,10 @@ export function Admin() {
       testimonials: 1,
       blog: 1,
       jobs: 1,
+      jobApplications: 1,
       enquiries: 1
     });
-  }, [searchQuery, statusFilter, videoCategoryFilter, activeTab]);
+  }, [searchQuery, statusFilter, videoCategoryFilter, testimonialTypeFilter, activeTab]);
 
   // Paginated Slices & Total Pages for all tabs
   const csTotalPages = Math.max(1, Math.ceil(filteredCaseStudies.length / itemsPerPage.caseStudies));
@@ -1143,6 +1204,13 @@ export function Admin() {
   const paginatedJobs = filteredJobs.slice(
     (jobsCurrentPage - 1) * itemsPerPage.jobs,
     jobsCurrentPage * itemsPerPage.jobs
+  );
+
+  const appsTotalPages = Math.max(1, Math.ceil(filteredApplications.length / itemsPerPage.jobApplications));
+  const appsCurrentPage = Math.min(currentPage.jobApplications || 1, appsTotalPages);
+  const paginatedApplications = filteredApplications.slice(
+    (appsCurrentPage - 1) * itemsPerPage.jobApplications,
+    appsCurrentPage * itemsPerPage.jobApplications
   );
 
   const enqsTotalPages = Math.max(1, Math.ceil(filteredEnquiries.length / itemsPerPage.enquiries));
@@ -1249,6 +1317,7 @@ export function Admin() {
     { id: "testimonials", label: "Testimonials", icon: Quote, count: testimonialsList.length },
     { id: "blog", label: "Blog Insights", icon: FileText, count: blogsList.length },
     { id: "jobs", label: "Careers", icon: Briefcase, count: jobsList.length },
+    { id: "jobApplications", label: "Job Applications", icon: UserCheck, count: jobApplicationsList.length, highlight: jobApplicationsList.some(a => a.status === "New") },
     { id: "enquiries", label: "Client Inquiries", icon: Inbox, count: enquiriesList.length, highlight: enquiriesList.some(e => e.status === "New") },
   ];
 
@@ -1461,7 +1530,7 @@ export function Admin() {
               </button>
               <div>
                 <h1 className="text-xl sm:text-2xl font-bold text-white capitalize tracking-tight" style={{ fontFamily: "'Syne', sans-serif" }}>
-                  {activeTab === "caseStudies" ? "Case Studies Analysis" : (activeTab === "homeVideos" ? "Home Video Showcases" : (activeTab === "testimonials" ? "Client Testimonials" : (activeTab === "enquiries" ? "Client Inquiries Inbox" : activeTab)))}
+                  {activeTab === "caseStudies" ? "Case Studies Analysis" : (activeTab === "homeVideos" ? "Home Video Showcases" : (activeTab === "testimonials" ? "Client Testimonials" : (activeTab === "jobApplications" ? "Candidate Job Applications" : (activeTab === "enquiries" ? "Client Inquiries Inbox" : activeTab))))}
                 </h1>
                 <p className="text-xs text-white/40 hidden sm:block">
                   Littroi Media MERN Production Database
@@ -1543,8 +1612,8 @@ export function Admin() {
             {/* ==================== TAB: DASHBOARD WITH ANALYTICS GRAPHS ==================== */}
             {activeTab === "dashboard" && (
               <div className="space-y-8">
-                {/* 6 Hero Metric Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                {/* 7 Hero Metric Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
                   <div 
                     onClick={() => setActiveTab("caseStudies")}
                     className="p-5 rounded-2xl bg-[#0e0e0e] border border-white/10 hover:border-[#B3FFC9]/40 transition-all cursor-pointer space-y-3 group hover:shadow-[0_10px_30px_rgba(0,0,0,0.8),0_0_20px_rgba(179,255,201,0.05)]"
@@ -1655,6 +1724,31 @@ export function Admin() {
                     </div>
                     <div className="text-[10px] text-white/40 font-mono">
                       <span>Open Studio Roles</span>
+                    </div>
+                  </div>
+
+                  <div 
+                    onClick={() => setActiveTab("jobApplications")}
+                    className="p-5 rounded-2xl bg-[#0e0e0e] border border-white/10 hover:border-[#B3FFC9]/40 transition-all cursor-pointer space-y-3 group hover:shadow-[0_10px_30px_rgba(0,0,0,0.8),0_0_20px_rgba(179,255,201,0.05)]"
+                  >
+                    <div className="flex items-center justify-between text-white/50">
+                      <span className="text-[11px] uppercase font-bold tracking-wider" style={{ fontFamily: "'Syne', sans-serif" }}>Applications</span>
+                      <div className="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center text-[#B3FFC9] group-hover:scale-110 transition-transform">
+                        <UserCheck size={14} />
+                      </div>
+                    </div>
+                    <div className="flex items-baseline justify-between">
+                      <p className="text-3xl font-extrabold text-[#B3FFC9]" style={{ fontFamily: "'Syne', sans-serif" }}>
+                        {jobApplicationsList.length}
+                      </p>
+                      {jobApplicationsList.some(a => a.status === "New") && (
+                        <span className="text-[10px] font-mono text-[#B3FFC9] flex items-center gap-0.5">
+                          New
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-[10px] text-white/40 font-mono">
+                      <span>Candidate Profiles</span>
                     </div>
                   </div>
 
@@ -2451,8 +2545,29 @@ export function Admin() {
             {activeTab === "testimonials" && (
               <div className="space-y-6">
                 <div className="flex flex-wrap items-center justify-between gap-4">
+                  <div className="flex flex-wrap items-center gap-2">
+                    {[
+                      { key: "all", label: `All (${testimonialsList.length})` },
+                      { key: "video", label: `Video (${testimonialsList.filter(t => t.videoId || t.videoUrl || t.type === 'video').length})` },
+                      { key: "text", label: `Text Only (${testimonialsList.filter(t => (!t.videoId && !t.videoUrl) || t.type === 'text').length})` },
+                    ].map((tab) => (
+                      <button
+                        key={tab.key}
+                        onClick={() => setTestimonialTypeFilter(tab.key)}
+                        className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                          testimonialTypeFilter === tab.key
+                            ? "bg-[#B3FFC9] text-black"
+                            : "bg-white/5 text-white/60 hover:text-white"
+                        }`}
+                        style={{ fontFamily: "'Syne', sans-serif" }}
+                      >
+                        {tab.label}
+                      </button>
+                    ))}
+                  </div>
+
                   <div className="text-xs text-white/50 font-mono">
-                    Showing page <strong className="text-white">{testsCurrentPage}</strong> of <strong className="text-white">{testsTotalPages}</strong> ({filteredTestimonials.length} testimonials total)
+                    Showing page <strong className="text-white">{testsCurrentPage}</strong> of <strong className="text-white">{testsTotalPages}</strong> ({filteredTestimonials.length} testimonials)
                   </div>
                 </div>
 
@@ -2463,7 +2578,7 @@ export function Admin() {
                     </div>
                     <div>
                       <h3 className="text-base font-bold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>No Testimonials Found</h3>
-                      <p className="text-xs text-white/40 mt-1">Add your first video testimonial from clients and creators.</p>
+                      <p className="text-xs text-white/40 mt-1">Post a video testimonial or text testimonial from clients and creators.</p>
                     </div>
                     <button
                       onClick={() => handleOpenTestimonialModal()}
@@ -2483,6 +2598,7 @@ export function Admin() {
                         const quote = t.quote || t.testimonial || "";
                         const avatar = t.avatar || t.clientImage;
                         const vidId = t.videoId || (t.videoUrl ? t.videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/)?.[1] : "");
+                        const isVideo = Boolean(vidId || (t.type === "video" && t.videoUrl));
 
                         return (
                           <div
@@ -2490,8 +2606,26 @@ export function Admin() {
                             className="rounded-2xl bg-[#0d0d0d] border border-white/10 hover:border-[#B3FFC9]/30 p-5 space-y-4 flex flex-col justify-between transition-all group hover:shadow-[0_10px_30px_rgba(0,0,0,0.8),0_0_20px_rgba(179,255,201,0.03)]"
                           >
                             <div className="space-y-3">
-                              {/* Video Preview / Embed Thumbnail */}
-                              {vidId ? (
+                              {/* Format Badge */}
+                              <div className="flex items-center justify-between">
+                                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+                                  isVideo
+                                    ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
+                                    : "bg-[#B3FFC9]/10 text-[#B3FFC9] border border-[#B3FFC9]/20"
+                                }`}>
+                                  {isVideo ? <Video size={11} /> : <Quote size={11} />}
+                                  <span>{isVideo ? "Video Testimonial" : "Text Testimonial"}</span>
+                                </span>
+
+                                {t.metric && (
+                                  <span className="text-[10px] font-mono text-[#B3FFC9] bg-white/5 px-2 py-0.5 rounded-full truncate max-w-[130px]">
+                                    {t.metric}
+                                  </span>
+                                )}
+                              </div>
+
+                              {/* Video Preview / Embed Thumbnail or Text Review Box */}
+                              {isVideo && vidId ? (
                                 <div className="relative rounded-xl overflow-hidden aspect-video border border-white/10 bg-black group/vid">
                                   <img
                                     src={`https://img.youtube.com/vi/${vidId}/hqdefault.jpg`}
@@ -2515,9 +2649,13 @@ export function Admin() {
                                   </div>
                                 </div>
                               ) : (
-                                <div className="rounded-xl aspect-video border border-dashed border-white/10 bg-[#141414] flex flex-col items-center justify-center text-white/30 text-xs">
-                                  <Video size={24} className="mb-1" />
-                                  <span>No YouTube Video Linked</span>
+                                <div className="rounded-xl p-4 border border-white/5 bg-white/[0.02] flex items-center justify-between">
+                                  <div className="flex text-[#B3FFC9]">
+                                    {[...Array(t.rating || 5)].map((_, i) => (
+                                      <Star key={i} size={14} className="fill-[#B3FFC9]" />
+                                    ))}
+                                  </div>
+                                  <span className="text-[11px] font-mono text-white/50">Verified Review</span>
                                 </div>
                               )}
 
@@ -2724,6 +2862,164 @@ export function Admin() {
                       ))}
                     </div>
                     {renderPagination("jobs", filteredJobs.length, itemsPerPage.jobs, jobsCurrentPage)}
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* ==================== TAB: JOB APPLICATIONS ==================== */}
+            {activeTab === "jobApplications" && (
+              <div className="space-y-6">
+                {/* Header Controls & Filter Pills */}
+                <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-[#0e0e0e] border border-white/10">
+                  <div className="flex flex-wrap items-center gap-2">
+                    {["all", "new", "reviewed", "shortlisted", "rejected"].map((st) => (
+                      <button
+                        key={st}
+                        onClick={() => setStatusFilter(st)}
+                        className={`px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                          statusFilter === st ? "bg-[#B3FFC9] text-black shadow-[0_0_15px_rgba(179,255,201,0.25)]" : "bg-white/5 text-white/60 hover:text-white hover:bg-white/10"
+                        }`}
+                        style={{ fontFamily: "'Syne', sans-serif" }}
+                      >
+                        {st}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-4 text-xs font-mono text-white/50">
+                    <span>Showing page <strong className="text-white">{appsCurrentPage}</strong> of <strong className="text-white">{appsTotalPages}</strong> ({filteredApplications.length} candidates)</span>
+                  </div>
+                </div>
+
+                {/* Empty State */}
+                {filteredApplications.length === 0 ? (
+                  <div className="text-center py-20 bg-[#0d0d0d] border border-white/10 rounded-3xl space-y-3">
+                    <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/30 mx-auto">
+                      <UserCheck size={26} />
+                    </div>
+                    <p className="text-sm font-bold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>No Job Applications Found</p>
+                    <p className="text-xs text-white/40">When candidates apply from the /careers page, their applications will appear here in real time.</p>
+                  </div>
+                ) : (
+                  <>
+                    <div className="space-y-4">
+                      {paginatedApplications.map((app) => {
+                        const appId = app.id || app._id;
+                        const initial = app.name?.charAt(0)?.toUpperCase() || "A";
+                        return (
+                          <div
+                            key={appId}
+                            className="p-6 rounded-3xl bg-[#0d0d0d] border border-white/10 hover:border-white/20 transition-all space-y-4 shadow-lg group"
+                          >
+                            {/* Top Row: Candidate Overview & Quick Status */}
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-white/5">
+                              <div className="flex items-center gap-3.5">
+                                <div className="w-11 h-11 rounded-2xl bg-[#183626] border border-[#B3FFC9]/30 text-[#B3FFC9] flex items-center justify-center font-black text-sm shrink-0 shadow-[0_0_15px_rgba(179,255,201,0.15)]" style={{ fontFamily: "'Syne', sans-serif" }}>
+                                  {initial}
+                                </div>
+                                <div>
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <h4 className="font-bold text-white text-base tracking-tight" style={{ fontFamily: "'Syne', sans-serif" }}>
+                                      {app.name}
+                                    </h4>
+                                    <span className="px-2.5 py-0.5 rounded-full bg-[#183626] text-[#B3FFC9] border border-[#B3FFC9]/30 text-[10px] font-bold">
+                                      {app.jobTitle}
+                                    </span>
+                                    <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${
+                                      app.status === "New" ? "bg-[#B3FFC9]/20 text-[#B3FFC9] border border-[#B3FFC9]/30" : 
+                                      (app.status === "Reviewed" ? "bg-amber-400/20 text-amber-300 border border-amber-400/30" : 
+                                      (app.status === "Shortlisted" ? "bg-emerald-400/20 text-emerald-300 border border-emerald-400/30" : "bg-red-500/20 text-red-400 border border-red-500/30"))
+                                    }`}>
+                                      {app.status || "New"}
+                                    </span>
+                                  </div>
+                                  <p className="text-[11px] font-mono text-white/40 mt-0.5">
+                                    Applied on: {app.fullDate || app.date} · Exp: <strong className="text-white/70">{app.experience || "Not specified"}</strong>
+                                  </p>
+                                </div>
+                              </div>
+
+                              {/* Status Selector & Quick Action Buttons */}
+                              <div className="flex flex-wrap items-center gap-2">
+                                <select
+                                  value={app.status || "New"}
+                                  onChange={(e) => handleSetApplicationStatus(appId, e.target.value)}
+                                  className="px-3 py-1.5 rounded-xl bg-[#161616] border border-white/15 text-xs text-white focus:border-[#B3FFC9] focus:outline-none cursor-pointer"
+                                >
+                                  <option value="New">Status: New</option>
+                                  <option value="Reviewed">Status: Reviewed</option>
+                                  <option value="Shortlisted">Status: Shortlisted</option>
+                                  <option value="Rejected">Status: Rejected</option>
+                                </select>
+
+                                <button
+                                  onClick={() => handleViewApplication(app)}
+                                  className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/80 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                                >
+                                  <Eye size={13} className="text-[#B3FFC9]" />
+                                  <span>Details</span>
+                                </button>
+
+                                <a
+                                  href={`mailto:${app.email}?subject=Regarding%20your%20application%20for%20${encodeURIComponent(app.jobTitle)}%20at%20Littroi`}
+                                  className="px-3 py-1.5 rounded-xl bg-[#183626] hover:bg-[#B3FFC9] text-[#B3FFC9] hover:text-black text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer"
+                                  style={{ fontFamily: "'Syne', sans-serif" }}
+                                >
+                                  <Send size={12} />
+                                  <span>Reply</span>
+                                </a>
+
+                                <button
+                                  onClick={() => setDeleteConfirm({ type: "jobApplication", id: appId, title: `Application from ${app.name}` })}
+                                  className="p-2 rounded-xl text-white/40 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
+                                  title="Delete Application"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Contact & Links Row */}
+                            <div className="flex flex-wrap items-center gap-4 text-xs">
+                              <span className="text-white/60 font-mono">✉️ {app.email}</span>
+                              {app.phone && <span className="text-white/60 font-mono">📞 {app.phone}</span>}
+
+                              {app.portfolioUrl && (
+                                <a
+                                  href={app.portfolioUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-white/5 hover:bg-[#B3FFC9]/10 text-[#B3FFC9] border border-[#B3FFC9]/30 transition-colors"
+                                >
+                                  <span>Showreel / Portfolio</span>
+                                  <ExternalLink size={11} />
+                                </a>
+                              )}
+
+                              {app.resumeUrl && (
+                                <a
+                                  href={app.resumeUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-white/5 hover:bg-white/10 text-white/80 border border-white/15 transition-colors"
+                                >
+                                  <span>Resume / CV</span>
+                                  <ExternalLink size={11} />
+                                </a>
+                              )}
+                            </div>
+
+                            {/* Cover Letter Snippet */}
+                            {app.coverLetter && (
+                              <p className="text-xs text-white/60 line-clamp-2 italic pt-2 border-t border-white/5">
+                                "{app.coverLetter}"
+                              </p>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    {renderPagination("jobApplications", filteredApplications.length, itemsPerPage.jobApplications, appsCurrentPage)}
                   </>
                 )}
               </div>
@@ -3426,6 +3722,39 @@ export function Admin() {
               </div>
 
               <form onSubmit={handleSaveTestimonial} className="space-y-4">
+                {/* Type Switcher: Video Testimonial vs Text Testimonial */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-white/60">Testimonial Format *</label>
+                  <div className="grid grid-cols-2 gap-3 p-1 rounded-2xl bg-[#141414] border border-white/10">
+                    <button
+                      type="button"
+                      onClick={() => setTestimonialForm({ ...testimonialForm, type: "video" })}
+                      className={`py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                        testimonialForm.type === "video"
+                          ? "bg-[#B3FFC9] text-black shadow-md font-extrabold"
+                          : "text-white/60 hover:text-white"
+                      }`}
+                      style={{ fontFamily: "'Syne', sans-serif" }}
+                    >
+                      <Video size={15} />
+                      <span>Video Testimonial</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setTestimonialForm({ ...testimonialForm, type: "text", videoUrl: "", videoId: "" })}
+                      className={`py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                        testimonialForm.type === "text"
+                          ? "bg-[#B3FFC9] text-black shadow-md font-extrabold"
+                          : "text-white/60 hover:text-white"
+                      }`}
+                      style={{ fontFamily: "'Syne', sans-serif" }}
+                    >
+                      <Quote size={15} />
+                      <span>Text Testimonial</span>
+                    </button>
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-white/60">Client / Creator Name *</label>
@@ -3476,58 +3805,93 @@ export function Admin() {
                   </div>
                 </div>
 
-                {/* YouTube Video Link & Position */}
-                <div className="space-y-3 p-4 rounded-2xl bg-[#141414] border border-white/5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-white/60">YouTube Testimonial Video Link / ID</label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        value={testimonialForm.videoUrl}
-                        onChange={(e) => {
-                          const url = e.target.value;
-                          const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
-                          setTestimonialForm({
-                            ...testimonialForm,
-                            videoUrl: url,
-                            videoId: match ? match[1] : url
-                          });
-                        }}
-                        placeholder="https://www.youtube.com/watch?v=..."
-                        className="w-full pl-4 pr-10 py-2.5 rounded-xl bg-[#1c1c1c] border border-white/10 text-white text-xs focus:border-[#B3FFC9] focus:outline-none"
-                      />
-                      <Video size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/40" />
-                    </div>
+                    <label className="text-xs font-bold text-white/60">Rating</label>
+                    <select
+                      value={testimonialForm.rating}
+                      onChange={(e) => setTestimonialForm({ ...testimonialForm, rating: Number(e.target.value) })}
+                      className="w-full px-4 py-2.5 rounded-xl bg-[#161616] border border-white/10 text-white text-xs focus:border-[#B3FFC9] focus:outline-none"
+                    >
+                      <option value={5}>★★★★★ (5 Stars)</option>
+                      <option value={4}>★★★★☆ (4 Stars)</option>
+                      <option value={3}>★★★☆☆ (3 Stars)</option>
+                    </select>
                   </div>
 
-                  <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-                    <label className="text-xs font-bold text-white/60">Home Page Video Alignment</label>
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setTestimonialForm({ ...testimonialForm, videoFirst: true })}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                          testimonialForm.videoFirst
-                            ? "bg-[#B3FFC9] text-black"
-                            : "bg-white/5 text-white/60 hover:text-white"
-                        }`}
-                      >
-                        Left: Video | Right: Text
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setTestimonialForm({ ...testimonialForm, videoFirst: false })}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                          !testimonialForm.videoFirst
-                            ? "bg-[#B3FFC9] text-black"
-                            : "bg-white/5 text-white/60 hover:text-white"
-                        }`}
-                      >
-                        Left: Text | Right: Video
-                      </button>
-                    </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-white/60">Key Result Metric (Optional)</label>
+                    <input
+                      type="text"
+                      value={testimonialForm.metric}
+                      onChange={(e) => setTestimonialForm({ ...testimonialForm, metric: e.target.value })}
+                      placeholder="e.g. +227% Retention Lift or 15h Saved/Week"
+                      className="w-full px-4 py-2.5 rounded-xl bg-[#161616] border border-white/10 text-white text-xs focus:border-[#B3FFC9] focus:outline-none"
+                    />
                   </div>
                 </div>
+
+                {/* Conditional: YouTube Video Link & Position (Only for Video type) */}
+                {testimonialForm.type === "video" ? (
+                  <div className="space-y-3 p-4 rounded-2xl bg-[#141414] border border-white/10">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-white/60">YouTube Testimonial Video Link / ID *</label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={testimonialForm.videoUrl}
+                          onChange={(e) => {
+                            const url = e.target.value;
+                            const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
+                            setTestimonialForm({
+                              ...testimonialForm,
+                              videoUrl: url,
+                              videoId: match ? match[1] : url
+                            });
+                          }}
+                          placeholder="https://www.youtube.com/watch?v=..."
+                          className="w-full pl-4 pr-10 py-2.5 rounded-xl bg-[#1c1c1c] border border-white/10 text-white text-xs focus:border-[#B3FFC9] focus:outline-none"
+                        />
+                        <Video size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/40" />
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+                      <label className="text-xs font-bold text-white/60">Home Page Video Alignment</label>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setTestimonialForm({ ...testimonialForm, videoFirst: true })}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                            testimonialForm.videoFirst
+                              ? "bg-[#B3FFC9] text-black"
+                              : "bg-white/5 text-white/60 hover:text-white"
+                          }`}
+                        >
+                          Left: Video | Right: Text
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setTestimonialForm({ ...testimonialForm, videoFirst: false })}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                            !testimonialForm.videoFirst
+                              ? "bg-[#B3FFC9] text-black"
+                              : "bg-white/5 text-white/60 hover:text-white"
+                          }`}
+                        >
+                          Left: Text | Right: Video
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-4 rounded-2xl bg-[#B3FFC9]/5 border border-[#B3FFC9]/20 flex items-center gap-3 text-xs text-white/80">
+                    <Quote size={20} className="text-[#B3FFC9] shrink-0" />
+                    <span>
+                      <strong>Text Review Mode:</strong> No video required. Displays as a glowing client testimonial card with verified badge and star rating.
+                    </span>
+                  </div>
+                )}
 
                 {/* Client Avatar Upload to Cloudinary */}
                 <div className="space-y-2">
@@ -4055,6 +4419,191 @@ export function Admin() {
                   </button>
                   <a
                     href={`mailto:${selectedEnquiry.email}?subject=Response%20to%20your%20Littroi%20Inquiry`}
+                    className="px-6 py-2.5 rounded-full bg-[#B3FFC9] hover:bg-[#9effba] text-black font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-[0_0_20px_rgba(179,255,201,0.2)]"
+                    style={{ fontFamily: "'Syne', sans-serif" }}
+                  >
+                    <Send size={13} />
+                    <span>Send Reply Email</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ==================== MODAL: VIEW CANDIDATE APPLICATION ==================== */}
+        {modalType === "viewApplication" && selectedApplication && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md overflow-y-auto animate-fadeIn">
+            <div
+              className="relative w-full max-w-2xl bg-[#0d0d0d] border border-white/15 rounded-[28px] p-6 sm:p-8 space-y-6 shadow-2xl text-left my-auto overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Green Glow Line */}
+              <div className="absolute top-0 left-1/4 w-1/2 h-[1px] bg-gradient-to-r from-transparent via-[#B3FFC9] to-transparent pointer-events-none" />
+
+              {/* Header */}
+              <div className="flex items-start justify-between gap-4 pb-4 border-b border-white/10">
+                <div className="flex items-center gap-3.5">
+                  <div
+                    className="w-12 h-12 rounded-2xl bg-[#183626] border border-[#B3FFC9]/30 text-[#B3FFC9] flex items-center justify-center font-black text-base shadow-[0_0_20px_rgba(179,255,201,0.2)] shrink-0"
+                    style={{ fontFamily: "'Syne', sans-serif" }}
+                  >
+                    {selectedApplication.name?.charAt(0)?.toUpperCase() || "A"}
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white tracking-tight" style={{ fontFamily: "'Syne', sans-serif" }}>
+                      {selectedApplication.name}
+                    </h3>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="px-2.5 py-0.5 rounded-full bg-[#183626] text-[#B3FFC9] border border-[#B3FFC9]/30 text-[10px] font-bold">
+                        {selectedApplication.jobTitle}
+                      </span>
+                      <span className="text-xs text-white/40 font-mono">
+                        ID: {selectedApplication.id || selectedApplication._id}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setModalType(null)}
+                  className="text-white/50 hover:text-white p-1.5 rounded-full bg-white/5 hover:bg-white/10 cursor-pointer transition-colors"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              {/* Status and Timestamp Bar */}
+              <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-2xl bg-[#141414] border border-white/5">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-white/50 font-mono">Status:</span>
+                  <select
+                    value={selectedApplication.status || "New"}
+                    onChange={(e) => handleSetApplicationStatus(selectedApplication.id || selectedApplication._id, e.target.value)}
+                    className="px-3 py-1 rounded-xl bg-[#1a1a1a] border border-white/15 text-xs font-bold text-white focus:border-[#B3FFC9] focus:outline-none cursor-pointer"
+                  >
+                    <option value="New">🟢 New</option>
+                    <option value="Reviewed">🟡 Reviewed</option>
+                    <option value="Shortlisted">🔵 Shortlisted</option>
+                    <option value="Rejected">🔴 Rejected</option>
+                  </select>
+                </div>
+                <div className="text-xs font-mono text-white/40 flex items-center gap-1.5">
+                  <Calendar size={13} className="text-[#B3FFC9]" />
+                  <span>{selectedApplication.fullDate || selectedApplication.date}</span>
+                </div>
+              </div>
+
+              {/* Detail Fields 2-Column Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="p-4 rounded-2xl bg-[#121212] border border-white/5 space-y-1">
+                  <span className="text-[10px] uppercase font-mono text-white/40 block">Email Address</span>
+                  <a
+                    href={`mailto:${selectedApplication.email}`}
+                    className="text-sm font-semibold text-white hover:text-[#B3FFC9] truncate block"
+                  >
+                    {selectedApplication.email}
+                  </a>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-[#121212] border border-white/5 space-y-1">
+                  <span className="text-[10px] uppercase font-mono text-white/40 block">Phone Number</span>
+                  <div className="text-sm font-semibold text-white">
+                    {selectedApplication.phone ? (
+                      <a href={`tel:${selectedApplication.phone}`} className="hover:text-[#B3FFC9]">
+                        {selectedApplication.phone}
+                      </a>
+                    ) : (
+                      <span className="text-white/40">Not provided</span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-[#121212] border border-white/5 space-y-1">
+                  <span className="text-[10px] uppercase font-mono text-white/40 block">Experience Level</span>
+                  <div className="text-sm font-semibold text-white">
+                    {selectedApplication.experience || "1 - 2 Years"}
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-[#121212] border border-white/5 space-y-1">
+                  <span className="text-[10px] uppercase font-mono text-white/40 block">Position Applied</span>
+                  <div className="text-sm font-semibold text-[#B3FFC9]">
+                    {selectedApplication.jobTitle}
+                  </div>
+                </div>
+              </div>
+
+              {/* External Links Section: Showreel & Resume */}
+              {(selectedApplication.portfolioUrl || selectedApplication.resumeUrl) && (
+                <div className="p-4 rounded-2xl bg-[#121212] border border-white/5 space-y-2.5">
+                  <span className="text-[10px] uppercase font-mono text-white/40 block">Candidate Links &amp; Showcase</span>
+                  <div className="flex flex-wrap items-center gap-3">
+                    {selectedApplication.portfolioUrl && (
+                      <a
+                        href={selectedApplication.portfolioUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-4 py-2 rounded-xl bg-[#183626] hover:bg-[#B3FFC9] text-[#B3FFC9] hover:text-black text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-[0_0_15px_rgba(179,255,201,0.15)]"
+                      >
+                        <ExternalLink size={13} />
+                        <span>Open Showreel / Portfolio</span>
+                      </a>
+                    )}
+
+                    {selectedApplication.resumeUrl && (
+                      <a
+                        href={selectedApplication.resumeUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white hover:text-[#B3FFC9] border border-white/10 text-xs font-semibold transition-all flex items-center gap-2 cursor-pointer"
+                      >
+                        <FileText size={13} />
+                        <span>View Resume / CV</span>
+                      </a>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Cover Note Section */}
+              <div className="space-y-2">
+                <span className="text-xs font-bold text-white/70 uppercase tracking-wider flex items-center gap-1.5 font-mono">
+                  <MessageSquare size={13} className="text-[#B3FFC9]" />
+                  Cover Note / Pitch
+                </span>
+                <div className="p-5 rounded-2xl bg-[#141414] border border-white/10 text-white/90 text-sm leading-relaxed whitespace-pre-wrap">
+                  {selectedApplication.coverLetter || "No additional message provided."}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-white/10">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setModalType(null);
+                    setDeleteConfirm({
+                      type: "jobApplication",
+                      id: selectedApplication.id || selectedApplication._id,
+                      title: `Application from ${selectedApplication.name}`
+                    });
+                  }}
+                  className="px-4 py-2.5 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5"
+                >
+                  <Trash2 size={13} />
+                  <span>Delete Application</span>
+                </button>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setModalType(null)}
+                    className="px-5 py-2.5 rounded-full text-xs font-bold text-white/60 hover:text-white bg-white/5 hover:bg-white/10 cursor-pointer transition-colors"
+                  >
+                    Close
+                  </button>
+                  <a
+                    href={`mailto:${selectedApplication.email}?subject=Regarding%20your%20application%20for%20${encodeURIComponent(selectedApplication.jobTitle)}%20at%20Littroi`}
                     className="px-6 py-2.5 rounded-full bg-[#B3FFC9] hover:bg-[#9effba] text-black font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-[0_0_20px_rgba(179,255,201,0.2)]"
                     style={{ fontFamily: "'Syne', sans-serif" }}
                   >

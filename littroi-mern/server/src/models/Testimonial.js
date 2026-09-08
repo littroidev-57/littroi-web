@@ -12,6 +12,7 @@ const testimonialSchema = new mongoose.Schema(
     testimonial: { type: String },
     avatar: { type: String, default: "" },
     clientImage: { type: String, default: "" },
+    type: { type: String, enum: ["video", "text"], default: "video" },
     videoId: { type: String, default: "" },
     videoUrl: { type: String, default: "" },
     videoFirst: { type: Boolean, default: true },

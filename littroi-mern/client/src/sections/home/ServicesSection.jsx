@@ -214,15 +214,15 @@ function ServiceCard({ srv, index }) {
         </div>
 
         {/* ─── MAIN CONTENT ─── */}
-        <div className="flex-1 flex flex-col justify-center px-6 sm:px-10 lg:px-14 py-10">
+        <div className="flex-1 flex flex-col justify-center px-6 sm:px-10 lg:px-14 py-6 sm:py-10">
           {/* Large title */}
           <div style={{ overflow: "hidden" }}>
             <h3
               ref={titleRef}
-              className="m-0 font-extrabold text-white leading-none tracking-tight"
+              className="m-0 font-extrabold text-white leading-tight sm:leading-none tracking-tight"
               style={{
                 fontFamily: "'Syne', sans-serif",
-                fontSize: "clamp(42px, 7vw, 110px)",
+                fontSize: "clamp(28px, 6.5vw, 110px)",
               }}
             >
               {srv.title}

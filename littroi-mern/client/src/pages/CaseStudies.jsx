@@ -128,7 +128,7 @@ export function CaseStudies() {
 
         .cs-hero-title {
           font-family: 'Syne', sans-serif;
-          font-size: clamp(42px, 6.5vw, 76px);
+          font-size: clamp(32px, 7vw, 76px);
           font-weight: 800;
           line-height: 0.98;
           color: #fff;
@@ -149,11 +149,6 @@ export function CaseStudies() {
           text-align: right;
           max-width: 320px;
           font-family: 'benzine', 'Benzin', sans-serif;
-        }
-
-        @media (max-width: 768px) {
-          .cs-hero-container { padding: 120px 20px 28px; }
-          .cs-hero-sub { text-align: left; }
         }
 
         /* Tabs */
@@ -620,19 +615,112 @@ export function CaseStudies() {
           color: #000;
         }
 
-        @media (max-width: 900px) {
-          .cs-modal { grid-template-columns: 1fr; }
-          .cs-modal-left { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.07); }
-          .cs-modal-left, .cs-modal-right { padding: 56px 22px 30px; }
+        /* Tablet / iPad Landscape (max-width: 1024px) */
+        @media (max-width: 1024px) {
+          .cs-hero-container { padding: 130px 32px 32px; }
+          .cs-tabs-wrap { padding: 16px 32px 28px; }
+          .cs-grid-container { padding: 0 32px 80px; gap: 20px; }
+          .cs-card { min-height: 320px; }
+          .cs-modal { grid-template-columns: 360px 1fr; }
         }
 
-        @media (max-width: 760px) {
-          .cs-grid-container { grid-template-columns: 1fr; padding: 0 16px 60px; gap: 14px; }
-          .cs-card { aspect-ratio: unset; min-height: unset; }
+        /* Tablet Portrait / Compact Laptops (max-width: 900px) */
+        @media (max-width: 900px) {
+          .cs-modal-overlay {
+            padding: clamp(10px, 2.5vw, 24px);
+          }
+          .cs-modal {
+            grid-template-columns: 1fr;
+            height: 90vh;
+            max-height: 90vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 20px;
+          }
+          .cs-modal-left {
+            border-right: none;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding: 52px 24px 28px;
+            overflow-y: visible;
+            height: auto;
+          }
+          .cs-modal-right {
+            padding: 28px 24px 44px;
+            overflow-y: visible;
+            height: auto;
+          }
+          .cs-modal-shots {
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 14px;
+          }
+        }
+
+        /* Mobile & Tablet Portrait (max-width: 768px) */
+        @media (max-width: 768px) {
+          .cs-hero-container { padding: 110px 18px 24px; gap: 18px; }
+          .cs-hero-sub { text-align: left; max-width: 100%; font-size: 12.5px; line-height: 20px; }
+          .cs-tabs-wrap { padding: 12px 18px 22px; gap: 8px; }
+          .cs-tab-btn { font-size: 10px; padding: 7px 14px; }
+          .cs-grid-container { grid-template-columns: 1fr; padding: 0 18px 60px; gap: 16px; }
+          .cs-card { aspect-ratio: unset; min-height: unset; border-radius: 12px; }
           .cs-thumb { position: relative; inset: auto; width: 100%; aspect-ratio: 16 / 9; }
           .cs-initials-badge { width: 64px; height: 64px; font-size: 22px; }
           .cs-card-detail { display: none; }
-          .cs-card-bar { position: relative; }
+          .cs-card-bar { position: relative; padding: 14px 18px; min-height: unset; }
+          .cs-card-name { font-size: 16px; }
+          .cs-card-cat { font-size: 8.5px; }
+          .cs-card-right { margin-left: 8px; }
+        }
+
+        /* Small Mobile Devices (max-width: 600px) */
+        @media (max-width: 600px) {
+          .cs-modal-overlay {
+            padding: 0;
+            align-items: flex-end;
+          }
+          .cs-modal {
+            height: 100vh;
+            max-height: 100vh;
+            border-radius: 0;
+            border: none;
+          }
+          .cs-modal-close {
+            top: 16px;
+            right: 16px;
+            width: 34px;
+            height: 34px;
+            position: fixed;
+            z-index: 50;
+          }
+          .cs-modal-left {
+            padding: 56px 18px 24px;
+          }
+          .cs-modal-right {
+            padding: 24px 18px 40px;
+          }
+          .cs-modal-title {
+            font-size: 24px;
+          }
+          .cs-modal-stats {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+          }
+          .cs-modal-stat-num {
+            font-size: 16px;
+          }
+          .cs-modal-shots {
+            grid-template-columns: 1fr;
+            gap: 12px;
+          }
+          .cs-lightbox {
+            padding: 12px;
+          }
+          .cs-lightbox-close {
+            top: 14px;
+            right: 14px;
+            width: 36px;
+            height: 36px;
+          }
         }
       `}</style>
 

@@ -299,6 +299,107 @@ export const jobsAPI = {
   }
 };
 
+// ==================== JOB APPLICATIONS API ====================
+export const jobApplicationsAPI = {
+  submit: async (formData) => {
+    const trimmedName = (formData?.name || "").trim();
+    const trimmedEmail = (formData?.email || "").trim();
+    const trimmedJobTitle = (formData?.jobTitle || "").trim();
+    const trimmedPhone = (formData?.phone || "").trim();
+    const trimmedResume = (formData?.resumeUrl || "").trim();
+    const trimmedExperience = (formData?.experience || "").trim();
+
+    if (!trimmedName || trimmedName.length < 2) {
+      throw new Error("Please enter your full name (at least 2 characters).");
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    if (!trimmedEmail || !emailRegex.test(trimmedEmail)) {
+      throw new Error("Please enter a valid email address.");
+    }
+    if (!trimmedJobTitle) {
+      throw new Error("Job position title is required.");
+    }
+    if (!trimmedPhone || trimmedPhone.replace(/\D/g, "").length < 7) {
+      throw new Error("Please enter a valid phone number (minimum 7 digits).");
+    }
+    if (!trimmedExperience) {
+      throw new Error("Please select your experience level.");
+    }
+    if (!trimmedResume || !/^https?:\/\//i.test(trimmedResume)) {
+      throw new Error("Resume / CV link is required and must start with http:// or https://");
+    }
+
+    const res = await fetch(`${API_BASE_URL}/job-applications`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData)
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.message || "Failed to submit application");
+    }
+    return data;
+  },
+
+  getAll: async (params = {}) => {
+    try {
+      const query = typeof params === "object" ? new URLSearchParams(params).toString() : "";
+      const url = query ? `${API_BASE_URL}/job-applications?${query}` : `${API_BASE_URL}/job-applications`;
+      const res = await fetch(url, {
+        headers: getAuthHeaders()
+      });
+      const data = await res.json();
+      if (data.success && Array.isArray(data.data)) {
+        return data.data.map((item) => ({
+          id: item._id || item.id,
+          _id: item._id || item.id,
+          jobId: item.jobId,
+          jobTitle: item.jobTitle,
+          name: item.name,
+          email: item.email,
+          phone: item.phone || "",
+          portfolioUrl: item.portfolioUrl || "",
+          resumeUrl: item.resumeUrl || "",
+          experience: item.experience || "",
+          coverLetter: item.coverLetter || "",
+          date: item.createdAt ? new Date(item.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "Recent",
+          fullDate: item.createdAt ? new Date(item.createdAt).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "Recent",
+          status: item.status || "New",
+          isRead: item.isRead
+        }));
+      }
+    } catch (err) {
+      console.warn("Job applications fetch error:", err);
+    }
+    return [];
+  },
+
+  updateStatus: async (id, status) => {
+    const res = await fetch(`${API_BASE_URL}/job-applications/${id}`, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(typeof status === "string" ? { status } : status)
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.message || "Failed to update application status");
+    }
+    return data.data;
+  },
+
+  delete: async (id) => {
+    const res = await fetch(`${API_BASE_URL}/job-applications/${id}`, {
+      method: "DELETE",
+      headers: getAuthHeaders()
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.message || "Failed to delete job application");
+    }
+    return true;
+  }
+};
+
 // ==================== CONTACT / INQUIRIES API ====================
 export const contactAPI = {
   submit: async (formData) => {

@@ -105,86 +105,57 @@ export function HeroSection() {
       </section>
 
       {/* ── elementor-element-40b85c9: The Next Wave of Content Creation ── */}
+      {/* ── elementor-element-40b85c9: The Next Wave of Content Creation ── */}
       <section
-        className="elementor-element elementor-element-40b85c9 e-con-full e-flex wpr-particle-no wpr-jarallax-no wpr-parallax-no wpr-sticky-section-no wpr-column-slider-no wpr-equal-height-no e-con e-parent e-lazyloaded bg-[#000000] min-h-[85vh] lg:min-h-screen flex flex-col items-center justify-center text-center px-4 w-full relative overflow-hidden"
+        className="elementor-element elementor-element-40b85c9 e-con-full e-flex wpr-particle-no wpr-jarallax-no wpr-parallax-no wpr-sticky-section-no wpr-column-slider-no wpr-equal-height-no e-con e-parent e-lazyloaded bg-[#000000] min-h-[50vh] sm:min-h-[70vh] lg:min-h-screen flex flex-col items-center justify-center text-center px-4 w-full relative overflow-hidden py-14 sm:py-24 lg:py-36"
         data-id="40b85c9"
         data-element_type="container"
         data-e-type="container"
-        style={{ padding: "clamp(80px, 10vw, 160px) 16px" }}
       >
         <div className="w-full max-w-6xl mx-auto flex flex-col items-center justify-center text-center">
 
-          {/* Line 1: The Next Wave of — smooth slow bottom-to-top transition */}
+          {/* Main Headline: The Next Wave of Content Creation — exactly 2 crisp balanced lines */}
           <motion.div
-            initial={{ opacity: 0, y: 70 }}
+            initial={{ opacity: 0, y: 45 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-60px" }}
-            transition={{ duration: 1.4, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="elementor-element elementor-element-d6ff41b animated-slow exad-sticky-section-no exad-glass-effect-no elementor-widget elementor-widget-heading w-full text-center"
-            data-id="d6ff41b"
-            data-element_type="widget"
-            data-widget_type="heading.default"
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 1.1, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+            className="w-full text-center"
           >
             <h2
-              className="elementor-heading-title elementor-size-default m-0 text-center whitespace-nowrap"
+              className="elementor-heading-title elementor-size-default m-0 text-center font-extrabold tracking-tight"
               style={{
                 fontFamily: "'Syne', sans-serif",
-                fontSize: "clamp(30px, 5.2vw, 75px)",
-                fontWeight: 800,
-                lineHeight: 1.15,
+                fontSize: "clamp(22px, 5.6vw, 75px)",
+                lineHeight: 1.16,
                 color: "#FFFFFF",
                 letterSpacing: "-0.01em",
               }}
             >
-              The <span style={{ color: "#B3FFC9" }}>Next Wave</span> of
+              <span className="block whitespace-nowrap">
+                The <span style={{ color: "#B3FFC9" }}>Next Wave</span> of
+              </span>
+              <span className="block whitespace-nowrap mt-1 sm:mt-2.5">
+                Content Creation
+              </span>
             </h2>
           </motion.div>
 
-          {/* Line 2: Content Creation — smooth slow bottom-to-top transition */}
+          {/* Sub Tagline: Smart strategy backed by precise execution. */}
           <motion.div
-            initial={{ opacity: 0, y: 70 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-60px" }}
-            transition={{ duration: 1.4, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            className="elementor-element elementor-element-df25cbb animated-slow exad-sticky-section-no exad-glass-effect-no elementor-widget elementor-widget-heading w-full text-center mt-1 sm:mt-2"
-            data-id="df25cbb"
-            data-element_type="widget"
-            data-widget_type="heading.default"
-          >
-            <h2
-              className="elementor-heading-title elementor-size-default m-0 text-center whitespace-nowrap"
-              style={{
-                fontFamily: "'Syne', sans-serif",
-                fontSize: "clamp(30px, 5.2vw, 75px)",
-                fontWeight: 800,
-                lineHeight: 1.15,
-                color: "#FFFFFF",
-                letterSpacing: "-0.01em",
-              }}
-            >
-              Content Creation
-            </h2>
-          </motion.div>
-
-          {/* Line 3 (Sub Tagline): Smart strategy backed by precise execution. */}
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-60px" }}
-            transition={{ duration: 1.3, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="elementor-element elementor-element-174882f animated-slow exad-sticky-section-no exad-glass-effect-no elementor-widget elementor-widget-text-editor w-full text-center"
-            data-id="174882f"
-            data-element_type="widget"
-            data-widget_type="text-editor.default"
-            style={{ marginTop: "clamp(16px, 2.5vw, 30px)" }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 1.0, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            className="w-full text-center mt-4 sm:mt-6 lg:mt-8"
           >
             <p
-              className="m-0 text-center mx-auto max-w-2xl whitespace-nowrap"
+              className="m-0 text-center mx-auto max-w-2xl px-2"
               style={{
                 fontFamily: "'benzine', 'Syne', sans-serif",
-                fontSize: "clamp(13px, 1.6vw, 24px)",
+                fontSize: "clamp(12px, 1.4vw, 22px)",
                 fontWeight: 400,
-                color: "#FFFFFF",
+                color: "rgba(255, 255, 255, 0.85)",
                 letterSpacing: "0.01em",
                 lineHeight: 1.4,
               }}

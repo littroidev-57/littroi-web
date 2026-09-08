@@ -9,6 +9,7 @@ import { Careers } from "./pages/Careers";
 import { Blog } from "./pages/Blog";
 import { BlogPost } from "./pages/BlogPost";
 import { Contact } from "./pages/Contact";
+import { Testimonials } from "./pages/Testimonials";
 import { LegalPolicies } from "./pages/LegalPolicies";
 import { Admin } from "./pages/Admin";
 import { NotFound } from "./pages/NotFound";
@@ -26,6 +27,8 @@ export function App() {
         <Route path="/about" element={<Navigate to="/about-us" replace />} />
         <Route path="/case-studies" element={<CaseStudies />} />
         <Route path="/case-studies/:slug" element={<CaseStudyDetail />} />
+        <Route path="/testimonials" element={<Testimonials />} />
+        <Route path="/testimonial" element={<Navigate to="/testimonials" replace />} />
         <Route path="/careers" element={<Careers />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/blog/:slug" element={<BlogPost />} />

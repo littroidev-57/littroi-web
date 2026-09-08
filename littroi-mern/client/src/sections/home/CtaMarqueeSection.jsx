@@ -17,7 +17,7 @@ function seededWobble(i) {
 }
 
 export function CtaMarqueeSection({
-  text = "So, are you ready to Stand out?",
+  text = "So, are you Ready to Stand out?",
 }) {
   const sectionRef = useRef(null);
   const pinRef = useRef(null);
