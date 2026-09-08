@@ -15,343 +15,381 @@ gsap.registerPlugin(ScrollTrigger);
 
 const SERVICES = [
   {
-    num: "01",
-    icon: iconSaas,
-    title: "SAAS Video",
-    tag: "Software & Tech",
+    num: "01", icon: iconSaas, title: "SAAS Video", tag: "Software & Tech",
     desc: "We turn complex software and SaaS products into clear, engaging videos people instantly understand. From product demos to high-converting launch films, we make your value obvious.",
-    bg: "#0a1a0f",
-    accent: "#B3FFC9",
+    bg: "#0a1a0f", accent: "#B3FFC9",
   },
   {
-    num: "02",
-    icon: iconPodcast,
-    title: "Podcast Editing",
-    tag: "Audio & Video",
+    num: "02", icon: iconPodcast, title: "Podcast Editing", tag: "Audio & Video",
     desc: "Clean cuts, engaging visual pacing, and crystal-clear audio engineering. We edit your episodes and turn conversations into magnetic clips that expand your reach.",
-    bg: "#0a0f1a",
-    accent: "#A8EDFF",
+    bg: "#0a0f1a", accent: "#A8EDFF",
   },
   {
-    num: "03",
-    icon: iconLongForm,
-    title: "Long Form Content",
-    tag: "YouTube & Streaming",
+    num: "03", icon: iconLongForm, title: "Long Form Content", tag: "YouTube & Streaming",
     desc: "High-retention storytelling crafted to keep viewers watching till the very end. Perfect for YouTube documentary-style videos, in-depth breakdowns, and educational authority.",
-    bg: "#150a1a",
-    accent: "#D4B3FF",
+    bg: "#150a1a", accent: "#D4B3FF",
   },
   {
-    num: "04",
-    icon: iconShortForm,
-    title: "Short Form Content",
-    tag: "Reels & TikTok",
+    num: "04", icon: iconShortForm, title: "Short Form Content", tag: "Reels & TikTok",
     desc: "Fast, punchy, scroll-stopping videos designed for Reels, TikTok, and YouTube Shorts to maximise virality and audience acquisition.",
-    bg: "#1a120a",
-    accent: "#FFD6A5",
+    bg: "#1a120a", accent: "#FFD6A5",
   },
   {
-    num: "05",
-    icon: iconMotion,
-    title: "Motion Graphics",
-    tag: "Animation & VFX",
+    num: "05", icon: iconMotion, title: "Motion Graphics", tag: "Animation & VFX",
     desc: "Fluid 2D & 3D kinetic animations that elevate your brand perception. Custom kinetic typography, visual explainers, and dynamic overlays.",
-    bg: "#1a0a10",
-    accent: "#FF9DE2",
+    bg: "#1a0a10", accent: "#FF9DE2",
   },
   {
-    num: "06",
-    icon: iconStatic,
-    title: "Static Creatives & Carousels",
-    tag: "Design & Graphics",
+    num: "06", icon: iconStatic, title: "Static Creatives & Carousels", tag: "Design & Graphics",
     desc: "High-impact visual designs that communicate value within seconds. Promotional graphics to informative slide decks that drive organic shares.",
-    bg: "#0a1510",
-    accent: "#B3FFC9",
+    bg: "#0a1510", accent: "#B3FFC9",
   },
   {
-    num: "07",
-    icon: iconBrand,
-    title: "Brand Identity Development",
-    tag: "Identity & Strategy",
+    num: "07", icon: iconBrand, title: "Brand Identity Development", tag: "Identity & Strategy",
     desc: "We build cohesive visual systems, logo design, typography, and color guidelines that make your business instantly recognisable and memorable everywhere.",
-    bg: "#080a18",
-    accent: "#A8EDFF",
+    bg: "#080a18", accent: "#A8EDFF",
   },
   {
-    num: "08",
-    icon: iconThumb,
-    title: "Thumbnails Creation",
-    tag: "Click-through & CTR",
+    num: "08", icon: iconThumb, title: "Thumbnails Creation", tag: "Click-through & CTR",
     desc: "High-CTR visual packaging with psychology-driven compositions, vivid contrast, and emotive framing that command attention and boost click-through rates.",
-    bg: "#1a150a",
-    accent: "#FFD6A5",
+    bg: "#1a150a", accent: "#FFD6A5",
   },
 ];
 
-function ServiceCard({ srv, index }) {
-  const cardRef  = useRef(null);
-  const numRef   = useRef(null);
-  const titleRef = useRef(null);
-  const descRef  = useRef(null);
-  const tagRef   = useRef(null);
-  const lineRef  = useRef(null);
+/* ─────────────────────────────────────────────
+   The section layout:
+
+   1.  A small "header" block that SCROLLS AWAY naturally.
+   2.  The pin-wrap: exactly 100dvh tall. GSAP pins THIS
+       element when its top touches the viewport top.
+       Cards are absolutely stacked inside it.
+   3.  A spacer div below pin-wrap that gives scroll distance
+       for the card transitions (7 × 100vh).
+─────────────────────────────────────────────── */
+export function ServicesSection() {
+  const pinWrapRef = useRef(null);
+  const spacerRef = useRef(null);
+  const cardRefs = useRef([]);
 
   useEffect(() => {
-    const card = cardRef.current;
-    if (!card) return;
+    const pinWrap = pinWrapRef.current;
+    const spacer = spacerRef.current;
+    const cards = cardRefs.current.filter(Boolean);
 
-    const ctx = gsap.context(() => {
-      // Animate inner content when card enters the sticky position
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: card,
-          start: "top 80%",
-          toggleActions: "play none none reverse",
-        },
+    if (!pinWrap || !spacer || cards.length === 0) return;
+
+    const N = cards.length;      // 8
+    const STEPS = N - 1;             // 7 transitions
+
+    /* ── Initial card states ── */
+    cards.forEach((card, i) => {
+      // Stack cards; later ones start off-screen below
+      gsap.set(card, {
+        yPercent: i === 0 ? 0 : 100,
+        zIndex: 10 + i,
+        force3D: true,
       });
 
-      tl.fromTo(
-        [numRef.current, tagRef.current],
-        { opacity: 0, x: -30 },
-        { opacity: 1, x: 0, duration: 0.6, ease: "power3.out", stagger: 0.05 }
-      )
-        .fromTo(
-          titleRef.current,
-          { opacity: 0, y: 40, clipPath: "inset(100% 0 0 0)" },
-          { opacity: 1, y: 0, clipPath: "inset(0% 0 0 0)", duration: 0.8, ease: "power3.out" },
-          "-=0.3"
-        )
-        .fromTo(
-          lineRef.current,
-          { scaleX: 0, transformOrigin: "left" },
-          { scaleX: 1, duration: 0.7, ease: "power3.out" },
-          "-=0.5"
-        )
-        .fromTo(
-          descRef.current,
-          { opacity: 0, y: 20 },
-          { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" },
-          "-=0.4"
-        );
-    }, card);
+      const els = {
+        num: card.querySelector(".svc-num"),
+        tag: card.querySelector(".svc-tag"),
+        title: card.querySelector(".svc-title"),
+        line: card.querySelector(".svc-line"),
+        desc: card.querySelector(".svc-desc"),
+      };
 
-    return () => ctx.revert();
-  }, []);
+      if (i === 0) {
+        // First card visible immediately — animate text in
+        const tl = gsap.timeline({ delay: 0.15 });
+        tl.fromTo([els.num, els.tag].filter(Boolean),
+          { opacity: 0, y: 16 },
+          { opacity: 1, y: 0, stagger: 0.07, duration: 0.65, ease: "power3.out" })
+          .fromTo(els.title,
+            { opacity: 0, y: 50 },
+            { opacity: 1, y: 0, duration: 0.8, ease: "power3.out" }, "-=0.3")
+          .fromTo(els.line,
+            { scaleX: 0, transformOrigin: "left center" },
+            { scaleX: 1, duration: 0.7, ease: "power3.out" }, "-=0.5")
+          .fromTo(els.desc,
+            { opacity: 0, y: 20 },
+            { opacity: 1, y: 0, duration: 0.65, ease: "power3.out" }, "-=0.4");
+      } else {
+        // Hide all text for cards not yet shown
+        gsap.set([els.num, els.tag, els.title, els.desc].filter(Boolean), { opacity: 0, y: 30 });
+        if (els.line) gsap.set(els.line, { scaleX: 0, transformOrigin: "left center" });
+      }
+    });
 
-  return (
-    <div
-      ref={cardRef}
-      className="sticky top-0 w-full"
-      style={{ height: "100dvh", zIndex: 10 + index }}
-    >
-      {/* Full bleed background */}
-      <div
-        className="relative w-full h-full flex flex-col justify-between overflow-hidden"
-        style={{ backgroundColor: srv.bg }}
-      >
-        {/* Top noise/grain texture overlay */}
-        <div
-          className="pointer-events-none absolute inset-0"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E")`,
-            mixBlendMode: "overlay",
-            opacity: 0.4,
-          }}
-        />
+    /* ── Master scrubbed timeline ──
+       Trigger: pinWrap itself ("top top") so card fills
+       full viewport immediately when section reaches top.
+       Scroll distance: STEPS full viewports.
+    ── */
+    const masterTl = gsap.timeline({
+      scrollTrigger: {
+        trigger: pinWrap,
+        start: "top top",
+        end: () => "+=" + (STEPS * window.innerHeight),
+        pin: true,          // pins pinWrap itself
+        pinSpacing: false,         // spacer below handles the scroll room
+        scrub: 1,
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
+      },
+    });
 
-        {/* Accent radial glow */}
-        <div
-          className="pointer-events-none absolute top-0 right-0 w-[50vw] h-[50vh]"
-          style={{
-            background: `radial-gradient(ellipse at top right, ${srv.accent}18 0%, transparent 70%)`,
-          }}
-        />
-        <div
-          className="pointer-events-none absolute bottom-0 left-0 w-[30vw] h-[30vh]"
-          style={{
-            background: `radial-gradient(ellipse at bottom left, ${srv.accent}0a 0%, transparent 70%)`,
-          }}
-        />
+    // Give the spacer the right height so there is scroll room
+    spacer.style.height = STEPS * window.innerHeight + "px";
 
-        {/* ─── TOP BAR ─── */}
-        <div
-          className="flex items-center justify-between px-6 sm:px-10 lg:px-14 pt-7 pb-0"
-          style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
-        >
-          <div className="flex items-center gap-4">
-            <span
-              ref={numRef}
-              className="font-mono text-xs tracking-[0.2em] uppercase"
-              style={{ color: srv.accent }}
-            >
-              {srv.num} / {String(SERVICES.length).padStart(2, "0")}
-            </span>
-            <span
-              ref={tagRef}
-              className="hidden sm:inline-block text-xs px-3 py-1 rounded-full border"
-              style={{
-                color: `${srv.accent}cc`,
-                borderColor: `${srv.accent}33`,
-                background: `${srv.accent}0d`,
-                fontFamily: "'Syne', sans-serif",
-                letterSpacing: "0.05em",
-              }}
-            >
-              {srv.tag}
-            </span>
-          </div>
+    cards.forEach((card, i) => {
+      if (i >= STEPS) return;
 
-          {/* Service icon – top right */}
-          <div
-            className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center p-2"
-            style={{
-              background: `${srv.accent}12`,
-              border: `1px solid ${srv.accent}28`,
-            }}
-          >
-            <img src={srv.icon} alt={srv.title} className="w-full h-full object-contain" />
-          </div>
-        </div>
+      const next = cards[i + 1];
+      const at = i;        // timeline position (1 unit per step)
+      const textAt = at + 0.5;
 
-        {/* ─── MAIN CONTENT ─── */}
-        <div className="flex-1 flex flex-col justify-center px-6 sm:px-10 lg:px-14 py-6 sm:py-10">
-          {/* Large title */}
-          <div style={{ overflow: "hidden" }}>
-            <h3
-              ref={titleRef}
-              className="m-0 font-extrabold text-white leading-tight sm:leading-none tracking-tight"
-              style={{
-                fontFamily: "'Syne', sans-serif",
-                fontSize: "clamp(28px, 6.5vw, 110px)",
-              }}
-            >
-              {srv.title}
-            </h3>
-          </div>
+      /* Outgoing card: dims, shrinks slightly */
+      masterTl.to(card, {
+        scale: 0.93,
+        opacity: 0,
+        filter: "brightness(0.25) blur(4px)",
+        duration: 0.45,
+        ease: "power2.in",
+      }, at + 0.38);
 
-          {/* Divider */}
-          <div
-            ref={lineRef}
-            className="my-8 h-px"
-            style={{
-              background: `linear-gradient(to right, ${srv.accent}66, rgba(255,255,255,0.06))`,
-            }}
-          />
-
-          {/* Description — constrained width */}
-          <p
-            ref={descRef}
-            className="m-0 leading-relaxed"
-            style={{
-              color: "rgba(255,255,255,0.55)",
-              fontSize: "clamp(15px, 1.5vw, 20px)",
-              maxWidth: "55ch",
-            }}
-          >
-            {srv.desc}
-          </p>
-        </div>
-
-        {/* ─── BOTTOM BAR ─── */}
-        <div
-          className="flex items-center justify-between px-6 sm:px-10 lg:px-14 py-5"
-          style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
-        >
-          <p
-            className="m-0 text-xs uppercase tracking-widest"
-            style={{ color: "rgba(255,255,255,0.25)", fontFamily: "'Syne', sans-serif" }}
-          >
-            [ WHAT WE DO ]
-          </p>
-          {/* Scroll hint on last card removed, else show arrow */}
-          {index < SERVICES.length - 1 ? (
-            <div className="flex items-center gap-2" style={{ color: "rgba(255,255,255,0.25)" }}>
-              <span className="text-xs tracking-widest uppercase font-mono">Scroll</span>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path
-                  d="M8 3v10M8 13l-4-4M8 13l4-4"
-                  stroke="currentColor"
-                  strokeWidth="1.2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </div>
-          ) : (
-            <p className="m-0 text-xs tracking-widest uppercase font-mono" style={{ color: srv.accent }}>
-              That's all our services ↑
-            </p>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export function ServicesSection() {
-  const wrapperRef = useRef(null);
-
-  /* Section header entrance */
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        ".services-header-anim",
-        { opacity: 0, y: 30 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 1,
-          ease: "power3.out",
-          stagger: 0.12,
-          scrollTrigger: {
-            trigger: wrapperRef.current,
-            start: "top 80%",
-            toggleActions: "play none none reverse",
-          },
-        }
+      /* Incoming card: slides up */
+      masterTl.fromTo(next,
+        { yPercent: 100 },
+        { yPercent: 0, duration: 0.85, ease: "power2.inOut" },
+        at
       );
-    }, wrapperRef);
-    return () => ctx.revert();
+
+      /* Text reveals — simple opacity+y only (no clipPath during scrub) */
+      const nEls = {
+        num: next.querySelector(".svc-num"),
+        tag: next.querySelector(".svc-tag"),
+        title: next.querySelector(".svc-title"),
+        line: next.querySelector(".svc-line"),
+        desc: next.querySelector(".svc-desc"),
+      };
+
+      if (nEls.num)
+        masterTl.fromTo(nEls.num, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.22, ease: "power3.out" }, textAt);
+      if (nEls.tag)
+        masterTl.fromTo(nEls.tag, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.22, ease: "power3.out" }, textAt + 0.04);
+      if (nEls.title)
+        masterTl.fromTo(nEls.title, { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.32, ease: "power3.out" }, textAt + 0.1);
+      if (nEls.line)
+        masterTl.fromTo(nEls.line,
+          { scaleX: 0, transformOrigin: "left center" },
+          { scaleX: 1, duration: 0.28, ease: "power3.out" }, textAt + 0.22);
+      if (nEls.desc)
+        masterTl.fromTo(nEls.desc, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.26, ease: "power3.out" }, textAt + 0.28);
+    });
+
+    return () => {
+      masterTl.scrollTrigger?.kill();
+      masterTl.kill();
+    };
   }, []);
 
   return (
-    <section ref={wrapperRef} id="services" className="relative bg-black select-none">
-      {/* ── Intro header (scrolls away before cards start) ── */}
+    <section id="services" className="relative bg-black select-none">
+
+      {/* ── Intro header — scrolls away naturally ── */}
       <div className="max-w-[1440px] mx-auto px-6 sm:px-10 lg:px-14 pt-20 pb-16">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
             <p
-              className="services-header-anim m-0 text-xs sm:text-sm font-semibold tracking-widest uppercase mb-3"
+              className="m-0 text-xs sm:text-sm font-semibold tracking-widest uppercase mb-4"
               style={{ color: "#B3FFC9", fontFamily: "'Syne', sans-serif" }}
             >
               [ WHAT WE DO ]
             </p>
             <h2
-              className="services-header-anim text-white font-extrabold m-0 tracking-tight"
-              style={{
-                fontFamily: "'Syne', sans-serif",
-                fontSize: "clamp(36px, 5vw, 64px)",
-                lineHeight: 1.06,
-              }}
+              className="text-white font-extrabold m-0 tracking-tight"
+              style={{ fontFamily: "'Syne', sans-serif", fontSize: "clamp(36px, 5vw, 64px)", lineHeight: 1.06 }}
             >
-              Our{" "}
-              <span style={{ color: "#B3FFC9" }}>Services</span>
+              Our <span style={{ color: "#B3FFC9" }}>Services</span>
             </h2>
           </div>
-          <p
-            className="services-header-anim text-white/50 text-sm sm:text-base max-w-sm leading-relaxed m-0 md:text-right"
-          >
-            Scroll through to explore every service we craft for your brand.
+          <p className="text-white/50 text-sm sm:text-base max-w-xs leading-relaxed m-0 md:text-right">
+            Scroll to explore every service we craft for your brand.
           </p>
         </div>
       </div>
 
-      {/* ── Sticky stacked cards (dzinrstudio-style) ── */}
-      <div>
+      {/* ── Pin wrap: exactly 100dvh, cards stack inside ──
+           GSAP pins THIS element when top touches viewport top.
+      ── */}
+      <div
+        ref={pinWrapRef}
+        style={{
+          position: "relative",
+          width: "100%",
+          height: "100dvh",
+          overflow: "hidden",
+        }}
+      >
         {SERVICES.map((srv, i) => (
-          <ServiceCard key={i} srv={srv} index={i} />
+          <div
+            key={i}
+            ref={(el) => { if (el) cardRefs.current[i] = el; }}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: srv.bg,
+              overflow: "hidden",
+              willChange: "transform, opacity, filter",
+            }}
+          >
+            {/* Noise */}
+            <div aria-hidden style={{
+              position: "absolute", inset: 0, pointerEvents: "none",
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E")`,
+              mixBlendMode: "overlay", opacity: 0.45,
+            }} />
+            {/* Accent top-right glow */}
+            <div aria-hidden style={{
+              position: "absolute", top: 0, right: 0, width: "55vw", height: "55vh", pointerEvents: "none",
+              background: `radial-gradient(ellipse at top right, ${srv.accent}1e 0%, transparent 65%)`,
+            }} />
+            {/* Accent bottom-left glow */}
+            <div aria-hidden style={{
+              position: "absolute", bottom: 0, left: 0, width: "40vw", height: "40vh", pointerEvents: "none",
+              background: `radial-gradient(ellipse at bottom left, ${srv.accent}0e 0%, transparent 65%)`,
+            }} />
+
+            {/* Card layout */}
+            <div style={{ position: "relative", zIndex: 1, height: "100%", display: "flex", flexDirection: "column" }}>
+
+              {/* TOP BAR */}
+              <div style={{
+                display: "flex", alignItems: "center", justifyContent: "space-between",
+                padding: "clamp(18px,2.8vh,32px) clamp(24px,4vw,64px)",
+                borderBottom: "1px solid rgba(255,255,255,0.07)",
+                flexShrink: 0,
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                  <span className="svc-num" style={{
+                    fontFamily: "monospace", fontSize: 11, letterSpacing: "0.22em",
+                    textTransform: "uppercase", color: srv.accent,
+                  }}>
+                    {srv.num} / {String(SERVICES.length).padStart(2, "0")}
+                  </span>
+                  <span className="svc-tag" style={{
+                    fontSize: 11, padding: "4px 13px", borderRadius: 999,
+                    border: `1px solid ${srv.accent}33`, background: `${srv.accent}0d`,
+                    color: `${srv.accent}cc`, fontFamily: "'Syne',sans-serif", letterSpacing: "0.05em",
+                  }}>
+                    {srv.tag}
+                  </span>
+                </div>
+                {/* Icon */}
+                <div style={{
+                  width: 48, height: 48, borderRadius: 14, display: "flex", alignItems: "center",
+                  justifyContent: "center", padding: 10,
+                  background: `${srv.accent}13`, border: `1px solid ${srv.accent}2a`,
+                }}>
+                  <img src={srv.icon} alt={srv.title} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+                </div>
+              </div>
+
+              {/* MAIN CONTENT — vertically centred */}
+              <div style={{
+                flex: 1, display: "flex", flexDirection: "column", justifyContent: "center",
+                padding: "0 clamp(24px,4vw,64px)",
+                minHeight: 0,
+              }}>
+                {/* Progress pips */}
+                <div style={{ display: "flex", gap: 6, marginBottom: "clamp(28px,4vh,48px)" }}>
+                  {SERVICES.map((_, di) => (
+                    <div key={di} style={{
+                      height: 2, flex: 1, borderRadius: 2,
+                      background: di === i ? srv.accent : "rgba(255,255,255,0.1)",
+                    }} />
+                  ))}
+                </div>
+
+                {/* Title */}
+                <h3
+                  className="svc-title"
+                  style={{
+                    margin: 0, fontFamily: "'Syne',sans-serif", fontWeight: 800,
+                    color: "#fff", lineHeight: 0.95, letterSpacing: "-0.025em",
+                    fontSize: "clamp(42px, 8vw, 120px)",
+                  }}
+                >
+                  {srv.title}
+                </h3>
+
+                {/* Accent line */}
+                <div
+                  className="svc-line"
+                  style={{
+                    height: 1,
+                    margin: "clamp(22px,3.5vh,42px) 0",
+                    background: `linear-gradient(to right, ${srv.accent}77, rgba(255,255,255,0.04))`,
+                    transformOrigin: "left center",
+                  }}
+                />
+
+                {/* Description */}
+                <p
+                  className="svc-desc"
+                  style={{
+                    margin: 0, color: "rgba(255,255,255,0.58)", lineHeight: 1.75,
+                    maxWidth: "50ch", fontSize: "clamp(15px, 1.5vw, 20px)",
+                  }}
+                >
+                  {srv.desc}
+                </p>
+              </div>
+
+              {/* BOTTOM BAR */}
+              <div style={{
+                display: "flex", alignItems: "center", justifyContent: "space-between",
+                padding: "clamp(14px,2.2vh,26px) clamp(24px,4vw,64px)",
+                borderTop: "1px solid rgba(255,255,255,0.07)",
+                flexShrink: 0,
+              }}>
+                <p style={{
+                  margin: 0, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.2em",
+                  color: "rgba(255,255,255,0.2)", fontFamily: "'Syne',sans-serif",
+                }}>
+                  LITTROI PRODUCTION SUITE
+                </p>
+                {i < SERVICES.length - 1 ? (
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, color: "rgba(255,255,255,0.28)" }}>
+                    <span style={{ fontFamily: "monospace", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.15em" }}>
+                      Scroll
+                    </span>
+                    <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                      <path d="M8 3v10M8 13l-4-4M8 13l4-4" stroke="currentColor"
+                        strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </div>
+                ) : (
+                  <p style={{
+                    margin: 0, fontFamily: "monospace", fontSize: 10,
+                    textTransform: "uppercase", letterSpacing: "0.15em", color: srv.accent,
+                  }}>
+                    All services explored ↑
+                  </p>
+                )}
+              </div>
+
+            </div>
+          </div>
         ))}
       </div>
+
+      {/* ── Spacer that provides the scroll distance for card transitions ── */}
+      <div ref={spacerRef} style={{ background: "#000" }} />
+
     </section>
   );
 }
