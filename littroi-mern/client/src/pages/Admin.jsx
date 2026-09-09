@@ -730,9 +730,12 @@ export function Admin() {
   const handleOpenCsModal = (item = null) => {
     if (item) {
       setEditingItem(item);
-      const existingImages = Array.isArray(item.images) && item.images.length > 0
-        ? item.images
-        : (item.coverImage || item.thumbnail ? [item.coverImage || item.thumbnail] : []);
+      // Keep project screenshot gallery strictly separate from cover thumbnail
+      const existingImages = Array.isArray(item.images)
+        ? (item.images.length === 1 && (item.images[0] === item.thumbnail || item.images[0] === item.coverImage)
+            ? []
+            : item.images)
+        : [];
 
       const stats = item.stats || (item.metrics ? item.metrics.map(m => ({ num: m.value, label: m.label })) : []);
 
@@ -771,7 +774,7 @@ export function Admin() {
         title: item.title || item.name || "",
         client: item.client || item.handle || "",
         handle: item.handle || item.client || "",
-        thumbnail: item.thumbnail || item.coverImage || (Array.isArray(item.images) && item.images[0]) || "",
+        thumbnail: item.thumbnail || item.coverImage || "",
         category: item.category || "Instagram Growth",
         images: existingImages,
         tags: Array.isArray(item.tags) ? item.tags.join(", ") : (item.tags || "Editing, Distribution"),
@@ -3432,7 +3435,7 @@ export function Admin() {
                   ) : (
                     <label className="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#161616] border border-white/10 text-xs text-white/60 hover:text-white cursor-pointer transition-colors hover:border-[#B3FFC9]/40">
                       <ImageIcon size={16} className="text-[#B3FFC9]" />
-                      <span>{isUploadingImage ? "Uploading to Cloudinary..." : "Upload Cover Thumbnail (or use first project image)"}</span>
+                      <span>{isUploadingImage ? "Uploading to Cloudinary..." : "Upload Cover Thumbnail"}</span>
                       <input
                         type="file"
                         accept="image/*"
