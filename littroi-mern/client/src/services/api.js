@@ -204,6 +204,22 @@ export const blogAPI = {
     return fallbackBlogs.find((b) => b.slug === slug || b.id === slug || b._id === slug) || null;
   },
 
+  recordView: async (slug) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/blog/${slug}/view`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" }
+      });
+      const data = await res.json();
+      if (data.success) {
+        return data.views;
+      }
+    } catch {
+      // ignore silently
+    }
+    return null;
+  },
+
   create: async (item) => {
     const res = await fetch(`${API_BASE_URL}/blog`, {
       method: "POST",

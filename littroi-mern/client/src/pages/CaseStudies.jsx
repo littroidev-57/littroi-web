@@ -7,7 +7,7 @@ import { caseStudies as fallbackCaseStudies } from "../data/caseStudies";
 export function CaseStudies() {
   const [studies, setStudies] = useState(fallbackCaseStudies);
   const [activeFilter, setActiveFilter] = useState("all");
-  const [showAllCards, setShowAllCards] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(4);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [activeModalStudy, setActiveModalStudy] = useState(null);
   const [lightboxImg, setLightboxImg] = useState(null);
@@ -69,17 +69,15 @@ export function CaseStudies() {
     );
   });
 
-  const visibleStudies =
-    activeFilter === "all" && !showAllCards
-      ? filteredStudies.slice(0, 4)
-      : filteredStudies;
+  const visibleStudies = filteredStudies.slice(0, visibleCount);
+  const hasMore = visibleCount < filteredStudies.length;
 
-  const handleLoadMore = () => {
+  const handleSeeMore = () => {
     setIsLoadingMore(true);
     setTimeout(() => {
-      setShowAllCards(true);
+      setVisibleCount((prev) => prev + 4);
       setIsLoadingMore(false);
-    }, 600);
+    }, 350);
   };
 
   return (
@@ -367,42 +365,58 @@ export function CaseStudies() {
 
         .cs-view-all {
           grid-column: 1 / -1;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 12px;
           text-align: center;
-          padding: 40px 20px 10px;
+          padding: 48px 20px 20px;
+          border-top: 1px solid rgba(255, 255, 255, 0.08);
+          margin-top: 24px;
         }
         .cs-btn-all {
           display: inline-flex;
           align-items: center;
-          gap: 8px;
-          padding: 12px 32px;
+          gap: 10px;
+          padding: 14px 36px;
           border: 1px solid #B3FFC9;
           color: #B3FFC9;
           border-radius: 50px;
-          background: transparent;
+          background: rgba(179, 255, 201, 0.04);
           cursor: pointer;
           font-family: 'Syne', sans-serif;
           font-size: 12px;
           font-weight: 700;
-          letter-spacing: 0.1em;
-          transition: 0.3s;
+          letter-spacing: 0.12em;
+          transition: all 0.3s ease;
+          box-shadow: 0 0 20px rgba(179, 255, 201, 0.1);
         }
         .cs-btn-all:hover:not(:disabled) {
           background: #B3FFC9;
           color: #000;
+          box-shadow: 0 0 30px rgba(179, 255, 201, 0.35);
+          transform: translateY(-2px);
         }
         .cs-btn-all:disabled {
           opacity: 0.6;
           cursor: default;
         }
-
         .cs-spinner {
-          width: 12px; height: 12px;
+          width: 14px;
+          height: 14px;
           border-radius: 50%;
-          border: 2px solid rgba(0,0,0,0.15);
+          border: 2px solid rgba(179, 255, 201, 0.3);
           border-top-color: currentColor;
           animation: cs-spin 0.7s linear infinite;
         }
         @keyframes cs-spin { to { transform: rotate(360deg); } }
+        .cs-count-note {
+          font-family: 'Space Grotesk', monospace;
+          font-size: 12px;
+          color: rgba(255, 255, 255, 0.4);
+          letter-spacing: 0.04em;
+          margin-top: 4px;
+        }
 
         /* Contained Modal Overlay matching littroi.com */
         .cs-modal-overlay {
@@ -546,6 +560,182 @@ export function CaseStudies() {
           line-height: 1.65;
           color: rgba(255,255,255,0.75);
           font-weight: 300;
+        }
+
+        .cs-card-ba-pill {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 4px 10px;
+          border-radius: 50px;
+          background: rgba(179, 255, 201, 0.1);
+          border: 1px solid rgba(179, 255, 201, 0.35);
+          color: #B3FFC9;
+          font-family: 'Space Grotesk', monospace;
+          font-size: 10px;
+          font-weight: 700;
+          margin-bottom: 8px;
+          box-shadow: 0 0 12px rgba(179, 255, 201, 0.15);
+        }
+        .cs-card-ba-pill .dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: #B3FFC9;
+          box-shadow: 0 0 6px #B3FFC9;
+        }
+
+        .cs-before-after-wrap {
+          margin-bottom: 28px;
+          padding: 20px;
+          border-radius: 18px;
+          background: rgba(255, 255, 255, 0.02);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .cs-ba-header {
+          margin-bottom: 14px;
+        }
+        .cs-ba-tag {
+          font-family: 'Syne', sans-serif;
+          font-size: 9.5px;
+          font-weight: 800;
+          color: #B3FFC9;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+        }
+        .cs-ba-title {
+          font-family: 'Syne', sans-serif;
+          font-size: 15px;
+          font-weight: 700;
+          color: #fff;
+          margin-top: 2px;
+        }
+        .cs-ba-grid {
+          display: grid;
+          grid-template-columns: 1fr auto 1fr;
+          gap: 14px;
+          align-items: center;
+        }
+        @media (max-width: 768px) {
+          .cs-ba-grid {
+            grid-template-columns: 1fr;
+            gap: 12px;
+          }
+        }
+        .cs-ba-card {
+          position: relative;
+          border-radius: 14px;
+          overflow: hidden;
+          background: #000;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+        .cs-ba-card:hover {
+          transform: translateY(-2px);
+        }
+        .cs-ba-card.is-before {
+          border-color: rgba(239, 68, 68, 0.3);
+        }
+        .cs-ba-card.is-before:hover {
+          border-color: rgba(239, 68, 68, 0.7);
+          box-shadow: 0 8px 24px rgba(239, 68, 68, 0.2);
+        }
+        .cs-ba-card.is-after {
+          border-color: rgba(179, 255, 201, 0.35);
+        }
+        .cs-ba-card.is-after:hover {
+          border-color: #B3FFC9;
+          box-shadow: 0 8px 24px rgba(179, 255, 201, 0.25);
+        }
+        .cs-ba-badge {
+          position: absolute;
+          top: 10px;
+          left: 10px;
+          z-index: 10;
+          padding: 4px 10px;
+          border-radius: 50px;
+          font-family: 'Space Grotesk', monospace;
+          font-size: 10px;
+          font-weight: 700;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          backdrop-filter: blur(8px);
+        }
+        .cs-ba-badge.before {
+          background: rgba(0, 0, 0, 0.85);
+          color: #f87171;
+          border: 1px solid rgba(248, 113, 113, 0.3);
+        }
+        .cs-ba-badge.before .dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: #ef4444;
+        }
+        .cs-ba-badge.after {
+          background: rgba(0, 0, 0, 0.85);
+          color: #B3FFC9;
+          border: 1px solid rgba(179, 255, 201, 0.4);
+        }
+        .cs-ba-badge.after .dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: #B3FFC9;
+          box-shadow: 0 0 6px #B3FFC9;
+        }
+        .cs-ba-img-wrap {
+          position: relative;
+          aspect-ratio: 16 / 10;
+          width: 100%;
+        }
+        .cs-ba-img-wrap img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+        }
+        .cs-ba-zoom {
+          position: absolute;
+          bottom: 8px;
+          right: 8px;
+          padding: 3px 8px;
+          border-radius: 6px;
+          background: rgba(0, 0, 0, 0.75);
+          color: rgba(255, 255, 255, 0.7);
+          font-family: 'Space Grotesk', monospace;
+          font-size: 9px;
+          opacity: 0;
+          transition: opacity 0.2s;
+        }
+        .cs-ba-card:hover .cs-ba-zoom {
+          opacity: 1;
+        }
+        .cs-ba-arrow-indicator {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          background: rgba(179, 255, 201, 0.1);
+          border: 1px solid rgba(179, 255, 201, 0.25);
+          color: #B3FFC9;
+          font-weight: 700;
+          font-size: 14px;
+        }
+        @media (max-width: 768px) {
+          .cs-ba-arrow-indicator {
+            transform: rotate(90deg);
+            margin: 0 auto;
+          }
+        }
+        .cs-ba-pair-block + .cs-ba-pair-block {
+          margin-top: 20px;
+          padding-top: 20px;
+          border-top: 1px dashed rgba(255, 255, 255, 0.12);
         }
 
         .cs-modal-right {
@@ -725,7 +915,7 @@ export function CaseStudies() {
       `}</style>
 
       <div className="cs-page-root">
-        
+
         {/* ==================== HERO ==================== */}
         <section className="cs-hero-container">
           <motion.div
@@ -766,9 +956,7 @@ export function CaseStudies() {
               key={tab.key}
               onClick={() => {
                 setActiveFilter(tab.key);
-                if (tab.key !== "all") {
-                  setShowAllCards(true);
-                }
+                setVisibleCount(4);
               }}
               className={`cs-tab-btn ${activeFilter === tab.key ? "is-active" : ""}`}
             >
@@ -815,6 +1003,17 @@ export function CaseStudies() {
 
                 {/* Hover Detail Overlay (above the bar) */}
                 <div className="cs-card-detail">
+                  {((study.beforeAfter && study.beforeAfter.length > 0) || (study.beforeImage && study.afterImage)) && (
+                    <div className="cs-card-ba-pill">
+                      <span className="dot" />
+                      <span>
+                        {(study.beforeAfter && study.beforeAfter.length > 1)
+                          ? `${study.beforeAfter.length} Before & After Proofs`
+                          : "Before & After Proof"}
+                      </span>
+                    </div>
+                  )}
+
                   {stats.length > 0 && (
                     <div className="cs-detail-stats">
                       {stats.slice(0, 2).map((s, sIdx) => (
@@ -856,19 +1055,29 @@ export function CaseStudies() {
             );
           })}
 
-          {/* VIEW ALL BUTTON */}
-          {activeFilter === "all" && !showAllCards && (
+          {/* SEE MORE BUTTON */}
+          {hasMore && (
             <div className="cs-view-all">
               <button
                 className="cs-btn-all"
                 disabled={isLoadingMore}
-                onClick={handleLoadMore}
+                onClick={handleSeeMore}
               >
                 {isLoadingMore && <span className="cs-spinner" />}
                 <span>
-                  {isLoadingMore ? "LOADING…" : "VIEW ALL CASE STUDIES →"}
+                  {isLoadingMore
+                    ? "LOADING…"
+                    : `SEE MORE`}
                 </span>
               </button>
+            </div>
+          )}
+
+          {!hasMore && filteredStudies.length > 4 && (
+            <div className="cs-view-all">
+              <p className="cs-count-note">
+                ✓ All {filteredStudies.length} Case Studies
+              </p>
             </div>
           )}
         </section>
@@ -942,8 +1151,95 @@ export function CaseStudies() {
                 )}
               </div>
 
-              {/* Right Column: Multiple Results Screenshots / Images Gallery */}
+              {/* Right Column: Before & After Showcase + Multiple Results Gallery */}
               <div className="cs-modal-right">
+                {/* Before & After Growth Proof Showcase */}
+                {(() => {
+                  const baList = (activeModalStudy.beforeAfter && activeModalStudy.beforeAfter.length > 0)
+                    ? activeModalStudy.beforeAfter
+                    : ((activeModalStudy.beforeImage && activeModalStudy.afterImage)
+                      ? [{
+                          beforeImage: activeModalStudy.beforeImage,
+                          afterImage: activeModalStudy.afterImage,
+                          beforeLabel: activeModalStudy.beforeLabel || "BEFORE",
+                          afterLabel: activeModalStudy.afterLabel || "AFTER",
+                          title: ""
+                        }]
+                      : []);
+
+                  if (baList.length === 0) return null;
+
+                  return (
+                    <div className="cs-before-after-wrap">
+                      <div className="cs-ba-header">
+                        <span className="cs-ba-tag">TRANSFORMATION PROOF</span>
+                        <h4 className="cs-ba-title">
+                          {baList.length > 1
+                            ? `Before vs After Performance (${baList.length} Comparisons)`
+                            : "Before vs After Performance"}
+                        </h4>
+                      </div>
+
+                      <div className="space-y-6">
+                        {baList.map((pair, pIdx) => (
+                          <div key={pIdx} className="cs-ba-pair-block">
+                            {pair.title && (
+                              <div className="text-xs font-mono font-bold text-[#B3FFC9] mb-2.5 flex items-center gap-1.5">
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#B3FFC9]" />
+                                <span>{pair.title}</span>
+                              </div>
+                            )}
+                            <div className="cs-ba-grid">
+                              {/* Before Card */}
+                              <div
+                                className="cs-ba-card is-before"
+                                onClick={() => pair.beforeImage && setLightboxImg(pair.beforeImage)}
+                              >
+                                <div className="cs-ba-badge before">
+                                  <span className="dot" />
+                                  <span>{pair.beforeLabel || "BEFORE"}</span>
+                                </div>
+                                <div className="cs-ba-img-wrap">
+                                  {pair.beforeImage ? (
+                                    <img src={pair.beforeImage} alt={`Before Proof ${pIdx + 1}`} />
+                                  ) : (
+                                    <div className="p-8 text-center text-xs text-white/30 font-mono">No before image</div>
+                                  )}
+                                  <div className="cs-ba-zoom">Click to expand ↗</div>
+                                </div>
+                              </div>
+
+                              {/* Transformation Arrow */}
+                              <div className="cs-ba-arrow-indicator">
+                                <span>→</span>
+                              </div>
+
+                              {/* After Card */}
+                              <div
+                                className="cs-ba-card is-after"
+                                onClick={() => pair.afterImage && setLightboxImg(pair.afterImage)}
+                              >
+                                <div className="cs-ba-badge after">
+                                  <span className="dot" />
+                                  <span>{pair.afterLabel || "AFTER"}</span>
+                                </div>
+                                <div className="cs-ba-img-wrap">
+                                  {pair.afterImage ? (
+                                    <img src={pair.afterImage} alt={`After Proof ${pIdx + 1}`} />
+                                  ) : (
+                                    <div className="p-8 text-center text-xs text-white/30 font-mono">No after image</div>
+                                  )}
+                                  <div className="cs-ba-zoom">Click to expand ↗</div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })()}
+
                 <p className="cs-modal-shots-title">Results in the data</p>
                 <div className="cs-modal-shots">
                   {activeModalStudy.images && activeModalStudy.images.length > 0 ? (

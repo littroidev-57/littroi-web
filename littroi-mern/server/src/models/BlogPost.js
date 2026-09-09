@@ -13,6 +13,7 @@ const blogPostSchema = new mongoose.Schema(
     excerpt: { type: String, required: true },
     content: { type: String, required: true },
     tags: [{ type: String }],
+    views: { type: Number, default: 0 },
     isPublished: { type: Boolean, default: true }
   },
   { timestamps: true }

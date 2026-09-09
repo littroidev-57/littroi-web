@@ -73,6 +73,81 @@ export function CaseStudyDetail() {
             </div>
           </FadeIn>
 
+          {/* Before & After Growth Comparison */}
+          {/* Before & After Growth Comparison */}
+          {(() => {
+            const baList = (study.beforeAfter && study.beforeAfter.length > 0)
+              ? study.beforeAfter
+              : ((study.beforeImage && study.afterImage)
+                ? [{
+                    beforeImage: study.beforeImage,
+                    afterImage: study.afterImage,
+                    beforeLabel: study.beforeLabel || "Before Optimization",
+                    afterLabel: study.afterLabel || "After Littroi System",
+                    title: "Before vs After Growth Results"
+                  }]
+                : []);
+
+            if (baList.length === 0) return null;
+
+            return (
+              <FadeIn delay={0.32}>
+                <div className="p-8 sm:p-10 rounded-3xl bg-brand-surface border border-white/10 space-y-8">
+                  <div>
+                    <span className="text-xs font-mono text-[#B3FFC9] uppercase tracking-widest font-semibold">
+                      Transformation Proof
+                    </span>
+                    <h3 className="text-2xl font-bold font-display text-white mt-1">
+                      {baList.length > 1
+                        ? `Before vs After Growth Results (${baList.length} Comparisons)`
+                        : "Before vs After Growth Results"}
+                    </h3>
+                  </div>
+
+                  <div className="space-y-8">
+                    {baList.map((pair, pIdx) => (
+                      <div key={pIdx} className="space-y-4 pt-4 first:pt-0 border-t first:border-t-0 border-white/10">
+                        {pair.title && (
+                          <h4 className="text-sm font-bold font-mono text-[#B3FFC9] flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-[#B3FFC9]" />
+                            <span>{pair.title}</span>
+                          </h4>
+                        )}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {/* Before */}
+                          <div className="space-y-3 p-4 rounded-2xl bg-black/40 border border-red-500/20">
+                            <div className="flex items-center gap-2">
+                              <span className="w-2.5 h-2.5 rounded-full bg-red-400" />
+                              <span className="text-xs font-mono font-bold text-red-400 uppercase tracking-wider">
+                                {pair.beforeLabel || "Before Optimization"}
+                              </span>
+                            </div>
+                            <div className="rounded-xl overflow-hidden aspect-video border border-white/10 bg-black">
+                              <img src={pair.beforeImage} alt={`Before Proof ${pIdx + 1}`} className="w-full h-full object-cover" />
+                            </div>
+                          </div>
+
+                          {/* After */}
+                          <div className="space-y-3 p-4 rounded-2xl bg-black/40 border border-[#B3FFC9]/30">
+                            <div className="flex items-center gap-2">
+                              <span className="w-2.5 h-2.5 rounded-full bg-[#B3FFC9] shadow-[0_0_8px_#B3FFC9]" />
+                              <span className="text-xs font-mono font-bold text-[#B3FFC9] uppercase tracking-wider">
+                                {pair.afterLabel || "After Littroi System"}
+                              </span>
+                            </div>
+                            <div className="rounded-xl overflow-hidden aspect-video border border-white/10 bg-black">
+                              <img src={pair.afterImage} alt={`After Proof ${pIdx + 1}`} className="w-full h-full object-cover" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </FadeIn>
+            );
+          })()}
+
           {/* Challenge & Solution Breakdown */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 pt-8">
             <FadeIn delay={0.35} className="space-y-4">

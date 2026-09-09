@@ -95,7 +95,15 @@ export const deleteCaseStudy = async (req, res, next) => {
     const { deleteFromCloudinary } = await import("../config/cloudinary.js");
     const imagesToDelete = [];
     if (study.coverImage) imagesToDelete.push(study.coverImage);
+    if (study.beforeImage) imagesToDelete.push(study.beforeImage);
+    if (study.afterImage) imagesToDelete.push(study.afterImage);
     if (Array.isArray(study.images)) imagesToDelete.push(...study.images);
+    if (Array.isArray(study.beforeAfter)) {
+      study.beforeAfter.forEach((p) => {
+        if (p.beforeImage) imagesToDelete.push(p.beforeImage);
+        if (p.afterImage) imagesToDelete.push(p.afterImage);
+      });
+    }
     if (imagesToDelete.length > 0) {
       await deleteFromCloudinary(imagesToDelete);
     }

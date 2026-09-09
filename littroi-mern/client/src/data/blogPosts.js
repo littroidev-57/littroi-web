@@ -13,6 +13,7 @@ export const blogPosts = [
     },
     featuredImage: "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=1200&auto=format&fit=crop&q=80",
     excerpt: "In an algorithmic feed saturated with noise, attention is the scarcest currency on the internet. Here is how we engineer retention curves that refuse to drop.",
+    views: 3420,
     content: `
 ## The Death of the Fluff Intro
 
@@ -54,6 +55,7 @@ When you combine ruthless pacing with cinematic motion craft and genuine strateg
     },
     featuredImage: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&auto=format&fit=crop&q=80",
     excerpt: "Why 90% of SaaS product demos fail to convert, and how replacing screen recordings with kinetic 3D motion drives 4x higher inbound conversions.",
+    views: 2190,
     content: `
 ## Why Boring Screen Recordings Kill Sales Velocity
 
@@ -81,6 +83,7 @@ Software buyers do not want a 15-minute tutorial disguised as a marketing video.
     },
     featuredImage: "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=1200&auto=format&fit=crop&q=80",
     excerpt: "The exact content repurposing architecture used by leading media houses to generate over 10 million organic views each month.",
+    views: 1845,
     content: `
 ## The Multichannel Multiplier Effect
 

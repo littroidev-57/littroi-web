@@ -2,6 +2,7 @@ import { Router } from "express";
 import { 
   getBlogPosts, 
   getBlogPostBySlug, 
+  recordBlogView,
   createBlogPost, 
   updateBlogPost, 
   deleteBlogPost 
@@ -13,6 +14,7 @@ const router = Router();
 
 router.get("/", getBlogPosts);
 router.get("/:slug", getBlogPostBySlug);
+router.post("/:slug/view", recordBlogView);
 router.post("/", authenticate, authorize("admin"), createBlogPost);
 router.put("/:id", authenticate, authorize("admin"), updateBlogPost);
 router.delete("/:id", authenticate, authorize("admin"), deleteBlogPost);

@@ -1,18 +1,18 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { 
-  Lock, 
-  LayoutDashboard, 
-  Film, 
-  FileText, 
-  Briefcase, 
-  LogOut, 
-  Inbox, 
-  Plus, 
-  Trash2, 
-  Edit3, 
-  CheckCircle2, 
-  Clock, 
-  Eye, 
+import {
+  Lock,
+  LayoutDashboard,
+  Film,
+  FileText,
+  Briefcase,
+  LogOut,
+  Inbox,
+  Plus,
+  Trash2,
+  Edit3,
+  CheckCircle2,
+  Clock,
+  Eye,
   X,
   Send,
   ExternalLink,
@@ -137,6 +137,19 @@ export function Admin() {
     stat2Label: "Interactions",
     stat3Num: "",
     stat3Label: "Accounts reached",
+    beforeAfter: [
+      {
+        beforeImage: "",
+        afterImage: "",
+        beforeLabel: "Before",
+        afterLabel: "After",
+        title: ""
+      }
+    ],
+    beforeImage: "",
+    afterImage: "",
+    beforeLabel: "Before",
+    afterLabel: "After",
     challenge: "",
     approach: "",
     description: ""
@@ -331,8 +344,8 @@ export function Admin() {
       };
     });
 
-    const activeHoverItem = hoveredDonutCat 
-      ? segments.find((s) => s.key === hoveredDonutCat) 
+    const activeHoverItem = hoveredDonutCat
+      ? segments.find((s) => s.key === hoveredDonutCat)
       : null;
 
     return {
@@ -469,7 +482,7 @@ export function Admin() {
     // Dynamic scale values
     const primarySeries = labels.map((lbl, idx) => {
       const mult = leadMultipliers[idx] || 0.5;
-      const computedLeads = totalLeads > 0 
+      const computedLeads = totalLeads > 0
         ? Math.max(1, Math.round(totalLeads * mult))
         : Math.round(12 * mult);
       return {
@@ -577,8 +590,8 @@ export function Admin() {
 
     const bars = days.map((day) => {
       const realCount = dayCounts[day.key];
-      const count = totalFromEnquiries > 0 && realCount > 0 
-        ? realCount 
+      const count = totalFromEnquiries > 0 && realCount > 0
+        ? realCount
         : Math.round(effectiveTotal * simulatedWeights[day.key]);
       return {
         day: day.name,
@@ -675,6 +688,45 @@ export function Admin() {
   };
 
   // ==================== CRUD: CASE STUDIES ====================
+  const addCsBeforeAfterPair = () => {
+    setCsForm(prev => ({
+      ...prev,
+      beforeAfter: [
+        ...(prev.beforeAfter || []),
+        { beforeImage: "", afterImage: "", beforeLabel: "Before", afterLabel: "After", title: "" }
+      ]
+    }));
+  };
+
+  const removeCsBeforeAfterPair = async (index) => {
+    const pair = csForm.beforeAfter?.[index];
+    if (pair) {
+      if (pair.beforeImage && pair.beforeImage.includes("cloudinary.com")) {
+        try { await uploadAPI.deleteImage(pair.beforeImage); } catch (e) { console.error(e); }
+      }
+      if (pair.afterImage && pair.afterImage.includes("cloudinary.com")) {
+        try { await uploadAPI.deleteImage(pair.afterImage); } catch (e) { console.error(e); }
+      }
+    }
+    setCsForm(prev => {
+      const updated = (prev.beforeAfter || []).filter((_, i) => i !== index);
+      return {
+        ...prev,
+        beforeAfter: updated.length > 0 ? updated : [{ beforeImage: "", afterImage: "", beforeLabel: "Before", afterLabel: "After", title: "" }]
+      };
+    });
+  };
+
+  const updateCsBeforeAfterPair = (index, field, value) => {
+    setCsForm(prev => {
+      const updated = [...(prev.beforeAfter || [])];
+      if (updated[index]) {
+        updated[index] = { ...updated[index], [field]: value };
+      }
+      return { ...prev, beforeAfter: updated };
+    });
+  };
+
   const handleOpenCsModal = (item = null) => {
     if (item) {
       setEditingItem(item);
@@ -683,6 +735,37 @@ export function Admin() {
         : (item.coverImage || item.thumbnail ? [item.coverImage || item.thumbnail] : []);
 
       const stats = item.stats || (item.metrics ? item.metrics.map(m => ({ num: m.value, label: m.label })) : []);
+
+      let baPairs = [];
+      if (Array.isArray(item.beforeAfter) && item.beforeAfter.length > 0) {
+        baPairs = item.beforeAfter.map((p) => ({
+          beforeImage: p.beforeImage || "",
+          afterImage: p.afterImage || "",
+          beforeLabel: p.beforeLabel || "Before",
+          afterLabel: p.afterLabel || "After",
+          title: p.title || ""
+        }));
+      } else if (item.beforeImage || item.afterImage) {
+        baPairs = [
+          {
+            beforeImage: item.beforeImage || "",
+            afterImage: item.afterImage || "",
+            beforeLabel: item.beforeLabel || "Before",
+            afterLabel: item.afterLabel || "After",
+            title: ""
+          }
+        ];
+      } else {
+        baPairs = [
+          {
+            beforeImage: "",
+            afterImage: "",
+            beforeLabel: "Before",
+            afterLabel: "After",
+            title: ""
+          }
+        ];
+      }
 
       setCsForm({
         title: item.title || item.name || "",
@@ -698,6 +781,11 @@ export function Admin() {
         stat2Label: stats[1]?.label || "Interactions",
         stat3Num: stats[2]?.num || "",
         stat3Label: stats[2]?.label || "Accounts reached",
+        beforeAfter: baPairs,
+        beforeImage: baPairs[0]?.beforeImage || item.beforeImage || "",
+        afterImage: baPairs[0]?.afterImage || item.afterImage || "",
+        beforeLabel: baPairs[0]?.beforeLabel || item.beforeLabel || "Before",
+        afterLabel: baPairs[0]?.afterLabel || item.afterLabel || "After",
         challenge: item.challenge || "",
         approach: item.approach || "",
         description: item.description || item.shortDescription || ""
@@ -718,6 +806,19 @@ export function Admin() {
         stat2Label: "Interactions",
         stat3Num: "",
         stat3Label: "Accounts reached",
+        beforeAfter: [
+          {
+            beforeImage: "",
+            afterImage: "",
+            beforeLabel: "Before",
+            afterLabel: "After",
+            title: ""
+          }
+        ],
+        beforeImage: "",
+        afterImage: "",
+        beforeLabel: "Before",
+        afterLabel: "After",
         challenge: "",
         approach: "",
         description: ""
@@ -735,6 +836,11 @@ export function Admin() {
 
     const calculatedInitials = csForm.title.split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase();
 
+    const cleanBeforeAfter = (csForm.beforeAfter || []).filter(
+      (p) => p.beforeImage || p.afterImage || (p.title && p.title.trim())
+    );
+    const firstPair = cleanBeforeAfter[0] || (csForm.beforeAfter && csForm.beforeAfter[0]) || {};
+
     const payload = {
       ...csForm,
       name: csForm.title,
@@ -748,6 +854,11 @@ export function Admin() {
       metricLabel: csForm.stat1Label || "Views",
       thumbnail: csForm.thumbnail || csForm.images[0] || "",
       coverImage: csForm.thumbnail || csForm.images[0] || "",
+      beforeAfter: cleanBeforeAfter,
+      beforeImage: firstPair.beforeImage || csForm.beforeImage || "",
+      afterImage: firstPair.afterImage || csForm.afterImage || "",
+      beforeLabel: firstPair.beforeLabel || csForm.beforeLabel || "Before",
+      afterLabel: firstPair.afterLabel || csForm.afterLabel || "After",
       shortDescription: csForm.description || `${csForm.challenge ? `Challenge: ${csForm.challenge} ` : ''}${csForm.approach ? `Approach: ${csForm.approach}` : ''}`
     };
 
@@ -807,10 +918,10 @@ export function Admin() {
       projectForm.category === "our-projects"
         ? "Our Projects"
         : projectForm.category === "saas-video"
-        ? "SaaS Video"
-        : projectForm.category === "podcast-clips"
-        ? "Podcast Clips"
-        : "Short Form Content";
+          ? "SaaS Video"
+          : projectForm.category === "podcast-clips"
+            ? "Podcast Clips"
+            : "Short Form Content";
 
     const defaultThumb =
       projectForm.category === "our-projects" || projectForm.category === "saas-video"
@@ -922,7 +1033,7 @@ export function Admin() {
 
   const handleSaveJob = async (e) => {
     e.preventDefault();
-    const requirementsArr = typeof jobForm.requirements === "string" 
+    const requirementsArr = typeof jobForm.requirements === "string"
       ? jobForm.requirements.split(/[\n,]/).map((r) => r.trim()).filter(Boolean)
       : (Array.isArray(jobForm.requirements) ? jobForm.requirements : []);
 
@@ -1095,14 +1206,14 @@ export function Admin() {
   };
 
   // Filtered Lists
-  const filteredCaseStudies = caseStudiesList.filter((cs) => 
+  const filteredCaseStudies = caseStudiesList.filter((cs) =>
     (cs.title || cs.name)?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (cs.client || cs.handle)?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     cs.category?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const filteredProjects = projectsList.filter((p) => {
-    const matchesSearch = 
+    const matchesSearch =
       p.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.videoUrl?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.category?.toLowerCase().includes(searchQuery.toLowerCase());
@@ -1124,23 +1235,23 @@ export function Admin() {
     return true;
   });
 
-  const filteredBlogs = blogsList.filter((b) => 
+  const filteredBlogs = blogsList.filter((b) =>
     b.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     b.category?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const filteredJobs = jobsList.filter((j) => 
+  const filteredJobs = jobsList.filter((j) =>
     j.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     j.department?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const filteredEnquiries = enquiriesList.filter((e) => {
-    const matchesSearch = 
+    const matchesSearch =
       e.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       e.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       e.company?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       e.message?.toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     if (statusFilter === "all") return matchesSearch;
     return matchesSearch && (e.status?.toLowerCase() === statusFilter.toLowerCase());
   });
@@ -1152,7 +1263,7 @@ export function Admin() {
       (app.jobTitle || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
       (app.portfolioUrl || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
       (app.phone || "").toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     if (statusFilter === "all") return matchesSearch;
     return matchesSearch && (app.status?.toLowerCase() === statusFilter.toLowerCase());
   });
@@ -1267,11 +1378,10 @@ export function Admin() {
               <button
                 key={p}
                 onClick={() => setCurrentPage((prev) => ({ ...prev, [tabKey]: p }))}
-                className={`min-w-[32px] h-8 px-2 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer ${
-                  curPage === p
-                    ? "bg-[#B3FFC9] text-black shadow-[0_0_15px_rgba(179,255,201,0.3)] border border-[#B3FFC9]"
-                    : "bg-[#141414] border border-white/10 text-white/70 hover:text-white hover:border-white/20"
-                }`}
+                className={`min-w-[32px] h-8 px-2 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer ${curPage === p
+                  ? "bg-[#B3FFC9] text-black shadow-[0_0_15px_rgba(179,255,201,0.3)] border border-[#B3FFC9]"
+                  : "bg-[#141414] border border-white/10 text-white/70 hover:text-white hover:border-white/20"
+                  }`}
               >
                 {p}
               </button>
@@ -1397,7 +1507,7 @@ export function Admin() {
   return (
     <>
       <SEO title="Admin Console — Littroi" />
-      
+
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 px-5 py-3 rounded-xl bg-[#B3FFC9] text-black font-bold text-xs shadow-2xl flex items-center gap-2 animate-fadeIn" style={{ fontFamily: "'Syne', sans-serif" }}>
@@ -1407,12 +1517,11 @@ export function Admin() {
       )}
 
       <div className="min-h-screen bg-[#070707] text-white flex flex-col md:flex-row select-none">
-        
+
         {/* ==================== LEFT SIDEBAR ==================== */}
         <aside
-          className={`fixed inset-y-0 left-0 z-40 w-72 bg-[#0c0c0c] border-r border-white/10 flex flex-col justify-between transition-transform duration-300 md:translate-x-0 ${
-            sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-          }`}
+          className={`fixed inset-y-0 left-0 z-40 w-72 bg-[#0c0c0c] border-r border-white/10 flex flex-col justify-between transition-transform duration-300 md:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+            }`}
         >
           {/* Top Logo & Studio Tag */}
           <div className="p-6 border-b border-white/10 space-y-4">
@@ -1449,11 +1558,10 @@ export function Admin() {
                     setActiveTab(tab.id);
                     setSidebarOpen(false);
                   }}
-                  className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${
-                    isActive
-                      ? "bg-[#B3FFC9] text-black shadow-[0_0_20px_rgba(179,255,201,0.3)]"
-                      : "text-white/60 hover:text-white hover:bg-white/5"
-                  }`}
+                  className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${isActive
+                    ? "bg-[#B3FFC9] text-black shadow-[0_0_20px_rgba(179,255,201,0.3)]"
+                    : "text-white/60 hover:text-white hover:bg-white/5"
+                    }`}
                   style={{ fontFamily: "'Syne', sans-serif" }}
                 >
                   <div className="flex items-center gap-3">
@@ -1462,11 +1570,10 @@ export function Admin() {
                   </div>
                   {tab.count !== null && (
                     <span
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
-                        isActive
-                          ? "bg-black/20 text-black"
-                          : (tab.highlight ? "bg-[#B3FFC9]/20 text-[#B3FFC9]" : "bg-white/10 text-white/60")
-                      }`}
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${isActive
+                        ? "bg-black/20 text-black"
+                        : (tab.highlight ? "bg-[#B3FFC9]/20 text-[#B3FFC9]" : "bg-white/10 text-white/60")
+                        }`}
                     >
                       {tab.count}
                     </span>
@@ -1518,7 +1625,7 @@ export function Admin() {
 
         {/* ==================== RIGHT MAIN CONTAINER ==================== */}
         <div className="flex-1 md:ml-72 flex flex-col min-h-screen bg-[#070707]">
-          
+
           {/* Top Navbar */}
           <header className="sticky top-0 z-30 h-20 bg-[#0c0c0c]/80 backdrop-blur-xl border-b border-white/10 px-6 sm:px-10 flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -1608,13 +1715,13 @@ export function Admin() {
 
           {/* Main Body Content */}
           <main className="p-6 sm:p-10 space-y-8 flex-1">
-            
+
             {/* ==================== TAB: DASHBOARD WITH ANALYTICS GRAPHS ==================== */}
             {activeTab === "dashboard" && (
               <div className="space-y-8">
                 {/* 7 Hero Metric Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
-                  <div 
+                  <div
                     onClick={() => setActiveTab("caseStudies")}
                     className="p-5 rounded-2xl bg-[#0e0e0e] border border-white/10 hover:border-[#B3FFC9]/40 transition-all cursor-pointer space-y-3 group hover:shadow-[0_10px_30px_rgba(0,0,0,0.8),0_0_20px_rgba(179,255,201,0.05)]"
                   >
@@ -1637,7 +1744,7 @@ export function Admin() {
                     </div>
                   </div>
 
-                  <div 
+                  <div
                     onClick={() => setActiveTab("testimonials")}
                     className="p-5 rounded-2xl bg-[#0e0e0e] border border-white/10 hover:border-[#B3FFC9]/40 transition-all cursor-pointer space-y-3 group hover:shadow-[0_10px_30px_rgba(0,0,0,0.8),0_0_20px_rgba(179,255,201,0.05)]"
                   >
@@ -1660,7 +1767,7 @@ export function Admin() {
                     </div>
                   </div>
 
-                  <div 
+                  <div
                     onClick={() => setActiveTab("homeVideos")}
                     className="p-5 rounded-2xl bg-[#0e0e0e] border border-white/10 hover:border-[#B3FFC9]/40 transition-all cursor-pointer space-y-3 group hover:shadow-[0_10px_30px_rgba(0,0,0,0.8),0_0_20px_rgba(179,255,201,0.05)]"
                   >
@@ -1683,7 +1790,7 @@ export function Admin() {
                     </div>
                   </div>
 
-                  <div 
+                  <div
                     onClick={() => setActiveTab("blog")}
                     className="p-5 rounded-2xl bg-[#0e0e0e] border border-white/10 hover:border-[#B3FFC9]/40 transition-all cursor-pointer space-y-3 group hover:shadow-[0_10px_30px_rgba(0,0,0,0.8),0_0_20px_rgba(179,255,201,0.05)]"
                   >
@@ -1697,8 +1804,8 @@ export function Admin() {
                       <p className="text-3xl font-extrabold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>
                         {blogsList.length}
                       </p>
-                      <span className="text-[10px] font-mono text-cyan-400 flex items-center gap-0.5">
-                        <Eye size={10} /> 4.2k
+                      <span className="text-[10px] font-mono text-[#B3FFC9] flex items-center gap-1">
+                        <Eye size={10} /> {blogsList.reduce((acc, b) => acc + (Number(b.views) || 0), 0).toLocaleString()} reads
                       </span>
                     </div>
                     <div className="text-[10px] text-white/40 font-mono">
@@ -1706,7 +1813,7 @@ export function Admin() {
                     </div>
                   </div>
 
-                  <div 
+                  <div
                     onClick={() => setActiveTab("jobs")}
                     className="p-5 rounded-2xl bg-[#0e0e0e] border border-white/10 hover:border-[#B3FFC9]/40 transition-all cursor-pointer space-y-3 group hover:shadow-[0_10px_30px_rgba(0,0,0,0.8),0_0_20px_rgba(179,255,201,0.05)]"
                   >
@@ -1727,7 +1834,7 @@ export function Admin() {
                     </div>
                   </div>
 
-                  <div 
+                  <div
                     onClick={() => setActiveTab("jobApplications")}
                     className="p-5 rounded-2xl bg-[#0e0e0e] border border-white/10 hover:border-[#B3FFC9]/40 transition-all cursor-pointer space-y-3 group hover:shadow-[0_10px_30px_rgba(0,0,0,0.8),0_0_20px_rgba(179,255,201,0.05)]"
                   >
@@ -1752,7 +1859,7 @@ export function Admin() {
                     </div>
                   </div>
 
-                  <div 
+                  <div
                     onClick={() => setActiveTab("enquiries")}
                     className="p-5 rounded-2xl bg-[#0e0e0e] border border-white/10 hover:border-[#B3FFC9]/40 transition-all cursor-pointer space-y-3 group hover:shadow-[0_10px_30px_rgba(0,0,0,0.8),0_0_20px_rgba(179,255,201,0.05)]"
                   >
@@ -1778,7 +1885,7 @@ export function Admin() {
 
                 {/* ==================== ANALYTICS GRAPHS ROW 1 ==================== */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                  
+
                   {/* Left Chart: Audience, Leads & Video Views Engagement Area Curve (8 Cols) */}
                   <div className="lg:col-span-8 p-6 sm:p-7 rounded-3xl bg-[#0c0c0c] border border-white/10 space-y-6 flex flex-col justify-between">
                     <div className="flex flex-wrap items-center justify-between gap-4">
@@ -1799,25 +1906,22 @@ export function Admin() {
                         <div className="flex items-center gap-1 bg-[#141414] p-1 rounded-xl border border-white/10 text-[11px] font-mono">
                           <button
                             onClick={() => setChartMetric("all")}
-                            className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
-                              chartMetric === "all" ? "bg-white/15 text-[#B3FFC9] font-bold" : "text-white/40 hover:text-white"
-                            }`}
+                            className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${chartMetric === "all" ? "bg-white/15 text-[#B3FFC9] font-bold" : "text-white/40 hover:text-white"
+                              }`}
                           >
                             All Growth
                           </button>
                           <button
                             onClick={() => setChartMetric("leads")}
-                            className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
-                              chartMetric === "leads" ? "bg-white/15 text-[#B3FFC9] font-bold" : "text-white/40 hover:text-white"
-                            }`}
+                            className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${chartMetric === "leads" ? "bg-white/15 text-[#B3FFC9] font-bold" : "text-white/40 hover:text-white"
+                              }`}
                           >
                             Leads Only
                           </button>
                           <button
                             onClick={() => setChartMetric("reach")}
-                            className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
-                              chartMetric === "reach" ? "bg-white/15 text-[#22D3EE] font-bold" : "text-white/40 hover:text-white"
-                            }`}
+                            className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${chartMetric === "reach" ? "bg-white/15 text-[#22D3EE] font-bold" : "text-white/40 hover:text-white"
+                              }`}
                           >
                             Reach Only
                           </button>
@@ -1829,11 +1933,10 @@ export function Admin() {
                             <button
                               key={range}
                               onClick={() => setChartRange(range)}
-                              className={`px-3 py-1 rounded-full text-xs font-mono font-bold transition-all cursor-pointer ${
-                                chartRange === range
-                                  ? "bg-[#B3FFC9] text-black shadow-[0_0_15px_rgba(179,255,201,0.3)]"
-                                  : "text-white/50 hover:text-white"
-                              }`}
+                              className={`px-3 py-1 rounded-full text-xs font-mono font-bold transition-all cursor-pointer ${chartRange === range
+                                ? "bg-[#B3FFC9] text-black shadow-[0_0_15px_rgba(179,255,201,0.3)]"
+                                : "text-white/50 hover:text-white"
+                                }`}
                             >
                               {range}
                             </button>
@@ -1919,11 +2022,10 @@ export function Admin() {
                               cx={pt.cx}
                               cy={chartMetric === "reach" ? pt.cy2 : pt.cy}
                               r={hoveredPoint === i ? 7.5 : 5}
-                              className={`transition-all duration-200 ${
-                                chartMetric === "reach"
-                                  ? "fill-[#0c0c0c] stroke-[#22D3EE]"
-                                  : "fill-[#0c0c0c] stroke-[#B3FFC9]"
-                              }`}
+                              className={`transition-all duration-200 ${chartMetric === "reach"
+                                ? "fill-[#0c0c0c] stroke-[#22D3EE]"
+                                : "fill-[#0c0c0c] stroke-[#B3FFC9]"
+                                }`}
                               strokeWidth={hoveredPoint === i ? 4 : 2.5}
                               onMouseEnter={() => setHoveredPoint(i)}
                               onMouseLeave={() => setHoveredPoint(null)}
@@ -1975,8 +2077,8 @@ export function Admin() {
                       {/* X-Axis Labels */}
                       <div className="flex items-center justify-between text-[11px] font-mono text-white/40 pt-2 border-t border-white/5">
                         {timeSeriesAnalytics.labels.map((lbl, idx) => (
-                          <span 
-                            key={idx} 
+                          <span
+                            key={idx}
                             className={idx === timeSeriesAnalytics.labels.length - 1 ? "text-[#B3FFC9] font-bold" : ""}
                           >
                             {lbl.short}
@@ -2112,7 +2214,7 @@ export function Admin() {
                     {/* Category Distribution Dynamic Progress Bars */}
                     <div className="space-y-2.5">
                       {portfolioAnalytics.categories.map((cat) => (
-                        <div 
+                        <div
                           key={cat.key}
                           onClick={() => setActiveTab(cat.tab)}
                           onMouseEnter={() => setHoveredDonutCat(cat.key)}
@@ -2129,12 +2231,12 @@ export function Admin() {
                             </span>
                           </div>
                           <div className="w-full h-1.5 rounded-full bg-[#161616] overflow-hidden">
-                            <div 
-                              className="h-full rounded-full transition-all duration-700 ease-out" 
-                              style={{ 
+                            <div
+                              className="h-full rounded-full transition-all duration-700 ease-out"
+                              style={{
                                 width: `${cat.exactPct || 0}%`,
-                                backgroundColor: cat.color 
-                              }} 
+                                backgroundColor: cat.color
+                              }}
                             />
                           </div>
                         </div>
@@ -2146,7 +2248,7 @@ export function Admin() {
 
                 {/* ==================== ANALYTICS GRAPHS ROW 2 ==================== */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                  
+
                   {/* Left: Dynamic Inbound Leads Velocity Bar Chart (6 Cols) */}
                   <div className="lg:col-span-6 p-6 sm:p-7 rounded-3xl bg-[#0c0c0c] border border-white/10 space-y-6 flex flex-col justify-between">
                     <div className="flex items-center justify-between">
@@ -2169,35 +2271,32 @@ export function Admin() {
                     {/* Dynamic Bar Chart Bars */}
                     <div className="pt-4 flex items-end justify-between gap-2.5 h-48 border-b border-white/10 pb-2 relative">
                       {leadsVelocityData.bars.map((bar, idx) => (
-                        <div 
-                          key={idx} 
+                        <div
+                          key={idx}
                           onMouseEnter={() => setHoveredBarIndex(idx)}
                           onMouseLeave={() => setHoveredBarIndex(null)}
                           className="flex-1 flex flex-col items-center gap-2 h-full justify-end group cursor-pointer"
                         >
                           {/* Top Count Badge */}
-                          <span className={`text-[10px] font-mono transition-opacity duration-200 ${
-                            hoveredBarIndex === idx || bar.isPeak ? "opacity-100 text-[#B3FFC9] font-bold" : "opacity-0 text-white/50"
-                          }`}>
+                          <span className={`text-[10px] font-mono transition-opacity duration-200 ${hoveredBarIndex === idx || bar.isPeak ? "opacity-100 text-[#B3FFC9] font-bold" : "opacity-0 text-white/50"
+                            }`}>
                             {bar.count}
                           </span>
 
                           {/* Bar Pillar */}
                           <div className="w-full max-w-[38px] bg-[#161616] rounded-t-xl overflow-hidden h-full flex items-end">
                             <div
-                              className={`w-full rounded-t-xl transition-all duration-500 group-hover:scale-y-105 ${
-                                bar.isPeak 
-                                  ? "bg-gradient-to-t from-[#0e3b26] to-[#B3FFC9] shadow-[0_0_20px_rgba(179,255,201,0.4)]"
-                                  : "bg-gradient-to-t from-white/10 to-white/30 group-hover:to-[#B3FFC9]"
-                              }`}
+                              className={`w-full rounded-t-xl transition-all duration-500 group-hover:scale-y-105 ${bar.isPeak
+                                ? "bg-gradient-to-t from-[#0e3b26] to-[#B3FFC9] shadow-[0_0_20px_rgba(179,255,201,0.4)]"
+                                : "bg-gradient-to-t from-white/10 to-white/30 group-hover:to-[#B3FFC9]"
+                                }`}
                               style={{ height: bar.heightPct }}
                             />
                           </div>
 
                           {/* Weekday Label */}
-                          <span className={`text-[10px] font-mono uppercase ${
-                            bar.isPeak ? "text-[#B3FFC9] font-bold" : "text-white/40 group-hover:text-white"
-                          }`}>
+                          <span className={`text-[10px] font-mono uppercase ${bar.isPeak ? "text-[#B3FFC9] font-bold" : "text-white/40 group-hover:text-white"
+                            }`}>
                             {bar.day}
                           </span>
                         </div>
@@ -2214,25 +2313,25 @@ export function Admin() {
                       {/* Lead Status Pipeline Badges */}
                       <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-white/5 text-[11px] font-mono">
                         <span className="text-white/40">Status:</span>
-                        <span 
+                        <span
                           onClick={() => setActiveTab("enquiries")}
                           className="px-2.5 py-0.5 rounded-md bg-[#B3FFC9]/10 text-[#B3FFC9] border border-[#B3FFC9]/20 cursor-pointer hover:bg-[#B3FFC9]/20 transition-colors"
                         >
                           {inquiryPipelineStats.newCount} New
                         </span>
-                        <span 
+                        <span
                           onClick={() => setActiveTab("enquiries")}
                           className="px-2.5 py-0.5 rounded-md bg-[#22D3EE]/10 text-[#22D3EE] border border-[#22D3EE]/20 cursor-pointer hover:bg-[#22D3EE]/20 transition-colors"
                         >
                           {inquiryPipelineStats.reviewedCount} In Review
                         </span>
-                        <span 
+                        <span
                           onClick={() => setActiveTab("enquiries")}
                           className="px-2.5 py-0.5 rounded-md bg-pink-400/10 text-pink-400 border border-pink-400/20 cursor-pointer hover:bg-pink-400/20 transition-colors"
                         >
                           {inquiryPipelineStats.contactedCount} Contacted
                         </span>
-                        <span 
+                        <span
                           onClick={() => setActiveTab("enquiries")}
                           className="px-2.5 py-0.5 rounded-md bg-white/5 text-white/50 border border-white/10 cursor-pointer hover:bg-white/10 transition-colors"
                         >
@@ -2449,11 +2548,10 @@ export function Admin() {
                       <button
                         key={tab.key}
                         onClick={() => setVideoCategoryFilter(tab.key)}
-                        className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                          videoCategoryFilter === tab.key
-                            ? "bg-[#B3FFC9] text-black"
-                            : "bg-white/5 text-white/60 hover:text-white"
-                        }`}
+                        className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${videoCategoryFilter === tab.key
+                          ? "bg-[#B3FFC9] text-black"
+                          : "bg-white/5 text-white/60 hover:text-white"
+                          }`}
                         style={{ fontFamily: "'Syne', sans-serif" }}
                       >
                         {tab.label}
@@ -2554,11 +2652,10 @@ export function Admin() {
                       <button
                         key={tab.key}
                         onClick={() => setTestimonialTypeFilter(tab.key)}
-                        className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                          testimonialTypeFilter === tab.key
-                            ? "bg-[#B3FFC9] text-black"
-                            : "bg-white/5 text-white/60 hover:text-white"
-                        }`}
+                        className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${testimonialTypeFilter === tab.key
+                          ? "bg-[#B3FFC9] text-black"
+                          : "bg-white/5 text-white/60 hover:text-white"
+                          }`}
                         style={{ fontFamily: "'Syne', sans-serif" }}
                       >
                         {tab.label}
@@ -2608,11 +2705,10 @@ export function Admin() {
                             <div className="space-y-3">
                               {/* Format Badge */}
                               <div className="flex items-center justify-between">
-                                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold ${
-                                  isVideo
-                                    ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
-                                    : "bg-[#B3FFC9]/10 text-[#B3FFC9] border border-[#B3FFC9]/20"
-                                }`}>
+                                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold ${isVideo
+                                  ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
+                                  : "bg-[#B3FFC9]/10 text-[#B3FFC9] border border-[#B3FFC9]/20"
+                                  }`}>
                                   {isVideo ? <Video size={11} /> : <Quote size={11} />}
                                   <span>{isVideo ? "Video Testimonial" : "Text Testimonial"}</span>
                                 </span>
@@ -2691,9 +2787,8 @@ export function Admin() {
 
                             {/* Footer Actions */}
                             <div className="flex items-center justify-between pt-3 border-t border-white/5 text-xs">
-                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold ${
-                                t.isActive !== false ? "bg-[#183626] text-[#B3FFC9] border border-[#B3FFC9]/30" : "bg-white/5 text-white/40"
-                              }`}>
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold ${t.isActive !== false ? "bg-[#183626] text-[#B3FFC9] border border-[#B3FFC9]/30" : "bg-white/5 text-white/40"
+                                }`}>
                                 {t.isActive !== false ? "Live on Home" : "Hidden"}
                               </span>
 
@@ -2756,6 +2851,9 @@ export function Admin() {
                               />
                               <span className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full bg-black/75 backdrop-blur-md text-[#B3FFC9] text-[10px] font-semibold">
                                 {post.category || "Article"}
+                              </span>
+                              <span className="absolute bottom-2.5 right-2.5 px-2 py-0.5 rounded-full bg-black/80 backdrop-blur-md text-[#B3FFC9] text-[10px] font-mono flex items-center gap-1">
+                                <Eye size={10} /> {(Number(post.views) || 0).toLocaleString()} views
                               </span>
                             </div>
 
@@ -2877,9 +2975,8 @@ export function Admin() {
                       <button
                         key={st}
                         onClick={() => setStatusFilter(st)}
-                        className={`px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                          statusFilter === st ? "bg-[#B3FFC9] text-black shadow-[0_0_15px_rgba(179,255,201,0.25)]" : "bg-white/5 text-white/60 hover:text-white hover:bg-white/10"
-                        }`}
+                        className={`px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${statusFilter === st ? "bg-[#B3FFC9] text-black shadow-[0_0_15px_rgba(179,255,201,0.25)]" : "bg-white/5 text-white/60 hover:text-white hover:bg-white/10"
+                          }`}
                         style={{ fontFamily: "'Syne', sans-serif" }}
                       >
                         {st}
@@ -2925,11 +3022,10 @@ export function Admin() {
                                     <span className="px-2.5 py-0.5 rounded-full bg-[#183626] text-[#B3FFC9] border border-[#B3FFC9]/30 text-[10px] font-bold">
                                       {app.jobTitle}
                                     </span>
-                                    <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${
-                                      app.status === "New" ? "bg-[#B3FFC9]/20 text-[#B3FFC9] border border-[#B3FFC9]/30" : 
-                                      (app.status === "Reviewed" ? "bg-amber-400/20 text-amber-300 border border-amber-400/30" : 
-                                      (app.status === "Shortlisted" ? "bg-emerald-400/20 text-emerald-300 border border-emerald-400/30" : "bg-red-500/20 text-red-400 border border-red-500/30"))
-                                    }`}>
+                                    <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${app.status === "New" ? "bg-[#B3FFC9]/20 text-[#B3FFC9] border border-[#B3FFC9]/30" :
+                                      (app.status === "Reviewed" ? "bg-amber-400/20 text-amber-300 border border-amber-400/30" :
+                                        (app.status === "Shortlisted" ? "bg-emerald-400/20 text-emerald-300 border border-emerald-400/30" : "bg-red-500/20 text-red-400 border border-red-500/30"))
+                                      }`}>
                                       {app.status || "New"}
                                     </span>
                                   </div>
@@ -3035,9 +3131,8 @@ export function Admin() {
                       <button
                         key={st}
                         onClick={() => setStatusFilter(st)}
-                        className={`px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                          statusFilter === st ? "bg-[#B3FFC9] text-black shadow-[0_0_15px_rgba(179,255,201,0.25)]" : "bg-white/5 text-white/60 hover:text-white hover:bg-white/10"
-                        }`}
+                        className={`px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${statusFilter === st ? "bg-[#B3FFC9] text-black shadow-[0_0_15px_rgba(179,255,201,0.25)]" : "bg-white/5 text-white/60 hover:text-white hover:bg-white/10"
+                          }`}
                         style={{ fontFamily: "'Syne', sans-serif" }}
                       >
                         {st}
@@ -3080,11 +3175,10 @@ export function Admin() {
                                     <h4 className="font-bold text-white text-base tracking-tight" style={{ fontFamily: "'Syne', sans-serif" }}>
                                       {enq.name}
                                     </h4>
-                                    <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${
-                                      enq.status === "New" ? "bg-[#B3FFC9]/20 text-[#B3FFC9] border border-[#B3FFC9]/30" : 
-                                      (enq.status === "Reviewed" ? "bg-amber-400/20 text-amber-300 border border-amber-400/30" : 
-                                      (enq.status === "Contacted" ? "bg-blue-400/20 text-blue-300 border border-blue-400/30" : "bg-white/10 text-white/50 border border-white/10"))
-                                    }`}>
+                                    <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${enq.status === "New" ? "bg-[#B3FFC9]/20 text-[#B3FFC9] border border-[#B3FFC9]/30" :
+                                      (enq.status === "Reviewed" ? "bg-amber-400/20 text-amber-300 border border-amber-400/30" :
+                                        (enq.status === "Contacted" ? "bg-blue-400/20 text-blue-300 border border-blue-400/30" : "bg-white/10 text-white/50 border border-white/10"))
+                                      }`}>
                                       {enq.status || "New"}
                                     </span>
                                   </div>
@@ -3476,6 +3570,213 @@ export function Admin() {
                   )}
                 </div>
 
+                {/* Before & After Growth Proofs (Multiple Pairs Supported) */}
+                <div className="space-y-4 pt-4 border-t border-white/10">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <label className="text-xs font-bold text-white flex items-center gap-2">
+                        <span>Before &amp; After Growth Proofs</span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#B3FFC9]/10 text-[#B3FFC9] font-mono font-normal">
+                          {(csForm.beforeAfter?.length || 1)} {csForm.beforeAfter?.length === 1 ? "Comparison" : "Comparisons"}
+                        </span>
+                      </label>
+                      <p className="text-[11px] text-white/40 font-mono mt-0.5">
+                        Add one or more before vs after screenshot comparisons showing client growth
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={addCsBeforeAfterPair}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#B3FFC9]/10 hover:bg-[#B3FFC9]/20 text-[#B3FFC9] border border-[#B3FFC9]/30 text-xs font-bold font-mono transition-all cursor-pointer shrink-0 self-start sm:self-auto"
+                    >
+                      <span>+ Add Another Pair</span>
+                    </button>
+                  </div>
+
+                  {/* Render list of Before & After Pairs */}
+                  <div className="space-y-4">
+                    {(csForm.beforeAfter && csForm.beforeAfter.length > 0 ? csForm.beforeAfter : [{ beforeImage: "", afterImage: "", beforeLabel: "Before", afterLabel: "After", title: "" }]).map((pair, pIdx) => (
+                      <div
+                        key={pIdx}
+                        className="p-4 rounded-2xl bg-[#0f0f10] border border-white/10 space-y-3.5 relative transition-all hover:border-white/20"
+                      >
+                        {/* Pair Header */}
+                        <div className="flex items-center justify-between gap-2 pb-2 border-b border-white/5">
+                          <div className="flex items-center gap-2 flex-1">
+                            <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-md bg-white/5 text-white/70">
+                              #{pIdx + 1}
+                            </span>
+                            <input
+                              type="text"
+                              value={pair.title || ""}
+                              onChange={(e) => updateCsBeforeAfterPair(pIdx, "title", e.target.value)}
+                              placeholder={`Comparison #${pIdx + 1} Title (e.g. Reach Spike, Watch Hours, Followers)`}
+                              className="px-2.5 py-1 text-xs bg-black/40 border border-white/10 rounded-lg text-white placeholder-white/30 focus:border-[#B3FFC9] focus:outline-none flex-1 max-w-md"
+                            />
+                          </div>
+
+                          {(csForm.beforeAfter?.length > 1) && (
+                            <button
+                              type="button"
+                              onClick={() => removeCsBeforeAfterPair(pIdx)}
+                              className="p-1.5 rounded-lg text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/30 transition-all cursor-pointer flex items-center gap-1 text-[11px]"
+                              title="Delete this comparison pair"
+                            >
+                              <Trash2 size={13} />
+                              <span className="hidden sm:inline">Remove</span>
+                            </button>
+                          )}
+                        </div>
+
+                        {/* Side by side Before & After boxes */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          {/* Before Card */}
+                          <div className="space-y-2 p-3.5 rounded-xl bg-[#141414] border border-red-500/20">
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-xs font-bold text-red-400 font-mono flex items-center gap-1.5 shrink-0">
+                                <span className="w-2 h-2 rounded-full bg-red-400" />
+                                BEFORE
+                              </span>
+                              <input
+                                type="text"
+                                value={pair.beforeLabel || ""}
+                                onChange={(e) => updateCsBeforeAfterPair(pIdx, "beforeLabel", e.target.value)}
+                                placeholder="e.g. Before: 0.34% CVR"
+                                className="px-2.5 py-1 text-[11px] bg-black/40 border border-white/10 rounded-lg text-white/80 focus:border-red-400 focus:outline-none w-full"
+                              />
+                            </div>
+
+                            {pair.beforeImage ? (
+                              <div className="relative rounded-xl overflow-hidden aspect-video bg-black border border-white/10">
+                                <img src={pair.beforeImage} alt="Before Proof" className="w-full h-full object-cover" />
+                                <button
+                                  type="button"
+                                  onClick={async () => {
+                                    const imgToDelete = pair.beforeImage;
+                                    updateCsBeforeAfterPair(pIdx, "beforeImage", "");
+                                    if (imgToDelete && imgToDelete.includes("cloudinary.com")) {
+                                      try {
+                                        await uploadAPI.deleteImage(imgToDelete);
+                                        showToast("Before proof deleted from Cloudinary");
+                                      } catch (err) {
+                                        console.error(err);
+                                      }
+                                    }
+                                  }}
+                                  className="absolute top-2 right-2 p-1.5 rounded-full bg-red-500/90 text-white hover:bg-red-600 transition-colors shadow-md cursor-pointer"
+                                  title="Remove Before Proof"
+                                >
+                                  <X size={12} />
+                                </button>
+                              </div>
+                            ) : (
+                              <label className="flex flex-col items-center justify-center border border-dashed border-red-500/30 hover:border-red-400 rounded-xl p-5 bg-red-500/[0.02] hover:bg-red-500/[0.05] transition-all cursor-pointer">
+                                <Plus size={18} className="text-red-400 mb-1" />
+                                <span className="text-[11px] font-bold text-white/80">Upload "Before" Proof</span>
+                                <span className="text-[10px] text-white/40 font-mono mt-0.5">e.g. baseline reach/views</span>
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  className="hidden"
+                                  onChange={async (e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) {
+                                      try {
+                                        showToast("Uploading Before proof to Cloudinary...");
+                                        const url = await uploadAPI.uploadSingle(file);
+                                        updateCsBeforeAfterPair(pIdx, "beforeImage", url);
+                                        showToast("Before proof uploaded");
+                                      } catch {
+                                        showToast("Error uploading before proof");
+                                      }
+                                    }
+                                  }}
+                                />
+                              </label>
+                            )}
+                          </div>
+
+                          {/* After Card */}
+                          <div className="space-y-2 p-3.5 rounded-xl bg-[#141414] border border-[#B3FFC9]/30">
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-xs font-bold text-[#B3FFC9] font-mono flex items-center gap-1.5 shrink-0">
+                                <span className="w-2 h-2 rounded-full bg-[#B3FFC9] shadow-[0_0_8px_#B3FFC9]" />
+                                AFTER
+                              </span>
+                              <input
+                                type="text"
+                                value={pair.afterLabel || ""}
+                                onChange={(e) => updateCsBeforeAfterPair(pIdx, "afterLabel", e.target.value)}
+                                placeholder="e.g. After: 11.76% CVR"
+                                className="px-2.5 py-1 text-[11px] bg-black/40 border border-white/10 rounded-lg text-white/80 focus:border-[#B3FFC9] focus:outline-none w-full"
+                              />
+                            </div>
+
+                            {pair.afterImage ? (
+                              <div className="relative rounded-xl overflow-hidden aspect-video bg-black border border-white/10">
+                                <img src={pair.afterImage} alt="After Proof" className="w-full h-full object-cover" />
+                                <button
+                                  type="button"
+                                  onClick={async () => {
+                                    const imgToDelete = pair.afterImage;
+                                    updateCsBeforeAfterPair(pIdx, "afterImage", "");
+                                    if (imgToDelete && imgToDelete.includes("cloudinary.com")) {
+                                      try {
+                                        await uploadAPI.deleteImage(imgToDelete);
+                                        showToast("After proof deleted from Cloudinary");
+                                      } catch (err) {
+                                        console.error(err);
+                                      }
+                                    }
+                                  }}
+                                  className="absolute top-2 right-2 p-1.5 rounded-full bg-red-500/90 text-white hover:bg-red-600 transition-colors shadow-md cursor-pointer"
+                                  title="Remove After Proof"
+                                >
+                                  <X size={12} />
+                                </button>
+                              </div>
+                            ) : (
+                              <label className="flex flex-col items-center justify-center border border-dashed border-[#B3FFC9]/30 hover:border-[#B3FFC9] rounded-xl p-5 bg-[#B3FFC9]/[0.02] hover:bg-[#B3FFC9]/[0.05] transition-all cursor-pointer">
+                                <Plus size={18} className="text-[#B3FFC9] mb-1" />
+                                <span className="text-[11px] font-bold text-white/80">Upload "After" Proof</span>
+                                <span className="text-[10px] text-white/40 font-mono mt-0.5">e.g. scaled spike/stats</span>
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  className="hidden"
+                                  onChange={async (e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) {
+                                      try {
+                                        showToast("Uploading After proof to Cloudinary...");
+                                        const url = await uploadAPI.uploadSingle(file);
+                                        updateCsBeforeAfterPair(pIdx, "afterImage", url);
+                                        showToast("After proof uploaded");
+                                      } catch {
+                                        showToast("Error uploading after proof");
+                                      }
+                                    }
+                                  }}
+                                />
+                              </label>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Add More Button at bottom of list */}
+                  <button
+                    type="button"
+                    onClick={addCsBeforeAfterPair}
+                    className="w-full py-2.5 px-4 rounded-xl border border-dashed border-[#B3FFC9]/30 hover:border-[#B3FFC9] bg-[#B3FFC9]/[0.02] hover:bg-[#B3FFC9]/[0.06] text-[#B3FFC9] text-xs font-bold font-mono transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <span>+ Add Another Before &amp; After Comparison Pair</span>
+                  </button>
+                </div>
+
                 {/* 3 Stats Row */}
                 <div className="space-y-2 pt-2 border-t border-white/10">
                   <label className="text-xs font-bold text-white/60">Impact Metrics</label>
@@ -3729,11 +4030,10 @@ export function Admin() {
                     <button
                       type="button"
                       onClick={() => setTestimonialForm({ ...testimonialForm, type: "video" })}
-                      className={`py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                        testimonialForm.type === "video"
-                          ? "bg-[#B3FFC9] text-black shadow-md font-extrabold"
-                          : "text-white/60 hover:text-white"
-                      }`}
+                      className={`py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${testimonialForm.type === "video"
+                        ? "bg-[#B3FFC9] text-black shadow-md font-extrabold"
+                        : "text-white/60 hover:text-white"
+                        }`}
                       style={{ fontFamily: "'Syne', sans-serif" }}
                     >
                       <Video size={15} />
@@ -3742,11 +4042,10 @@ export function Admin() {
                     <button
                       type="button"
                       onClick={() => setTestimonialForm({ ...testimonialForm, type: "text", videoUrl: "", videoId: "" })}
-                      className={`py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                        testimonialForm.type === "text"
-                          ? "bg-[#B3FFC9] text-black shadow-md font-extrabold"
-                          : "text-white/60 hover:text-white"
-                      }`}
+                      className={`py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${testimonialForm.type === "text"
+                        ? "bg-[#B3FFC9] text-black shadow-md font-extrabold"
+                        : "text-white/60 hover:text-white"
+                        }`}
                       style={{ fontFamily: "'Syne', sans-serif" }}
                     >
                       <Quote size={15} />
@@ -3862,22 +4161,20 @@ export function Admin() {
                         <button
                           type="button"
                           onClick={() => setTestimonialForm({ ...testimonialForm, videoFirst: true })}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                            testimonialForm.videoFirst
-                              ? "bg-[#B3FFC9] text-black"
-                              : "bg-white/5 text-white/60 hover:text-white"
-                          }`}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${testimonialForm.videoFirst
+                            ? "bg-[#B3FFC9] text-black"
+                            : "bg-white/5 text-white/60 hover:text-white"
+                            }`}
                         >
                           Left: Video | Right: Text
                         </button>
                         <button
                           type="button"
                           onClick={() => setTestimonialForm({ ...testimonialForm, videoFirst: false })}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                            !testimonialForm.videoFirst
-                              ? "bg-[#B3FFC9] text-black"
-                              : "bg-white/5 text-white/60 hover:text-white"
-                          }`}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${!testimonialForm.videoFirst
+                            ? "bg-[#B3FFC9] text-black"
+                            : "bg-white/5 text-white/60 hover:text-white"
+                            }`}
                         >
                           Left: Text | Right: Video
                         </button>

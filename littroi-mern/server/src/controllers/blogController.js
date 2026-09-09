@@ -65,6 +65,27 @@ export const getBlogPostBySlug = async (req, res, next) => {
   }
 };
 
+export const recordBlogView = async (req, res, next) => {
+  try {
+    const param = req.params.slug;
+    let query = { slug: param };
+    if (param.match(/^[0-9a-fA-F]{24}$/)) {
+      query = { $or: [{ slug: param }, { _id: param }] };
+    }
+    const post = await BlogPost.findOneAndUpdate(
+      query,
+      { $inc: { views: 1 } },
+      { new: true, timestamps: false }
+    );
+    if (!post) {
+      return res.status(404).json({ success: false, message: "Blog post not found" });
+    }
+    res.json({ success: true, views: post.views });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const createBlogPost = async (req, res, next) => {
   try {
     const slug = req.body.slug || req.body.title?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");

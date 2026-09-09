@@ -105,16 +105,7 @@ export function TestimonialsSection() {
         {/* Header: Hear it directly from Our Clients */}
         <div className="text-center max-w-4xl mx-auto mb-16 sm:mb-24 space-y-5">
           {/* Eyebrow Tag */}
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-xs font-mono text-[#B3FFC9] tracking-wider uppercase"
-          >
-            <Sparkles size={13} className="text-[#B3FFC9]" />
-            <span>REAL CLIENT EXPERIENCES</span>
-          </motion.div>
+
 
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -123,13 +114,13 @@ export function TestimonialsSection() {
             transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
           >
             <h2
-              className="elementor-heading-title elementor-size-default m-0 text-white"
+              className="elementor-heading-title elementor-size-default m-0 text-white sm:whitespace-nowrap"
               style={{
                 fontFamily: "'Syne', sans-serif",
-                fontSize: "clamp(32px, 4.2vw, 58px)",
+                fontSize: "clamp(20px, 2.5vw, 38px)",
                 fontWeight: 800,
-                lineHeight: 1.15,
-                letterSpacing: "-0.01em",
+                lineHeight: 1.2,
+                letterSpacing: "-0.02em",
               }}
             >
               Hear it directly from{" "}
@@ -144,16 +135,21 @@ export function TestimonialsSection() {
             transition={{ duration: 1.2, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
           >
             <p
-              className="elementor-heading-title elementor-size-default text-gray-300 max-w-3xl mx-auto"
+              className="elementor-heading-title elementor-size-default text-gray-300 max-w-4xl mx-auto text-center"
               style={{
                 fontFamily: "'benzine', 'Syne', sans-serif",
-                fontSize: "clamp(14px, 1.2vw, 17px)",
+                fontSize: "clamp(13px, 1.05vw, 15.5px)",
                 fontWeight: 300,
-                lineHeight: 1.65,
+                lineHeight: 1.6,
                 color: "rgba(255, 255, 255, 0.72)",
               }}
             >
-              Real feedback from brands and creators we've worked with. From content to design, our work is built to help people stand out, grow faster and create impact online.
+              <span className="block sm:whitespace-nowrap">
+                Real feedback from brands and creators we've worked with. From content to design,
+              </span>
+              <span className="block sm:whitespace-nowrap ">
+                our work is built to help people stand out, grow faster and create impact online.
+              </span>
             </p>
           </motion.div>
 
@@ -196,9 +192,8 @@ export function TestimonialsSection() {
                     /* Video Testimonial Row with Left & Right Viewport Fade-In */
                     <div
                       key={item._id || item.id || idx}
-                      className={`flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-14 ${
-                        isVideoFirst ? "" : "lg:flex-row-reverse"
-                      }`}
+                      className={`flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-14 ${isVideoFirst ? "" : "lg:flex-row-reverse"
+                        }`}
                     >
                       {/* Left Column (Video) - Viewport Fade In from Left/Right */}
                       <motion.div

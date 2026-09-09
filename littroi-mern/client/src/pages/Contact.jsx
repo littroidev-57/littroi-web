@@ -7,7 +7,6 @@ import {
   ArrowUpRight,
   CheckCircle2,
   Phone,
-  Calendar,
   Sparkles,
   ChevronDown,
   Copy,
@@ -20,14 +19,12 @@ import {
   ExternalLink
 } from "lucide-react";
 import { SEO } from "../utils/seo";
-import { FadeIn } from "../components/animations/FadeIn";
 import { CountUpNumber } from "../components/animations/CountUpNumber";
 import { SITE_CONFIG } from "../utils/constants";
 
 export function Contact() {
   const [activeFaq, setActiveFaq] = useState(null);
   const [copiedEmail, setCopiedEmail] = useState(false);
-  const [activeCallType, setActiveCallType] = useState("discovery");
 
   const handleCopyEmail = () => {
     navigator.clipboard.writeText(SITE_CONFIG.email);
@@ -113,88 +110,123 @@ export function Contact() {
   return (
     <>
       <SEO
-        title="Book a Strategy Call | Contact Littroi"
-        description="Schedule a 1-on-1 discovery call directly with Littroi's creative leadership. We review your content, audit retention, and map your custom video blueprint."
+        title="Contact Us | Book a Strategy Call | Littroi"
+        description="Tell us about your project and we'll get back to you within 24 hours. Or book a 1-on-1 discovery call directly on our calendar."
         canonical="/contact-us"
       />
 
       <div className="bg-black text-white min-h-screen select-none overflow-hidden">
         {/* =========================================================================
-            HERO SECTION
+            1. HERO SECTION
            ========================================================================= */}
-        <section className="pt-32 sm:pt-40 pb-12 sm:pb-16 max-w-[1400px] w-full mx-auto px-6 sm:px-10 lg:px-16">
+        <section className="pt-32 sm:pt-40 pb-10 sm:pb-14 max-w-[1400px] w-full mx-auto px-6 sm:px-10 lg:px-16">
           {/* Eyebrow */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
             className="mb-6 sm:mb-8"
           >
             <span
-              className="text-xs sm:text-[13px] font-bold tracking-[0.16em] uppercase text-white hover:text-[#B3FFC9] transition-colors duration-300 cursor-pointer select-none inline-flex items-center gap-2"
+              className="text-xs sm:text-[13px] font-semibold tracking-[0.2em] uppercase text-white/70 select-none inline-flex items-center gap-2"
               style={{ fontFamily: "'Syne', sans-serif" }}
             >
-              <span className="w-2 h-2 rounded-full bg-[#B3FFC9] animate-pulse" />
-              — DIRECT DISCOVERY &amp; BOOKING
+              — CONTACT
             </span>
           </motion.div>
 
           {/* Heading and Subtitle */}
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 sm:gap-14 pb-8 border-b border-white/10">
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.85, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
               className="shrink-0 max-w-[700px]"
             >
               <h1
-                className="m-0 text-white"
+                className="m-0 text-white font-extrabold"
                 style={{
                   fontFamily: "'Syne', sans-serif",
-                  fontSize: "clamp(34px, 4.5vw, 62px)",
-                  fontWeight: 800,
-                  lineHeight: 1.05,
-                  letterSpacing: "-0.03em",
+                  fontSize: "clamp(32px, 4.2vw, 54px)",
+                  lineHeight: 1.08,
+                  letterSpacing: "-0.02em",
                 }}
               >
-                Let's Build Something<br />
-                <span className="text-[#B3FFC9]">Worth Talking About.</span>
+                Let's Work<br />
+                <span style={{ color: "#B3FFC9" }}>Together</span>
               </h1>
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="w-full max-w-[500px] lg:pb-2"
+              transition={{ duration: 0.85, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="w-full max-w-[460px] lg:pb-3"
             >
               <p
                 className="m-0 text-white/70 text-sm sm:text-base leading-relaxed"
                 style={{ fontFamily: "'Inter', sans-serif" }}
               >
-                Skip the friction of back-and-forth emails. Pick a time directly on our calendar below for a 1-on-1 strategy session with our creative leadership.
+                Tell us about your project and we’ll get back to you within 24
+                hours. Or just book a call directly.
               </p>
 
-              {/* Trust Badges */}
-              <div className="flex flex-wrap items-center gap-3 mt-5">
-                <span className="px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 text-xs font-mono text-[#B3FFC9] flex items-center gap-1.5">
-                  <Check size={12} /> 15-Min Live Audit
-                </span>
-                <span className="px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 text-xs font-mono text-white/80 flex items-center gap-1.5">
-                  <Check size={12} /> Zero Hard Pitch
-                </span>
-                <span className="px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 text-xs font-mono text-white/80 flex items-center gap-1.5">
-                  <Check size={12} /> Direct with Leadership
-                </span>
-              </div>
+
             </motion.div>
           </div>
         </section>
 
         {/* =========================================================================
-            AGENDA / WHAT HAPPENS ON THE CALL
+            2. CALENDLY CALL SCHEDULER SECTION (FIRST)
            ========================================================================= */}
-        <section className="py-12 sm:py-16 max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-16">
+        <section id="calendar-section" className="pb-16 sm:pb-24 max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-16">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.85, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            className="w-full rounded-3xl overflow-hidden bg-[#070707] border border-white/15 shadow-[0_20px_60px_rgba(0,0,0,0.8)] relative"
+          >
+            {/* Top Bar (Clean, without the 15-min / 30-min buttons) */}
+            <div className="flex items-center justify-between px-6 sm:px-8 py-5 border-b border-white/10 bg-white/[0.02]">
+              <div className="flex items-center gap-2.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#B3FFC9] animate-pulse" />
+                <span
+                  className="text-sm font-semibold tracking-wider text-white uppercase"
+                  style={{ fontFamily: "'Syne', sans-serif" }}
+                >
+                  Direct Booking Calendar
+                </span>
+              </div>
+
+              <a
+                href={SITE_CONFIG.calendlyUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs font-mono text-[#B3FFC9] hover:underline"
+              >
+                <span>Open in full tab</span>
+                <ExternalLink size={13} />
+              </a>
+            </div>
+
+            {/* Calendly Inline Frame */}
+            <div className="w-full min-h-[720px] sm:min-h-[780px] bg-[#070707]">
+              <iframe
+                src={`${SITE_CONFIG.calendlyUrl}?embed_domain=${typeof window !== "undefined" ? window.location.hostname : "littroi.com"}&embed_type=Inline&background_color=000000&text_color=ffffff&primary_color=b3ffc9`}
+                width="100%"
+                height="780"
+                frameBorder="0"
+                title="Schedule a Strategy Call with Littroi"
+                className="w-full h-full min-h-[720px] sm:min-h-[780px] block"
+              />
+            </div>
+          </motion.div>
+        </section>
+
+        {/* =========================================================================
+            3. WHAT TO EXPECT (3-STEP DISCOVERY AGENDA)
+           ========================================================================= */}
+        <section className="py-14 sm:py-20 max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-16 border-t border-white/10">
           <div className="text-left mb-10">
             <span
               className="text-xs font-mono tracking-widest text-[#B3FFC9] uppercase font-semibold block mb-2"
@@ -250,103 +282,9 @@ export function Contact() {
         </section>
 
         {/* =========================================================================
-            CALENDLY INTERACTIVE SCHEDULER SECTION
+            4. WHO YOU'LL BE SPEAKING WITH (FOUNDER & LEADERSHIP)
            ========================================================================= */}
-        <section id="calendar-section" className="py-12 sm:py-20 max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-16">
-          <div className="rounded-3xl p-6 sm:p-10 border border-white/15 bg-gradient-to-b from-white/[0.04] to-transparent shadow-[0_20px_60px_rgba(0,0,0,0.8)] relative overflow-hidden">
-            
-            {/* Top Bar with Call Type Picker and Status */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 mb-8 border-b border-white/10">
-              <div className="space-y-1">
-                <div className="flex items-center gap-2.5">
-                  <span className="w-3 h-3 rounded-full bg-[#B3FFC9] animate-pulse" />
-                  <h3
-                    className="text-xl sm:text-2xl font-bold text-white m-0"
-                    style={{ fontFamily: "'Syne', sans-serif" }}
-                  >
-                    Select a Date &amp; Time
-                  </h3>
-                </div>
-                <p className="text-xs sm:text-sm text-white/50 m-0">
-                  Timezones automatically detected. Free 1-on-1 strategy meeting.
-                </p>
-              </div>
-
-              {/* Call Type Tabs */}
-              <div className="flex items-center bg-white/[0.05] p-1 rounded-xl border border-white/10 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setActiveCallType("discovery")}
-                  className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer ${
-                    activeCallType === "discovery"
-                      ? "bg-[#B3FFC9] text-black shadow-md font-bold"
-                      : "text-white/70 hover:text-white"
-                  }`}
-                  style={{ fontFamily: "'Syne', sans-serif" }}
-                >
-                  15-Min Intro Audit
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveCallType("deepdive")}
-                  className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer ${
-                    activeCallType === "deepdive"
-                      ? "bg-[#B3FFC9] text-black shadow-md font-bold"
-                      : "text-white/70 hover:text-white"
-                  }`}
-                  style={{ fontFamily: "'Syne', sans-serif" }}
-                >
-                  30-Min Strategy Call
-                </button>
-              </div>
-
-              {/* Open in new tab fallback */}
-              <a
-                href={SITE_CONFIG.calendlyUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hidden lg:inline-flex items-center gap-2 text-xs font-mono text-[#B3FFC9] hover:underline shrink-0"
-              >
-                <span>Open in full tab</span>
-                <ExternalLink size={14} />
-              </a>
-            </div>
-
-            {/* Calendly iFrame Container */}
-            <div className="w-full min-h-[720px] sm:min-h-[760px] rounded-2xl overflow-hidden bg-[#070707] border border-white/10 relative">
-              <iframe
-                src={`${SITE_CONFIG.calendlyUrl}?embed_domain=${typeof window !== "undefined" ? window.location.hostname : "littroi.com"}&embed_type=Inline&background_color=000000&text_color=ffffff&primary_color=b3ffc9`}
-                width="100%"
-                height="760"
-                frameBorder="0"
-                title="Schedule a Strategy Call with Littroi"
-                className="w-full h-full min-h-[720px] sm:min-h-[760px] block"
-              />
-            </div>
-
-            {/* Bottom Guarantee Banner */}
-            <div className="mt-8 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/50 font-mono">
-              <div className="flex items-center gap-2">
-                <ShieldCheck size={16} className="text-[#B3FFC9]" />
-                <span>Zero obligation, strict NDA confidentiality on all proprietary footage.</span>
-              </div>
-              <div>
-                Can't find a suitable time slot?{" "}
-                <a
-                  href={`mailto:${SITE_CONFIG.email}?subject=Custom%20Meeting%20Time%20Request`}
-                  className="text-[#B3FFC9] hover:underline"
-                >
-                  Request a custom slot
-                </a>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* =========================================================================
-            WHO YOU'LL BE SPEAKING WITH (FOUNDER & LEADERSHIP)
-           ========================================================================= */}
-        <section className="py-12 sm:py-16 max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-16">
+        <section className="py-14 sm:py-20 max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-16 border-t border-white/10">
           <div className="rounded-3xl p-8 sm:p-12 bg-white/[0.02] border border-white/10 relative overflow-hidden">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
               {/* Founder Image */}
@@ -412,28 +350,37 @@ export function Contact() {
                   </div>
                 </div>
 
-                {/* Social Badges */}
+                {/* Social Icon Buttons */}
                 <div className="flex items-center gap-3 pt-2">
+                  {/* LinkedIn */}
                   <a
                     href={SITE_CONFIG.socials.linkedin}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-4 py-2 rounded-lg bg-[#0A66C2] text-white text-xs font-semibold hover:bg-[#095196] hover:scale-105 transition-all duration-300 flex items-center gap-2 shadow-md"
+                    className="w-10 h-10 rounded-xl bg-[#0A66C2] text-white flex items-center justify-center hover:bg-[#095196] hover:scale-110 hover:shadow-[0_0_18px_rgba(10,102,194,0.6)] transition-all duration-300 shadow-md cursor-pointer shrink-0"
+                    title="Connect on LinkedIn"
+                    aria-label="Connect on LinkedIn"
                   >
-                    <span>Connect on LinkedIn</span>
-                    <ArrowUpRight size={14} />
+                    <svg className="w-4 h-4 fill-white shrink-0" viewBox="0 0 448 512">
+                      <path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z" />
+                    </svg>
                   </a>
+
+                  {/* Instagram */}
                   <a
                     href={SITE_CONFIG.socials.instagram}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-4 py-2 rounded-lg text-white text-xs font-semibold hover:scale-105 transition-all duration-300 flex items-center gap-2 shadow-md"
+                    className="w-10 h-10 rounded-xl text-white flex items-center justify-center hover:scale-110 hover:shadow-[0_0_18px_rgba(225,48,108,0.6)] transition-all duration-300 shadow-md cursor-pointer shrink-0"
                     style={{
                       background: "radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%)",
                     }}
+                    title="Instagram Profile"
+                    aria-label="Instagram Profile"
                   >
-                    <span>Instagram Profile</span>
-                    <ArrowUpRight size={14} />
+                    <svg className="w-4 h-4 fill-white shrink-0" viewBox="0 0 448 512">
+                      <path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z" />
+                    </svg>
                   </a>
                 </div>
               </div>
@@ -442,9 +389,9 @@ export function Contact() {
         </section>
 
         {/* =========================================================================
-            IS LITTROI RIGHT FOR YOU? (FIT COMPARISON)
+            5. IS LITTROI RIGHT FOR YOU? (QUALIFYING COMPARISON)
            ========================================================================= */}
-        <section className="py-12 sm:py-16 max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-16">
+        <section className="py-14 sm:py-20 max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-16 border-t border-white/10">
           <div className="text-left mb-10">
             <span className="text-xs font-mono tracking-widest text-[#B3FFC9] uppercase font-semibold block mb-2">
               QUALIFYING PARTNERSHIP
@@ -506,9 +453,9 @@ export function Contact() {
         </section>
 
         {/* =========================================================================
-            PRE-BOOKING FAQ ACCORDION
+            6. PRE-BOOKING FAQ ACCORDION
            ========================================================================= */}
-        <section className="py-12 sm:py-16 max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-16">
+        <section className="py-14 sm:py-20 max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-16 border-t border-white/10">
           <div className="text-left mb-10">
             <span className="text-xs font-mono tracking-widest text-[#B3FFC9] uppercase font-semibold block mb-2">
               FREQUENTLY ASKED QUESTIONS
@@ -570,9 +517,9 @@ export function Contact() {
         </section>
 
         {/* =========================================================================
-            DIRECT COORDINATES / ALTERNATIVE CONTACT (NO FORM)
+            7. DIRECT STUDIO COORDINATES
            ========================================================================= */}
-        <section className="py-12 sm:py-20 max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-16 border-t border-white/10">
+        <section className="py-14 sm:py-20 max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-16 border-t border-white/10">
           <div className="mb-10 text-left">
             <span className="text-xs font-mono tracking-widest text-[#B3FFC9] uppercase font-semibold block mb-2">
               PREFER TEXT OR DIRECT REACHOUT?
@@ -684,7 +631,7 @@ export function Contact() {
 
               <div className="pt-2">
                 <span className="text-xs font-mono text-[#B3FFC9] flex items-center gap-1.5">
-                  <Clock size={14} /> Production Hours: 10:00 AM – 8:00 PM IST
+                  <Clock size={14} /> Production Hours: 9:30 AM – 5:30 PM IST
                 </span>
               </div>
             </div>

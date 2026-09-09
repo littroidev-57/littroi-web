@@ -24,6 +24,26 @@ export const caseStudies = [
     ],
     challenge: "Dream Talks had great conversations, but the content wasn't posted consistently across Instagram or YouTube, so reach and engagement stayed low on both platforms.",
     approach: "We broke each episode into short clips and handled editing, graphics, captions, and posting to keep content flowing regularly across Instagram and YouTube. Instagram hit 706K views and 534K accounts reached (+336.7% profile activity), while YouTube picked up 157.2K views and 1.2K watch hours in 28 days, with Shorts driving a 74.6% watch-through rate.",
+    beforeImage: "https://littroi.com/wp-content/uploads/2026/07/Screenshot-2026-07-15-at-6.22.21-PM.png",
+    afterImage: "https://littroi.com/wp-content/uploads/2026/07/Screenshot-2026-07-15-at-6.22.31-PM.png",
+    beforeLabel: "Before: Low Inconsistent Reach",
+    afterLabel: "After: 706.1K Views (+336.7%)",
+    beforeAfter: [
+      {
+        beforeImage: "https://littroi.com/wp-content/uploads/2026/07/Screenshot-2026-07-15-at-6.22.21-PM.png",
+        afterImage: "https://littroi.com/wp-content/uploads/2026/07/Screenshot-2026-07-15-at-6.22.31-PM.png",
+        beforeLabel: "Before: Low Inconsistent Reach",
+        afterLabel: "After: 706.1K Views (+336.7%)",
+        title: "Instagram Reach Spike"
+      },
+      {
+        beforeImage: "https://littroi.com/wp-content/uploads/2026/07/Screenshot-2026-07-15-at-6.22.42-PM.png",
+        afterImage: "https://littroi.com/wp-content/uploads/2026/07/Screenshot-2026-07-15-at-6.22.57-PM.png",
+        beforeLabel: "Before: Flat Watch Hours",
+        afterLabel: "After: 157.2K YT Views & 1.2K Hours",
+        title: "YouTube Shorts Growth"
+      }
+    ],
     images: [
       "https://littroi.com/wp-content/uploads/2026/07/Screenshot-2026-07-15-at-6.22.21-PM.png",
       "https://littroi.com/wp-content/uploads/2026/07/Screenshot-2026-07-15-at-6.22.31-PM.png",
@@ -56,6 +76,10 @@ export const caseStudies = [
     ],
     challenge: "Viewers on The Growth Voyage were dropping off early because the channel had no clear introduction explaining what the podcast offers.",
     approach: "We introduced a short podcast trailer that quickly communicated the show's value and set viewer expectations before the episode began. Average view duration climbed from 3:02 to 11:16 and average percentage viewed nearly quadrupled, a +227% lift in retention.",
+    beforeImage: "https://littroi.com/wp-content/uploads/2026/07/Screenshot-2026-07-15-at-6.23.36-PM.png",
+    afterImage: "https://littroi.com/wp-content/uploads/2026/07/Screenshot-2026-07-15-at-6.23.55-PM.png",
+    beforeLabel: "Before: 3:02 View Duration (4.2%)",
+    afterLabel: "After: 11:16 View Duration (+227%)",
     images: [
       "https://littroi.com/wp-content/uploads/2026/07/Screenshot-2026-07-15-at-6.23.36-PM.png",
       "https://littroi.com/wp-content/uploads/2026/07/Screenshot-2026-07-15-at-6.23.55-PM.png"
@@ -84,6 +108,10 @@ export const caseStudies = [
     ],
     challenge: "Our client was struggling to get consistent views on his content. Despite sharing valuable insights, his videos weren't gaining traction or generating the level of engagement and growth he was aiming for.",
     approach: "We optimized his YouTube Shorts with punchy first-3-second hooks, fast-paced edits, bold on-screen captions, and a consistent branded format, helping individual Shorts reach up to 28K views and lifting his on-video conversion rate from 0.34% to 11.76%.",
+    beforeImage: "https://littroi.com/wp-content/uploads/2026/07/Screenshot-2026-07-15-at-6.24.46-PM.png",
+    afterImage: "https://littroi.com/wp-content/uploads/2026/07/Screenshot-2026-07-15-at-6.25.11-PM.png",
+    beforeLabel: "Before: 0.34% CVR & Low Reach",
+    afterLabel: "After: 11.76% CVR (28K Views)",
     images: [
       "https://littroi.com/wp-content/uploads/2026/07/Screenshot-2026-07-15-at-6.24.46-PM.png",
       "https://littroi.com/wp-content/uploads/2026/07/Screenshot-2026-07-15-at-6.25.11-PM.png",

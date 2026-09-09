@@ -16,6 +16,19 @@ const caseStudySchema = new mongoose.Schema(
     filters: [{ type: String }],
     coverImage: { type: String },
     images: [{ type: String }], // Multiple images support
+    beforeImage: { type: String },
+    afterImage: { type: String },
+    beforeLabel: { type: String, default: "Before" },
+    afterLabel: { type: String, default: "After" },
+    beforeAfter: [
+      {
+        beforeImage: { type: String },
+        afterImage: { type: String },
+        beforeLabel: { type: String, default: "Before" },
+        afterLabel: { type: String, default: "After" },
+        title: { type: String }
+      }
+    ],
     videoUrl: { type: String },
     stats: [
       {
