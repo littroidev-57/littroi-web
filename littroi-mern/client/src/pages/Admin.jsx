@@ -894,7 +894,7 @@ export function Admin() {
         youtubeId: "",
         thumbnail: "",
         aspectRatio: "16/9",
-        order: projectsList.length + 1
+        order: 1
       });
     }
     setModalType("project");
@@ -1180,7 +1180,14 @@ export function Admin() {
   );
 
   const filteredProjects = [...projectsList]
-    .sort((a, b) => new Date(b.createdAt || b.updatedAt || 0) - new Date(a.createdAt || a.updatedAt || 0))
+    .sort((a, b) => {
+      if (videoCategoryFilter !== "all") {
+        const orderA = typeof a.order === "number" ? a.order : 999;
+        const orderB = typeof b.order === "number" ? b.order : 999;
+        if (orderA !== orderB) return orderA - orderB;
+      }
+      return new Date(b.createdAt || b.updatedAt || 0) - new Date(a.createdAt || a.updatedAt || 0);
+    })
     .filter((p) => {
       const matchesSearch =
         p.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -2463,16 +2470,16 @@ export function Admin() {
                   <div className="flex items-center gap-2">
                     {[
                       { key: "all", label: `All (${projectsList.length})` },
-                      { key: "our-projects", label: `Our Projects (16:9)` },
-                      { key: "saas-video", label: `SaaS Video (16:9)` },
-                      { key: "podcast-clips", label: `Podcast Clips (9:16)` },
-                      { key: "short-form", label: `Short Form (9:16)` },
+                      { key: "our-projects", label: `Our Projects (${projectsList.filter((p) => p.category === "our-projects").length})` },
+                      { key: "saas-video", label: `SaaS Video (${projectsList.filter((p) => p.category === "saas-video").length})` },
+                      { key: "podcast-clips", label: `Podcast Clips (${projectsList.filter((p) => p.category === "podcast-clips").length})` },
+                      { key: "short-form", label: `Short Form (${projectsList.filter((p) => p.category === "short-form").length})` },
                     ].map((tab) => (
                       <button
                         key={tab.key}
                         onClick={() => setVideoCategoryFilter(tab.key)}
                         className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${videoCategoryFilter === tab.key
-                          ? "bg-[#B3FFC9] text-black"
+                          ? "bg-[#B3FFC9] text-black shadow-[0_0_15px_rgba(179,255,201,0.3)]"
                           : "bg-white/5 text-white/60 hover:text-white"
                           }`}
                         style={{ fontFamily: "'Syne', sans-serif" }}
@@ -2482,8 +2489,13 @@ export function Admin() {
                     ))}
                   </div>
 
-                  <div className="text-xs text-white/50 font-mono">
-                    Showing page <strong className="text-white">{projsCurrentPage}</strong> of <strong className="text-white">{projsTotalPages}</strong> ({filteredProjects.length} videos)
+                  <div className="flex items-center gap-3 text-xs text-white/50 font-mono">
+                    <span className="hidden sm:inline px-2 py-0.5 rounded bg-white/5 border border-white/10 text-[#B3FFC9] text-[10px]">
+                      {videoCategoryFilter === "all" ? "Sorted: Latest Added First" : "Sorted: Category Sequence (1, 2, 3...)"}
+                    </span>
+                    <span>
+                      Showing page <strong className="text-white">{projsCurrentPage}</strong> of <strong className="text-white">{projsTotalPages}</strong> ({filteredProjects.length} videos)
+                    </span>
                   </div>
                 </div>
 
