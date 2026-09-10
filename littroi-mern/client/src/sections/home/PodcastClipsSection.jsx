@@ -1,19 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { projectsAPI } from "../../services/api";
-
-const DEFAULT_REELS = [
-  "d_8rxpIULNI",
-  "cunqekHZxwA",
-  "12i0lRjvUoE",
-  "feS8f6KNNrE",
-  "yhCBiH0SoBU",
-  "uuP2xg3aFcg",
-  "61wm0FE1mew",
-  "8IGD7yLvhmo",
-  "CvhHiuMMDYo",
-  "n5kGbHE4mRI",
-];
+import { SNAPSHOT_BY_CATEGORY } from "../../data/projectsSnapshot";
 
 function extractYoutubeId(urlOrId) {
   if (!urlOrId) return "";
@@ -23,10 +11,20 @@ function extractYoutubeId(urlOrId) {
   return match && match[1] ? match[1] : trimmed;
 }
 
+const INITIAL_REELS = (SNAPSHOT_BY_CATEGORY["podcast-clips"] || []).map((p) => {
+  const yId = extractYoutubeId(p.youtubeId || p.videoUrl || p.id);
+  return {
+    id: yId,
+    thumb: p.thumbnail || `https://img.youtube.com/vi/${yId}/hqdefault.jpg`,
+    title: p.title || "Podcast Clip"
+  };
+});
+
 export function PodcastClipsSection() {
   const stageRef = useRef(null);
   const [activeReel, setActiveReel] = useState(null);
-  const [reelsList, setReelsList] = useState(DEFAULT_REELS);
+  const [loadingVideo, setLoadingVideo] = useState(false);
+  const [reelsList, setReelsList] = useState(INITIAL_REELS);
 
   useEffect(() => {
     let isMounted = true;
@@ -34,8 +32,16 @@ export function PodcastClipsSection() {
       try {
         const data = await projectsAPI.getAll("podcast-clips");
         if (isMounted && data && Array.isArray(data) && data.length > 0) {
-          const ids = data.map((p) => extractYoutubeId(p.youtubeId || p.videoUrl || p.id)).filter(Boolean);
-          if (ids.length > 0) setReelsList(ids);
+          const formatted = data.map((p) => {
+            const yId = extractYoutubeId(p.youtubeId || p.videoUrl || p.id);
+            return {
+              id: yId,
+              thumb: p.thumbnail || `https://img.youtube.com/vi/${yId}/hqdefault.jpg`,
+              title: p.title || "Podcast Clip"
+            };
+          }).filter((item) => Boolean(item.id));
+
+          if (formatted.length > 0) setReelsList(formatted);
         }
       } catch (err) {
         console.warn("Podcast clips fetch notice:", err);
@@ -88,30 +94,56 @@ export function PodcastClipsSection() {
       </div>
 
       {/* Header: Podcast Clips */}
-      <div className="max-w-[1400px] w-full mx-auto px-6 sm:px-10 lg:px-14 mb-8">
-        <motion.div
-          initial={{ opacity: 0, x: -80 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
-          className="elementor-element elementor-element-202176e animated-slow exad-sticky-section-no exad-glass-effect-no elementor-widget elementor-widget-heading"
-          data-id="202176e"
-          data-element_type="widget"
-          data-widget_type="heading.default"
-        >
-          <h2
-            className="elementor-heading-title elementor-size-default m-0 text-white"
-            style={{
-              fontFamily: "'Syne', sans-serif",
-              fontSize: "clamp(32px, 4vw, 48px)",
-              fontWeight: 800,
-              lineHeight: 1.1,
-              letterSpacing: "-0.01em",
-            }}
+      <div className="max-w-[1400px] w-full mx-auto px-6 sm:px-10 lg:px-14 mb-8 sm:mb-12">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 sm:gap-8">
+          <motion.div
+            initial={{ opacity: 0, x: -80 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
+            className="elementor-element elementor-element-202176e animated-slow exad-sticky-section-no exad-glass-effect-no elementor-widget elementor-widget-heading"
+            data-id="202176e"
+            data-element_type="widget"
+            data-widget_type="heading.default"
           >
-            Podcast <span style={{ color: "#B3FFC9" }}>Clips</span>
-          </h2>
-        </motion.div>
+            <h2
+              className="elementor-heading-title elementor-size-default m-0 text-white"
+              style={{
+                fontFamily: "'Syne', sans-serif",
+                fontSize: "clamp(30px, 3.8vw, 46px)",
+                fontWeight: 800,
+                lineHeight: 1.1,
+                letterSpacing: "-0.01em",
+              }}
+            >
+              Podcast <span style={{ color: "#B3FFC9" }}>Clips</span>
+            </h2>
+          </motion.div>
+
+          <div className="max-w-[700px]">
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 1.4, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <p
+                className="m-0 lg:text-left"
+                style={{
+                  fontFamily: "'benzine', sans-serif",
+                  fontSize: "clamp(12.5px, 1.05vw, 14px)",
+                  fontWeight: 200,
+                  lineHeight: 1.65,
+                  color: "rgba(255, 255, 255, 0.58)",
+                  letterSpacing: "0.015em",
+                }}
+              >
+                Turning long-form conversations into scroll-stopping viral moments.<br className="hidden md:inline" />
+                High-retention editing engineered to hook viewers in the first three seconds.
+              </p>
+            </motion.div>
+          </div>
+        </div>
       </div>
 
       {/* Reels Container Wrapper with Navigation (elementor-element-0f96534) */}
@@ -146,14 +178,21 @@ export function PodcastClipsSection() {
             msOverflowStyle: "none",
           }}
         >
-          {reelsList.map((videoId, index) => {
+          {reelsList.map((item, index) => {
             const isOdd = index % 2 === 0;
+            const videoId = item.id || item;
+            const thumbUrl = item.thumb || `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
             const isPlaying = activeReel === videoId;
 
             return (
               <div
                 key={`${videoId}-${index}`}
-                onClick={() => setActiveReel(videoId)}
+                onClick={() => {
+                  if (!isPlaying) {
+                    setActiveReel(videoId);
+                    setLoadingVideo(true);
+                  }
+                }}
                 className="reel flex-shrink-0 w-[220px] aspect-[9/16] rounded-[22px] border border-white/10 bg-[#111111] overflow-hidden cursor-pointer relative transition-all duration-300 group hover:border-[#6ecf97] hover:shadow-[0_0_60px_rgba(110,207,151,0.3)] hover:scale-[1.05] hover:z-20"
                 style={{
                   animation: isPlaying
@@ -164,21 +203,48 @@ export function PodcastClipsSection() {
                 }}
               >
                 {isPlaying ? (
-                  <iframe
-                    src={`https://www.youtube.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0`}
-                    allow="autoplay; encrypted-media"
-                    allowFullScreen
-                    className="w-full h-full border-none rounded-[22px]"
-                    title={`Podcast reel ${videoId}`}
-                  />
+                  <div className="w-full h-full relative bg-black">
+                    {loadingVideo && (
+                      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/80 gap-2">
+                        <div className="video-loading-spinner" />
+                        <span className="text-[11px] text-[#B3FFC9] font-medium tracking-wide">Loading reel...</span>
+                      </div>
+                    )}
+                    <iframe
+                      src={`https://www.youtube.com/embed/${videoId}?autoplay=1&playsinline=1&enablejsapi=1&modestbranding=1&rel=0`}
+                      allow="autoplay; encrypted-media; picture-in-picture"
+                      allowFullScreen
+                      onLoad={() => setLoadingVideo(false)}
+                      className="w-full h-full border-none rounded-[22px]"
+                      title={item.title || `Podcast reel ${videoId}`}
+                    />
+                    {/* Close / Stop Button */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveReel(null);
+                        setLoadingVideo(false);
+                      }}
+                      className="absolute top-2.5 right-2.5 z-30 w-7 h-7 rounded-full bg-black/80 border border-white/20 text-white flex items-center justify-center text-xs hover:bg-[#B3FFC9] hover:text-black transition-colors"
+                      title="Close reel"
+                      aria-label="Close reel"
+                    >
+                      ✕
+                    </button>
+                  </div>
                 ) : (
                   <div className="reel-body w-full h-full relative overflow-hidden bg-[#111111]">
-                    {/* Lazy thumbnail */}
+                    {/* Lazy thumbnail with fallback */}
                     <img
-                      src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
-                      alt="Podcast reel thumbnail"
+                      src={thumbUrl}
+                      alt={item.title || "Podcast reel thumbnail"}
                       loading="lazy"
                       decoding="async"
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+                      }}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
 

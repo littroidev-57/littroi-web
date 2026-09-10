@@ -206,29 +206,55 @@ export function ServicesSection() {
 
       {/* Header: Our Services with fadeInLeft transition matching previous sections */}
       <div className="max-w-[1480px] w-full mx-auto px-6 sm:px-10 lg:px-14 mb-8 sm:mb-12">
-        <motion.div
-          initial={{ opacity: 0, x: -80 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
-          className="elementor-element elementor-element-3fed575 animated-slow exad-sticky-section-no exad-glass-effect-no elementor-widget elementor-widget-heading"
-          data-id="3fed575"
-          data-element_type="widget"
-          data-widget_type="heading.default"
-        >
-          <h2
-            className="elementor-heading-title elementor-size-default m-0 text-white"
-            style={{
-              fontFamily: "'Syne', sans-serif",
-              fontSize: "clamp(32px, 4vw, 48px)",
-              fontWeight: 800,
-              lineHeight: 1.1,
-              letterSpacing: "-0.01em",
-            }}
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 sm:gap-8">
+          <motion.div
+            initial={{ opacity: 0, x: -80 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
+            className="elementor-element elementor-element-3fed575 animated-slow exad-sticky-section-no exad-glass-effect-no elementor-widget elementor-widget-heading"
+            data-id="3fed575"
+            data-element_type="widget"
+            data-widget_type="heading.default"
           >
-            Our <span style={{ color: "#B3FFC9" }}>Services</span>
-          </h2>
-        </motion.div>
+            <h2
+              className="elementor-heading-title elementor-size-default m-0 text-white"
+              style={{
+                fontFamily: "'Syne', sans-serif",
+                fontSize: "clamp(30px, 3.8vw, 46px)",
+                fontWeight: 800,
+                lineHeight: 1.1,
+                letterSpacing: "-0.01em",
+              }}
+            >
+              Our <span style={{ color: "#B3FFC9" }}>Services</span>
+            </h2>
+          </motion.div>
+
+          <div className="max-w-[700px]">
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 1.4, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <p
+                className="m-0 lg:text-left"
+                style={{
+                  fontFamily: "'benzine', sans-serif",
+                  fontSize: "clamp(12.5px, 1.05vw, 14px)",
+                  fontWeight: 200,
+                  lineHeight: 1.65,
+                  color: "rgba(255, 255, 255, 0.58)",
+                  letterSpacing: "0.015em",
+                }}
+              >
+                Comprehensive end-to-end creative production and strategic branding.<br className="hidden md:inline" />
+                Tailored solutions engineered to scale your audience and maximize market ROI.
+              </p>
+            </motion.div>
+          </div>
+        </div>
       </div>
 
       {/* ── Pin wrap: exactly 100dvh, cards stack inside ── */}

@@ -54,14 +54,6 @@ const ROW2 = [
   { src: tst, alt: "TST Media" },
 ];
 
-// Preload marquee images in memory for instant painting
-if (typeof window !== "undefined") {
-  [...ROW1, ...ROW2].forEach((item) => {
-    const img = new Image();
-    img.src = item.src;
-  });
-}
-
 function MarqueeGroup({ logos, isReverse = false }) {
   return (
     <div className={`masscie-group ${isReverse ? "reverse" : ""}`}>
@@ -72,8 +64,8 @@ function MarqueeGroup({ logos, isReverse = false }) {
               <img
                 src={logo.src}
                 alt={logo.alt}
-                loading="eager"
-                decoding="sync"
+                loading="lazy"
+                decoding="async"
                 draggable={false}
               />
             </div>

@@ -1,19 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { projectsAPI } from "../../services/api";
-
-const DEFAULT_PROJECTS = [
-  { id: "MWdasGhL9o0", thumb: "https://img.youtube.com/vi/MWdasGhL9o0/maxresdefault.jpg" },
-  { id: "rBNWNtLIA4s", thumb: "https://img.youtube.com/vi/rBNWNtLIA4s/maxresdefault.jpg" },
-  { id: "Ya8-PsyzTR4", thumb: "https://img.youtube.com/vi/Ya8-PsyzTR4/maxresdefault.jpg" },
-  { id: "6-qp1PNaGiM", thumb: "https://img.youtube.com/vi/6-qp1PNaGiM/maxresdefault.jpg" },
-  { id: "Rmeb2Cv6haA", thumb: "https://img.youtube.com/vi/Rmeb2Cv6haA/maxresdefault.jpg" },
-  { id: "BQ8yYuzlovk", thumb: "https://littroi.com/wp-content/uploads/2026/06/Ron-7-scaled.png" },
-  { id: "_kcU6ZxSrzw", thumb: "https://img.youtube.com/vi/_kcU6ZxSrzw/maxresdefault.jpg" },
-  { id: "c1Bb2gW248A", thumb: "https://img.youtube.com/vi/c1Bb2gW248A/maxresdefault.jpg" },
-  { id: "yHTgr-JzxrI", thumb: "https://img.youtube.com/vi/yHTgr-JzxrI/maxresdefault.jpg" },
-  { id: "iw0Fyvb095s", thumb: "https://img.youtube.com/vi/iw0Fyvb095s/maxresdefault.jpg" },
-];
+import { SNAPSHOT_BY_CATEGORY } from "../../data/projectsSnapshot";
 
 function extractYoutubeId(urlOrId) {
   if (!urlOrId) return "";
@@ -23,10 +11,20 @@ function extractYoutubeId(urlOrId) {
   return match && match[1] ? match[1] : trimmed;
 }
 
+const INITIAL_PROJECTS = (SNAPSHOT_BY_CATEGORY["our-projects"] || []).map((p) => {
+  const yId = extractYoutubeId(p.youtubeId || p.videoUrl || p.id);
+  return {
+    id: yId,
+    thumb: p.thumbnail || p.thumb || `https://img.youtube.com/vi/${yId}/hqdefault.jpg`,
+    title: p.title || "Project Video"
+  };
+});
+
 export function ProjectsSection() {
   const sliderRef = useRef(null);
   const [activeVideo, setActiveVideo] = useState(null);
-  const [projectList, setProjectList] = useState(DEFAULT_PROJECTS);
+  const [loadingVideo, setLoadingVideo] = useState(false);
+  const [projectList, setProjectList] = useState(INITIAL_PROJECTS);
 
   useEffect(() => {
     let isMounted = true;
@@ -38,7 +36,7 @@ export function ProjectsSection() {
             const yId = extractYoutubeId(p.youtubeId || p.videoUrl || p.id);
             return {
               id: yId,
-              thumb: p.thumbnail || p.thumb || `https://img.youtube.com/vi/${yId}/maxresdefault.jpg`,
+              thumb: p.thumbnail || p.thumb || `https://img.youtube.com/vi/${yId}/hqdefault.jpg`,
               title: p.title || "Project Video"
             };
           });
@@ -95,30 +93,56 @@ export function ProjectsSection() {
       </div>
 
       {/* Header: Our Projects */}
-      <div className="max-w-[1400px] w-full mx-auto px-6 sm:px-10 lg:px-14 mb-8">
-        <motion.div
-          initial={{ opacity: 0, x: -80 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
-          className="elementor-element elementor-element-c33554c animated-slow exad-sticky-section-no exad-glass-effect-no elementor-widget elementor-widget-heading"
-          data-id="c33554c"
-          data-element_type="widget"
-          data-widget_type="heading.default"
-        >
-          <h2
-            className="elementor-heading-title elementor-size-default m-0 text-white"
-            style={{
-              fontFamily: "'Syne', sans-serif",
-              fontSize: "clamp(32px, 4vw, 48px)",
-              fontWeight: 800,
-              lineHeight: 1.1,
-              letterSpacing: "-0.01em",
-            }}
+      <div className="max-w-[1400px] w-full mx-auto px-6 sm:px-10 lg:px-14 mb-8 sm:mb-12">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 sm:gap-8">
+          <motion.div
+            initial={{ opacity: 0, x: -80 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
+            className="elementor-element elementor-element-c33554c animated-slow exad-sticky-section-no exad-glass-effect-no elementor-widget elementor-widget-heading"
+            data-id="c33554c"
+            data-element_type="widget"
+            data-widget_type="heading.default"
           >
-            Our <span style={{ color: "#B3FFC9" }}>Projects</span>
-          </h2>
-        </motion.div>
+            <h2
+              className="elementor-heading-title elementor-size-default m-0 text-white"
+              style={{
+                fontFamily: "'Syne', sans-serif",
+                fontSize: "clamp(30px, 3.8vw, 46px)",
+                fontWeight: 800,
+                lineHeight: 1.1,
+                letterSpacing: "-0.01em",
+              }}
+            >
+              Our <span style={{ color: "#B3FFC9" }}>Projects</span>
+            </h2>
+          </motion.div>
+
+          <div className="max-w-[700px]">
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 1.4, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <p
+                className="m-0 lg:text-left"
+                style={{
+                  fontFamily: "'benzine', sans-serif",
+                  fontSize: "clamp(12.5px, 1.05vw, 14px)",
+                  fontWeight: 200,
+                  lineHeight: 1.65,
+                  color: "rgba(255, 255, 255, 0.58)",
+                  letterSpacing: "0.015em",
+                }}
+              >
+                A curated showcase of cinematic campaigns and creative excellence.<br className="hidden md:inline" />
+                Crafted to captivate audiences and turn attention into measurable growth.
+              </p>
+            </motion.div>
+          </div>
+        </div>
       </div>
 
       {/* Horizontal Video Slider Container */}
@@ -160,7 +184,12 @@ export function ProjectsSection() {
             return (
               <div
                 key={`${proj.id}-${index}`}
-                onClick={() => setActiveVideo(proj.id)}
+                onClick={() => {
+                  if (!isPlaying) {
+                    setActiveVideo(proj.id);
+                    setLoadingVideo(true);
+                  }
+                }}
                 className="video-card flex-shrink-0 w-[88vw] sm:w-[680px] md:w-[clamp(650px,64vw,980px)] aspect-video rounded-[22px] border border-white/15 bg-[#111111] overflow-hidden cursor-pointer relative transition-all duration-400 group hover:border-[#6ecf97] hover:shadow-[0_0_50px_rgba(110,207,151,0.3)] hover:scale-[1.03] hover:z-20"
                 style={{
                   animation: isPlaying
@@ -171,21 +200,48 @@ export function ProjectsSection() {
                 }}
               >
                 {isPlaying ? (
-                  <iframe
-                    src={`https://www.youtube.com/embed/${proj.id}?autoplay=1&modestbranding=1&rel=0`}
-                    allow="autoplay; encrypted-media"
-                    allowFullScreen
-                    className="w-full h-full border-none"
-                    title={proj.title || `Project video ${proj.id}`}
-                  />
+                  <div className="w-full h-full relative bg-black">
+                    {loadingVideo && (
+                      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/80 gap-3">
+                        <div className="video-loading-spinner" />
+                        <span className="text-xs text-[#B3FFC9] font-medium tracking-wide">Loading video...</span>
+                      </div>
+                    )}
+                    <iframe
+                      src={`https://www.youtube.com/embed/${proj.id}?autoplay=1&playsinline=1&enablejsapi=1&modestbranding=1&rel=0`}
+                      allow="autoplay; encrypted-media; picture-in-picture"
+                      allowFullScreen
+                      onLoad={() => setLoadingVideo(false)}
+                      className="w-full h-full border-none"
+                      title={proj.title || `Project video ${proj.id}`}
+                    />
+                    {/* Close / Stop Button */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveVideo(null);
+                        setLoadingVideo(false);
+                      }}
+                      className="absolute top-3 right-3 z-30 w-8 h-8 rounded-full bg-black/80 border border-white/20 text-white flex items-center justify-center text-xs hover:bg-[#B3FFC9] hover:text-black transition-colors"
+                      title="Close video"
+                      aria-label="Close video"
+                    >
+                      ✕
+                    </button>
+                  </div>
                 ) : (
                   <div className="video-overlay w-full h-full relative overflow-hidden bg-[#111111]">
-                    {/* Lazy-loaded optimized thumbnail */}
+                    {/* Lazy-loaded optimized thumbnail with fallback */}
                     <img
                       src={proj.thumb}
                       alt={proj.title || "Project thumbnail"}
                       loading="lazy"
                       decoding="async"
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = `https://img.youtube.com/vi/${proj.id}/hqdefault.jpg`;
+                      }}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
 

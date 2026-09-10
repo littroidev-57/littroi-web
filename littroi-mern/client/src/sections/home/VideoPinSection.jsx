@@ -179,7 +179,7 @@ export function VideoPinSection() {
             muted
             loop
             playsInline
-            preload="auto"
+            preload="metadata"
             className="w-full h-full object-cover block cursor-pointer"
             style={{
               backfaceVisibility: "hidden",
@@ -253,7 +253,7 @@ export function VideoPinSection() {
           <video
             src={showreelVideo}
             controls
-            preload="auto"
+            preload="none"
             playsInline
             className="w-full h-full object-cover"
           />

@@ -30,7 +30,7 @@ const jobApplicationSchema = new mongoose.Schema(
     },
     portfolioUrl: {
       type: String,
-      default: "",
+      required: true,
       trim: true
     },
     resumeUrl: {

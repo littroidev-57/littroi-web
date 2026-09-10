@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion, useScroll, useSpring } from "framer-motion";
 import {
@@ -18,6 +18,7 @@ import { FadeIn } from "../components/animations/FadeIn";
 import { BookCallButton } from "../components/shared/BookCallButton";
 import { blogAPI, authAPI } from "../services/api";
 import { blogPosts as fallbackBlogs } from "../data/blogPosts";
+import { autoFormatTextToHtml } from "../utils/blogFormatter";
 
 function formatViews(num) {
   if (num === null || num === undefined) return "1.2K";
@@ -53,6 +54,11 @@ export function BlogPost() {
     damping: 30,
     restDelta: 0.001
   });
+
+  // Smart semantic article formatter hook (called unconditionally at top level)
+  const formattedContent = useMemo(() => {
+    return autoFormatTextToHtml(post?.content || "");
+  }, [post?.content]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -179,7 +185,6 @@ export function BlogPost() {
   const coverImg = post.featuredImage || post.coverImage || "https://littroi.com/wp-content/uploads/2026/07/Screenshot-2026-07-15-at-6.22.21-PM.png";
   const tagsList = Array.isArray(post.tags) ? post.tags : (post.tags ? post.tags.split(",").map(t => t.trim()) : ["Strategy", "Video", "Retention"]);
   const catStyle = getCategoryColor(post.category);
-  const isHtml = /<\/?[a-z][\s\S]*>/i.test(post.content || "");
 
   return (
     <>
@@ -226,17 +231,7 @@ export function BlogPost() {
                 <span>{copied ? "Copied!" : "Share"}</span>
               </button>
 
-              {/* Admin Direct Edit Shortcut */}
-              {isAdmin && (
-                <Link
-                  to="/admin"
-                  className="px-3.5 py-1.5 rounded-full bg-[#B3FFC9]/10 hover:bg-[#B3FFC9]/20 border border-[#B3FFC9]/30 text-[#B3FFC9] text-xs font-bold flex items-center gap-1.5 transition-all"
-                  style={{ fontFamily: "'Syne', sans-serif" }}
-                >
-                  <Edit3 size={13} />
-                  <span>Admin Edit</span>
-                </Link>
-              )}
+
             </div>
           </div>
 
@@ -251,12 +246,9 @@ export function BlogPost() {
               </span>
 
               {/* Live Views Counter Pill */}
-              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#122419] border border-[#B3FFC9]/30 text-[#B3FFC9] text-xs font-mono shadow-sm">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#B3FFC9] opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#B3FFC9]" />
-                </span>
-                <Eye size={12} className="text-[#B3FFC9]" />
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/[0.03] border border-white/10 text-white/40 text-xs font-mono shadow-sm">
+
+                <Eye size={12} className="text-white/40" />
                 <span><strong className="text-white font-bold">{formatViews(post.views)}</strong> readers</span>
               </div>
 
@@ -319,43 +311,10 @@ export function BlogPost() {
           )}
 
           {/* Article Main Body Content */}
-          <div className="article-body text-white/80 text-base sm:text-lg leading-relaxed space-y-6 pt-2">
-            {isHtml ? (
-              <div
-                className="prose prose-invert max-w-none space-y-6 text-white/80 prose-headings:font-bold prose-headings:text-white prose-h2:text-2xl sm:prose-h2:text-3xl prose-h3:text-xl prose-a:text-[#B3FFC9] prose-a:underline hover:prose-a:text-white prose-strong:text-white"
-                style={{ fontFamily: "inherit" }}
-                dangerouslySetInnerHTML={{ __html: post.content }}
-              />
-            ) : (
-              post.content?.trim().split("\n\n").map((block, idx) => {
-                if (block.startsWith("## ")) {
-                  return (
-                    <h2 key={idx} className="text-2xl sm:text-3xl font-bold text-white mt-10 mb-4 tracking-tight" style={{ fontFamily: "'Syne', sans-serif" }}>
-                      {block.replace("## ", "")}
-                    </h2>
-                  );
-                }
-                if (block.startsWith("### ")) {
-                  return (
-                    <h3 key={idx} className="text-xl sm:text-2xl font-bold text-white mt-8 mb-3 tracking-tight text-[#B3FFC9]" style={{ fontFamily: "'Syne', sans-serif" }}>
-                      {block.replace("### ", "")}
-                    </h3>
-                  );
-                }
-                if (block.startsWith("- ")) {
-                  const items = block.split("\n");
-                  return (
-                    <ul key={idx} className="space-y-2 list-disc list-inside text-white/75 pl-2 my-4">
-                      {items.map((item, iIdx) => (
-                        <li key={iIdx}>{item.replace("- ", "")}</li>
-                      ))}
-                    </ul>
-                  );
-                }
-                return <p key={idx} className="leading-relaxed text-white/80">{block}</p>;
-              })
-            )}
-          </div>
+          <div
+            className="article-body blog-rich-content max-w-none text-white/80 text-base sm:text-lg leading-relaxed space-y-6 pt-2"
+            dangerouslySetInnerHTML={{ __html: formattedContent }}
+          />
 
           {/* Tags & Quick Social Share Bar */}
           <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">

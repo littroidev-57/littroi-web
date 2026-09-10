@@ -1,14 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { projectsAPI } from "../../services/api";
-
-const DEFAULT_SAAS = [
-  {
-    id: "tV-bkSj05OA",
-    thumb: "https://img.youtube.com/vi/tV-bkSj05OA/maxresdefault.jpg",
-    title: "SaaS Video Showcase"
-  }
-];
+import { SNAPSHOT_BY_CATEGORY } from "../../data/projectsSnapshot";
 
 function extractYoutubeId(urlOrId) {
   if (!urlOrId) return "";
@@ -18,10 +11,20 @@ function extractYoutubeId(urlOrId) {
   return match && match[1] ? match[1] : trimmed;
 }
 
+const INITIAL_SAAS = (SNAPSHOT_BY_CATEGORY["saas-video"] || []).map((p) => {
+  const yId = extractYoutubeId(p.youtubeId || p.videoUrl || p.id);
+  return {
+    id: yId,
+    thumb: p.thumbnail || p.thumb || `https://img.youtube.com/vi/${yId}/hqdefault.jpg`,
+    title: p.title || "SaaS Video"
+  };
+});
+
 export function SaasVideoSection() {
   const sliderRef = useRef(null);
   const [activeVideo, setActiveVideo] = useState(null);
-  const [saasList, setSaasList] = useState(DEFAULT_SAAS);
+  const [loadingVideo, setLoadingVideo] = useState(false);
+  const [saasList, setSaasList] = useState(INITIAL_SAAS);
 
   useEffect(() => {
     let isMounted = true;
@@ -33,11 +36,12 @@ export function SaasVideoSection() {
             const yId = extractYoutubeId(p.youtubeId || p.videoUrl || p.id);
             return {
               id: yId,
-              thumb: p.thumbnail || p.thumb || `https://img.youtube.com/vi/${yId}/maxresdefault.jpg`,
+              thumb: p.thumbnail || p.thumb || `https://img.youtube.com/vi/${yId}/hqdefault.jpg`,
               title: p.title || "SaaS Video"
             };
-          });
-          setSaasList(formatted);
+          }).filter((item) => Boolean(item.id));
+
+          if (formatted.length > 0) setSaasList(formatted);
         }
       } catch (err) {
         console.warn("SaaS videos fetch notice:", err);
@@ -90,30 +94,56 @@ export function SaasVideoSection() {
       </div>
 
       {/* Header: Saas Video */}
-      <div className="max-w-[1400px] w-full mx-auto px-6 sm:px-10 lg:px-14 mb-8">
-        <motion.div
-          initial={{ opacity: 0, x: -80 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
-          className="elementor-element elementor-element-b475ecf animated-slow exad-sticky-section-no exad-glass-effect-no elementor-widget elementor-widget-heading"
-          data-id="b475ecf"
-          data-element_type="widget"
-          data-widget_type="heading.default"
-        >
-          <h2
-            className="elementor-heading-title elementor-size-default m-0 text-white"
-            style={{
-              fontFamily: "'Syne', sans-serif",
-              fontSize: "clamp(32px, 4vw, 48px)",
-              fontWeight: 800,
-              lineHeight: 1.1,
-              letterSpacing: "-0.01em",
-            }}
+      <div className="max-w-[1400px] w-full mx-auto px-6 sm:px-10 lg:px-14 mb-8 sm:mb-12">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 sm:gap-8">
+          <motion.div
+            initial={{ opacity: 0, x: -80 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
+            className="elementor-element elementor-element-b475ecf animated-slow exad-sticky-section-no exad-glass-effect-no elementor-widget elementor-widget-heading"
+            data-id="b475ecf"
+            data-element_type="widget"
+            data-widget_type="heading.default"
           >
-            Saas <span style={{ color: "#B3FFC9" }}>Video</span>
-          </h2>
-        </motion.div>
+            <h2
+              className="elementor-heading-title elementor-size-default m-0 text-white"
+              style={{
+                fontFamily: "'Syne', sans-serif",
+                fontSize: "clamp(30px, 3.8vw, 46px)",
+                fontWeight: 800,
+                lineHeight: 1.1,
+                letterSpacing: "-0.01em",
+              }}
+            >
+              Saas <span style={{ color: "#B3FFC9" }}>Video</span>
+            </h2>
+          </motion.div>
+
+          <div className="max-w-[700px]">
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 1.4, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <p
+                className="m-0 lg:text-left"
+                style={{
+                  fontFamily: "'benzine', sans-serif",
+                  fontSize: "clamp(12.5px, 1.05vw, 14px)",
+                  fontWeight: 200,
+                  lineHeight: 1.65,
+                  color: "rgba(255, 255, 255, 0.58)",
+                  letterSpacing: "0.015em",
+                }}
+              >
+                Demystify complex software with sleek product walkthroughs and motion UI.<br className="hidden md:inline" />
+                Clear visual demonstrations engineered to boost product adoption and conversions.
+              </p>
+            </motion.div>
+          </div>
+        </div>
       </div>
 
       {/* Video Container Wrapper (elementor-element-74cd85a) */}
@@ -159,7 +189,12 @@ export function SaasVideoSection() {
             return (
               <div
                 key={`${item.id}-${idx}`}
-                onClick={() => setActiveVideo(item.id)}
+                onClick={() => {
+                  if (!isPlaying) {
+                    setActiveVideo(item.id);
+                    setLoadingVideo(true);
+                  }
+                }}
                 className="video-card flex-shrink-0 w-[85vw] sm:w-[680px] md:w-[920px] aspect-video rounded-[20px] border border-white/10 bg-[#111111] overflow-hidden cursor-pointer relative transition-all duration-400 group hover:border-[#6ecf97] hover:shadow-[0_0_50px_rgba(110,207,151,0.25)] hover:scale-[1.04] hover:z-10"
                 style={{
                   animation: isPlaying
@@ -170,21 +205,48 @@ export function SaasVideoSection() {
                 }}
               >
                 {isPlaying ? (
-                  <iframe
-                    src={`https://www.youtube.com/embed/${item.id}?autoplay=1&modestbranding=1&rel=0`}
-                    allow="autoplay; encrypted-media"
-                    allowFullScreen
-                    className="w-full h-full border-none"
-                    title={item.title || "Saas Video"}
-                  />
+                  <div className="w-full h-full relative bg-black">
+                    {loadingVideo && (
+                      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/80 gap-3">
+                        <div className="video-loading-spinner" />
+                        <span className="text-xs text-[#B3FFC9] font-medium tracking-wide">Loading SaaS video...</span>
+                      </div>
+                    )}
+                    <iframe
+                      src={`https://www.youtube.com/embed/${item.id}?autoplay=1&playsinline=1&enablejsapi=1&modestbranding=1&rel=0`}
+                      allow="autoplay; encrypted-media; picture-in-picture"
+                      allowFullScreen
+                      onLoad={() => setLoadingVideo(false)}
+                      className="w-full h-full border-none"
+                      title={item.title || "Saas Video"}
+                    />
+                    {/* Close / Stop Button */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveVideo(null);
+                        setLoadingVideo(false);
+                      }}
+                      className="absolute top-3 right-3 z-30 w-8 h-8 rounded-full bg-black/80 border border-white/20 text-white flex items-center justify-center text-xs hover:bg-[#B3FFC9] hover:text-black transition-colors"
+                      title="Close video"
+                      aria-label="Close video"
+                    >
+                      ✕
+                    </button>
+                  </div>
                 ) : (
                   <div className="video-overlay w-full h-full relative overflow-hidden bg-[#111111]">
-                    {/* Lazy thumbnail */}
+                    {/* Lazy thumbnail with fallback */}
                     <img
                       src={item.thumb}
                       alt={item.title || "Saas Video thumbnail"}
                       loading="lazy"
                       decoding="async"
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = `https://img.youtube.com/vi/${item.id}/hqdefault.jpg`;
+                      }}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
 

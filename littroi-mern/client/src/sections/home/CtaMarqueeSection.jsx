@@ -116,7 +116,7 @@ export function CtaMarqueeSection({
     <section
       ref={sectionRef}
       id="brand-marquee"
-      className="relative overflow-hidden w-full bg-foreground text-background"
+      className="relative overflow-hidden w-full bg-black text-white"
     >
       <div
         ref={pinRef}

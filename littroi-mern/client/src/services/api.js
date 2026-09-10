@@ -3,6 +3,50 @@ import { caseStudies as fallbackCaseStudies } from "../data/caseStudies";
 import { blogPosts as fallbackBlogs } from "../data/blogPosts";
 import { jobs as fallbackJobs } from "../data/jobs";
 import { services as fallbackServices } from "../data/services";
+import { LIVE_PROJECTS_SNAPSHOT, SNAPSHOT_BY_CATEGORY } from "../data/projectsSnapshot";
+
+// LocalStorage SWR Caching helper with instantaneous retrieval
+export const swrCache = {
+  get: (key) => {
+    try {
+      if (typeof window === "undefined") return null;
+      const cached = localStorage.getItem(`swr_${key}`);
+      if (!cached) return null;
+      const parsed = JSON.parse(cached);
+      return parsed.data;
+    } catch {
+      return null;
+    }
+  },
+  set: (key, data) => {
+    try {
+      if (typeof window === "undefined") return;
+      localStorage.setItem(`swr_${key}`, JSON.stringify({ data, time: Date.now() }));
+    } catch {}
+  },
+  clear: (prefix) => {
+    try {
+      if (typeof window === "undefined") return;
+      Object.keys(localStorage).forEach((k) => {
+        if (k.startsWith(`swr_${prefix}`)) localStorage.removeItem(k);
+      });
+    } catch {}
+  }
+};
+
+const fetchWithTimeout = async (url, options = {}, timeoutMs = 12000) => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, { ...options, signal: controller.signal });
+    clearTimeout(timeoutId);
+    return res;
+  } catch (err) {
+    clearTimeout(timeoutId);
+    throw err;
+  }
+};
+
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 
@@ -505,24 +549,63 @@ export const servicesAPI = {
 
 // ==================== PROJECTS / HOME VIDEOS API ====================
 export const projectsAPI = {
-  getAll: async (categoryOrParams = "") => {
-    try {
-      let url = `${API_BASE_URL}/projects`;
-      if (typeof categoryOrParams === "string" && categoryOrParams) {
-        url = `${API_BASE_URL}/projects?category=${encodeURIComponent(categoryOrParams)}`;
-      } else if (typeof categoryOrParams === "object" && categoryOrParams !== null) {
-        const query = new URLSearchParams(categoryOrParams).toString();
-        url = query ? `${API_BASE_URL}/projects?${query}` : url;
+  getAll: async (categoryOrParams = "", options = {}) => {
+    const isCategoryStr = typeof categoryOrParams === "string" && categoryOrParams.length > 0;
+    const cacheKey = isCategoryStr ? `projects_${categoryOrParams}` : "projects_all";
+
+    // 1. Check local storage cache for instant retrieval
+    const cached = swrCache.get(cacheKey);
+
+    // 2. Pre-seeded live snapshot fallback if cache is not yet warmed
+    let initialData = cached;
+    if (!initialData || !Array.isArray(initialData) || initialData.length === 0) {
+      if (isCategoryStr && SNAPSHOT_BY_CATEGORY[categoryOrParams]) {
+        initialData = SNAPSHOT_BY_CATEGORY[categoryOrParams];
+      } else if (!isCategoryStr) {
+        initialData = LIVE_PROJECTS_SNAPSHOT;
       }
-      const res = await fetch(url);
-      const data = await res.json();
-      if (data.success && Array.isArray(data.data)) {
-        return data.data;
-      }
-    } catch (err) {
-      console.warn("Projects fetch error:", err);
     }
-    return [];
+
+    // Background or on-demand revalidation
+    const revalidate = async () => {
+      try {
+        let url = `${API_BASE_URL}/projects`;
+        if (isCategoryStr) {
+          url = `${API_BASE_URL}/projects?category=${encodeURIComponent(categoryOrParams)}`;
+        } else if (typeof categoryOrParams === "object" && categoryOrParams !== null) {
+          const query = new URLSearchParams(categoryOrParams).toString();
+          url = query ? `${API_BASE_URL}/projects?${query}` : url;
+        }
+
+        const res = await fetchWithTimeout(url, {}, 12000);
+        const data = await res.json();
+        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+          swrCache.set(cacheKey, data.data);
+          // If this was an unfiltered query, update category caches too
+          if (!isCategoryStr) {
+            ["our-projects", "podcast-clips", "short-form", "saas-video"].forEach((cat) => {
+              const catData = data.data.filter((p) => p.category === cat);
+              if (catData.length > 0) swrCache.set(`projects_${cat}`, catData);
+            });
+          }
+          return data.data;
+        }
+      } catch {
+        // Cold-start / network timeout: keep initial data
+      }
+      return initialData || [];
+    };
+
+    // If skipCache requested (e.g. forced admin refresh), await revalidation
+    if (options?.skipCache) {
+      return await revalidate();
+    }
+
+    // Trigger non-blocking revalidation in the background
+    revalidate().catch(() => {});
+
+    // Return instant snapshot/cached data immediately (0ms)
+    return initialData || [];
   },
 
   getPaginated: async (category = "", page = 1, limit = 6) => {
@@ -530,7 +613,7 @@ export const projectsAPI = {
       const params = { page, limit };
       if (category && category !== "all") params.category = category;
       const query = new URLSearchParams(params).toString();
-      const res = await fetch(`${API_BASE_URL}/projects?${query}`);
+      const res = await fetchWithTimeout(`${API_BASE_URL}/projects?${query}`, {}, 12000);
       const data = await res.json();
       if (data.success) {
         return {
@@ -556,6 +639,7 @@ export const projectsAPI = {
     if (!res.ok || !data.success) {
       throw new Error(data.message || "Failed to save video project to MongoDB");
     }
+    swrCache.clear("projects");
     return data.data;
   },
 
@@ -569,6 +653,7 @@ export const projectsAPI = {
     if (!res.ok || !data.success) {
       throw new Error(data.message || "Failed to update project in MongoDB");
     }
+    swrCache.clear("projects");
     return data.data;
   },
 
@@ -581,6 +666,7 @@ export const projectsAPI = {
     if (!res.ok || !data.success) {
       throw new Error(data.message || "Failed to delete project from MongoDB");
     }
+    swrCache.clear("projects");
     return true;
   }
 };

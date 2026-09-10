@@ -45,7 +45,8 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { SEO } from "../utils/seo";
-import { authAPI, caseStudiesAPI, blogAPI, jobsAPI, contactAPI, projectsAPI, uploadAPI, testimonialsAPI, jobApplicationsAPI, cookieUtils } from "../services/api";
+import { authAPI, caseStudiesAPI, blogAPI, jobsAPI, projectsAPI, uploadAPI, testimonialsAPI, jobApplicationsAPI, cookieUtils } from "../services/api";
+import { BlogRichEditor } from "../components/admin/BlogRichEditor";
 import litroiLogo from "../assets/littroi-logo.png";
 
 export function Admin() {
@@ -61,7 +62,7 @@ export function Admin() {
       return null;
     }
   });
-  const [activeTab, setActiveTab] = useState("dashboard"); // 'dashboard' | 'caseStudies' | 'homeVideos' | 'testimonials' | 'blog' | 'jobs' | 'enquiries'
+  const [activeTab, setActiveTab] = useState("dashboard"); // 'dashboard' | 'caseStudies' | 'homeVideos' | 'testimonials' | 'blog' | 'jobs' | 'jobApplications'
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -81,8 +82,7 @@ export function Admin() {
     testimonials: 1,
     blog: 1,
     jobs: 1,
-    jobApplications: 1,
-    enquiries: 1
+    jobApplications: 1
   });
 
   const [itemsPerPage, setItemsPerPage] = useState({
@@ -91,8 +91,7 @@ export function Admin() {
     testimonials: 6,
     blog: 6,
     jobs: 6,
-    jobApplications: 8,
-    enquiries: 8
+    jobApplications: 8
   });
 
   // Auth States
@@ -108,14 +107,12 @@ export function Admin() {
   const [blogsList, setBlogsList] = useState([]);
   const [jobsList, setJobsList] = useState([]);
   const [jobApplicationsList, setJobApplicationsList] = useState([]);
-  const [enquiriesList, setEnquiriesList] = useState([]);
   const [isLoadingData, setIsLoadingData] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
 
   // Modal States
-  const [modalType, setModalType] = useState(null); // 'caseStudy' | 'project' | 'testimonial' | 'blog' | 'job' | 'viewEnquiry' | 'viewApplication' | 'videoPreview'
+  const [modalType, setModalType] = useState(null); // 'caseStudy' | 'project' | 'testimonial' | 'blog' | 'job' | 'viewApplication' | 'videoPreview'
   const [editingItem, setEditingItem] = useState(null);
-  const [selectedEnquiry, setSelectedEnquiry] = useState(null);
   const [selectedApplication, setSelectedApplication] = useState(null);
   const [previewVideoUrl, setPreviewVideoUrl] = useState("");
 
@@ -248,13 +245,12 @@ export function Admin() {
   const loadAllData = async () => {
     setIsLoadingData(true);
     try {
-      const [cs, projs, tests, blogs, jobs, enqs, jobApps] = await Promise.all([
+      const [cs, projs, tests, blogs, jobs, jobApps] = await Promise.all([
         caseStudiesAPI.getAll(),
         projectsAPI.getAll(),
         testimonialsAPI.getAll(true),
         blogAPI.getAll(),
         jobsAPI.getAll(),
-        contactAPI.getAll(),
         jobApplicationsAPI.getAll()
       ]);
       setCaseStudiesList(cs || []);
@@ -262,7 +258,6 @@ export function Admin() {
       setTestimonialsList(tests || []);
       setBlogsList(blogs || []);
       setJobsList(jobs || []);
-      setEnquiriesList(enqs || []);
       setJobApplicationsList(jobApps || []);
     } catch (err) {
       console.warn("Data loading error:", err);
@@ -399,35 +394,35 @@ export function Admin() {
     };
   }, [caseStudiesList]);
 
-  // 3. Client Inquiries Funnel & Pipeline Analytics
-  const inquiryPipelineStats = useMemo(() => {
-    const total = enquiriesList.length;
-    const newCount = enquiriesList.filter((e) => e.status === "New" || !e.status).length;
-    const reviewedCount = enquiriesList.filter((e) => e.status === "Reviewed").length;
-    const contactedCount = enquiriesList.filter((e) => e.status === "Contacted").length;
-    const archivedCount = enquiriesList.filter((e) => e.status === "Archived").length;
-    const conversionRate = total > 0 ? Math.round(((reviewedCount + contactedCount) / total) * 100) : 0;
+  // 3. Job Applications Funnel & Pipeline Analytics
+  const applicationPipelineStats = useMemo(() => {
+    const total = jobApplicationsList.length;
+    const newCount = jobApplicationsList.filter((a) => a.status === "New" || !a.status).length;
+    const reviewedCount = jobApplicationsList.filter((a) => a.status === "Reviewed").length;
+    const shortlistedCount = jobApplicationsList.filter((a) => a.status === "Shortlisted").length;
+    const rejectedCount = jobApplicationsList.filter((a) => a.status === "Rejected").length;
+    const reviewRate = total > 0 ? Math.round(((reviewedCount + shortlistedCount) / total) * 100) : 0;
 
     return {
       total,
       newCount,
       reviewedCount,
-      contactedCount,
-      archivedCount,
-      conversionRate
+      shortlistedCount,
+      rejectedCount,
+      reviewRate
     };
-  }, [enquiriesList]);
+  }, [jobApplicationsList]);
 
   // 4. Dynamic Time-Series Data Generator (Interactive SVG Curves)
   const timeSeriesAnalytics = useMemo(() => {
-    const totalLeads = enquiriesList.length;
+    const totalApps = jobApplicationsList.length;
     const totalPortfolio = projectsList.length + caseStudiesList.length + blogsList.length;
     const reachBase = caseStudyReachMetrics.totalViews;
 
     // Define interval points and labels based on chartRange
     let pointsCount = 6;
     let labels = [];
-    let leadMultipliers = [];
+    let appMultipliers = [];
     let reachMultipliers = [];
 
     if (chartRange === "7D") {
@@ -443,7 +438,7 @@ export function Admin() {
           dateObj: d
         };
       });
-      leadMultipliers = [0.2, 0.4, 0.6, 0.5, 0.85, 0.7, 1.0];
+      appMultipliers = [0.2, 0.4, 0.6, 0.5, 0.85, 0.7, 1.0];
       reachMultipliers = [0.35, 0.45, 0.6, 0.55, 0.8, 0.9, 1.0];
     } else if (chartRange === "30D") {
       pointsCount = 5;
@@ -454,7 +449,7 @@ export function Admin() {
         { short: "Week 4", full: "Days 22 - 28" },
         { short: "Current", full: "Last 48 Hours" }
       ];
-      leadMultipliers = [0.3, 0.55, 0.45, 0.8, 1.0];
+      appMultipliers = [0.3, 0.55, 0.45, 0.8, 1.0];
       reachMultipliers = [0.4, 0.6, 0.75, 0.88, 1.0];
     } else if (chartRange === "90D") {
       pointsCount = 6;
@@ -468,28 +463,28 @@ export function Admin() {
           dateObj: d
         };
       });
-      leadMultipliers = [0.25, 0.4, 0.6, 0.5, 0.85, 1.0];
+      appMultipliers = [0.25, 0.4, 0.6, 0.5, 0.85, 1.0];
       reachMultipliers = [0.3, 0.5, 0.65, 0.75, 0.9, 1.0];
     } else {
       // 1Y
       pointsCount = 6;
       const months = ["Jan", "Mar", "May", "Jul", "Sep", "Nov"];
       labels = months.map((m) => ({ short: m, full: `Month of ${m}` }));
-      leadMultipliers = [0.2, 0.35, 0.5, 0.7, 0.85, 1.0];
+      appMultipliers = [0.2, 0.35, 0.5, 0.7, 0.85, 1.0];
       reachMultipliers = [0.25, 0.42, 0.6, 0.78, 0.92, 1.0];
     }
 
     // Dynamic scale values
     const primarySeries = labels.map((lbl, idx) => {
-      const mult = leadMultipliers[idx] || 0.5;
-      const computedLeads = totalLeads > 0
-        ? Math.max(1, Math.round(totalLeads * mult))
+      const mult = appMultipliers[idx] || 0.5;
+      const computedApps = totalApps > 0
+        ? Math.max(1, Math.round(totalApps * mult))
         : Math.round(12 * mult);
       return {
         label: lbl.short,
         fullDate: lbl.full,
-        leads: computedLeads,
-        primaryVal: computedLeads
+        applications: computedApps,
+        primaryVal: computedApps
       };
     });
 
@@ -537,7 +532,7 @@ export function Admin() {
       cx: p.x,
       cy: p.y,
       cy2: secondaryPoints[i]?.y || p.y,
-      val: `${p.val} Leads`,
+      val: `${p.val} Apps`,
       reachVal: secondaryPoints[i]?.formatted || "12K",
       label: p.label,
       date: p.date
@@ -552,14 +547,14 @@ export function Admin() {
       secondaryPath,
       secondaryArea,
       nodes,
-      totalLeadsCalculated: totalLeads > 0 ? totalLeads : 42,
+      totalApplicationsCalculated: totalApps > 0 ? totalApps : 15,
       totalReachCalculated: caseStudyReachMetrics.formattedViews,
-      avgConversion: `${inquiryPipelineStats.conversionRate || 68}%`,
+      avgConversion: `${applicationPipelineStats.reviewRate || 75}%`,
       avgRetention: "82.4%"
     };
-  }, [chartRange, enquiriesList.length, projectsList.length, caseStudiesList.length, blogsList.length, caseStudyReachMetrics, inquiryPipelineStats]);
+  }, [chartRange, jobApplicationsList.length, projectsList.length, caseStudiesList.length, blogsList.length, caseStudyReachMetrics, applicationPipelineStats]);
 
-  // 5. Live Inbound Leads Weekly Velocity & Peak Detection
+  // 5. Live Job Applications Weekly Velocity & Peak Detection
   const leadsVelocityData = useMemo(() => {
     const days = [
       { key: 1, name: "Mon" },
@@ -571,26 +566,26 @@ export function Admin() {
       { key: 0, name: "Sun" }
     ];
 
-    // Count real leads grouped by weekday
+    // Count real job applications grouped by weekday
     const dayCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 0: 0 };
-    enquiriesList.forEach((enq) => {
-      if (enq.createdAt) {
-        const d = new Date(enq.createdAt);
+    jobApplicationsList.forEach((app) => {
+      if (app.createdAt) {
+        const d = new Date(app.createdAt);
         if (!isNaN(d.getTime())) {
           dayCounts[d.getDay()] = (dayCounts[d.getDay()] || 0) + 1;
         }
       }
     });
 
-    const totalFromEnquiries = Object.values(dayCounts).reduce((a, b) => a + b, 0);
+    const totalFromApps = Object.values(dayCounts).reduce((a, b) => a + b, 0);
 
-    // If database has newly seeded data or empty createdAt, distribute total inquiries realistically
+    // If database has newly seeded data or empty createdAt, distribute total applications realistically
     const simulatedWeights = { 1: 0.12, 2: 0.18, 3: 0.22, 4: 0.15, 5: 0.25, 6: 0.04, 0: 0.04 };
-    const effectiveTotal = Math.max(enquiriesList.length, 18);
+    const effectiveTotal = Math.max(jobApplicationsList.length, 12);
 
     const bars = days.map((day) => {
       const realCount = dayCounts[day.key];
-      const count = totalFromEnquiries > 0 && realCount > 0
+      const count = totalFromApps > 0 && realCount > 0
         ? realCount
         : Math.round(effectiveTotal * simulatedWeights[day.key]);
       return {
@@ -616,10 +611,10 @@ export function Admin() {
       bars: formattedBars,
       peakDay: peakBar.day,
       peakCount: peakBar.count,
-      totalCount: enquiriesList.length,
-      newLeads: inquiryPipelineStats.newCount
+      totalCount: jobApplicationsList.length,
+      newApplications: applicationPipelineStats.newCount
     };
-  }, [enquiriesList, inquiryPipelineStats]);
+  }, [jobApplicationsList, applicationPipelineStats]);
 
 
   // Auth Handlers
@@ -671,9 +666,6 @@ export function Admin() {
       } else if (type === "job") {
         await jobsAPI.delete(id);
         showToast("Career opening removed");
-      } else if (type === "enquiry") {
-        await contactAPI.delete(id);
-        showToast("Inquiry lead deleted");
       } else if (type === "jobApplication") {
         await jobApplicationsAPI.delete(id);
         showToast("Job application deleted");
@@ -829,6 +821,8 @@ export function Admin() {
     }
     setModalType("caseStudy");
   };
+
+  const handleOpenCaseStudyModal = (item = null) => handleOpenCsModal(item);
 
   const handleSaveCs = async (e) => {
     e.preventDefault();
@@ -1154,39 +1148,6 @@ export function Admin() {
     }
   };
 
-  // ==================== ENQUIRIES ====================
-  const handleToggleEnquiryStatus = async (id, currentStatus) => {
-    const nextStatus = currentStatus === "New" ? "Reviewed" : (currentStatus === "Reviewed" ? "Contacted" : "New");
-    try {
-      await contactAPI.updateStatus(id, nextStatus);
-      showToast(`Inquiry marked as ${nextStatus}`);
-      if (selectedEnquiry && (selectedEnquiry._id === id || selectedEnquiry.id === id)) {
-        setSelectedEnquiry({ ...selectedEnquiry, status: nextStatus });
-      }
-      await loadAllData();
-    } catch (err) {
-      showToast(`❌ Error: ${err.message}`);
-    }
-  };
-
-  const handleSetEnquiryStatus = async (id, status) => {
-    try {
-      await contactAPI.updateStatus(id, status);
-      showToast(`Inquiry status updated to ${status}`);
-      if (selectedEnquiry && (selectedEnquiry._id === id || selectedEnquiry.id === id)) {
-        setSelectedEnquiry({ ...selectedEnquiry, status });
-      }
-      await loadAllData();
-    } catch (err) {
-      showToast(`❌ Error: ${err.message}`);
-    }
-  };
-
-  const handleViewEnquiry = (enq) => {
-    setSelectedEnquiry(enq);
-    setModalType("viewEnquiry");
-  };
-
   const handleSetApplicationStatus = async (id, status) => {
     try {
       await jobApplicationsAPI.updateStatus(id, status);
@@ -1248,17 +1209,6 @@ export function Admin() {
     j.department?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const filteredEnquiries = enquiriesList.filter((e) => {
-    const matchesSearch =
-      e.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      e.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      e.company?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      e.message?.toLowerCase().includes(searchQuery.toLowerCase());
-
-    if (statusFilter === "all") return matchesSearch;
-    return matchesSearch && (e.status?.toLowerCase() === statusFilter.toLowerCase());
-  });
-
   const filteredApplications = jobApplicationsList.filter((app) => {
     const matchesSearch =
       (app.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -1279,8 +1229,7 @@ export function Admin() {
       testimonials: 1,
       blog: 1,
       jobs: 1,
-      jobApplications: 1,
-      enquiries: 1
+      jobApplications: 1
     });
   }, [searchQuery, statusFilter, videoCategoryFilter, testimonialTypeFilter, activeTab]);
 
@@ -1325,13 +1274,6 @@ export function Admin() {
   const paginatedApplications = filteredApplications.slice(
     (appsCurrentPage - 1) * itemsPerPage.jobApplications,
     appsCurrentPage * itemsPerPage.jobApplications
-  );
-
-  const enqsTotalPages = Math.max(1, Math.ceil(filteredEnquiries.length / itemsPerPage.enquiries));
-  const enqsCurrentPage = Math.min(currentPage.enquiries, enqsTotalPages);
-  const paginatedEnquiries = filteredEnquiries.slice(
-    (enqsCurrentPage - 1) * itemsPerPage.enquiries,
-    enqsCurrentPage * itemsPerPage.enquiries
   );
 
   // Unified Sleek Pagination Bar Component
@@ -1430,8 +1372,7 @@ export function Admin() {
     { id: "testimonials", label: "Testimonials", icon: Quote, count: testimonialsList.length },
     { id: "blog", label: "Blog Insights", icon: FileText, count: blogsList.length },
     { id: "jobs", label: "Careers", icon: Briefcase, count: jobsList.length },
-    { id: "jobApplications", label: "Job Applications", icon: UserCheck, count: jobApplicationsList.length, highlight: jobApplicationsList.some(a => a.status === "New") },
-    { id: "enquiries", label: "Client Inquiries", icon: Inbox, count: enquiriesList.length, highlight: enquiriesList.some(e => e.status === "New") },
+    { id: "jobApplications", label: "Job Applications", icon: UserCheck, count: jobApplicationsList.length, highlight: jobApplicationsList.some(a => a.status === "New") }
   ];
 
   // ==================== LOGIN SCREEN ====================
@@ -1640,7 +1581,7 @@ export function Admin() {
               </button>
               <div>
                 <h1 className="text-xl sm:text-2xl font-bold text-white capitalize tracking-tight" style={{ fontFamily: "'Syne', sans-serif" }}>
-                  {activeTab === "caseStudies" ? "Case Studies Analysis" : (activeTab === "homeVideos" ? "Home Video Showcases" : (activeTab === "testimonials" ? "Client Testimonials" : (activeTab === "jobApplications" ? "Candidate Job Applications" : (activeTab === "enquiries" ? "Client Inquiries Inbox" : activeTab))))}
+                  {activeTab === "caseStudies" ? "Case Studies Analysis" : (activeTab === "homeVideos" ? "Home Video Showcases" : (activeTab === "testimonials" ? "Client Testimonials" : (activeTab === "jobApplications" ? "Candidate Job Applications" : activeTab)))}
                 </h1>
                 <p className="text-xs text-white/40 hidden sm:block">
                   Littroi Media MERN Production Database
@@ -1722,8 +1663,8 @@ export function Admin() {
             {/* ==================== TAB: DASHBOARD WITH ANALYTICS GRAPHS ==================== */}
             {activeTab === "dashboard" && (
               <div className="space-y-8">
-                {/* 7 Hero Metric Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
+                {/* 6 Hero Metric Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-4">
                   <div
                     onClick={() => setActiveTab("caseStudies")}
                     className="p-5 rounded-2xl bg-[#0e0e0e] border border-white/10 hover:border-[#B3FFC9]/40 transition-all cursor-pointer space-y-3 group hover:shadow-[0_10px_30px_rgba(0,0,0,0.8),0_0_20px_rgba(179,255,201,0.05)]"
@@ -1859,29 +1800,6 @@ export function Admin() {
                     </div>
                     <div className="text-[10px] text-white/40 font-mono">
                       <span>Candidate Profiles</span>
-                    </div>
-                  </div>
-
-                  <div
-                    onClick={() => setActiveTab("enquiries")}
-                    className="p-5 rounded-2xl bg-[#0e0e0e] border border-white/10 hover:border-[#B3FFC9]/40 transition-all cursor-pointer space-y-3 group hover:shadow-[0_10px_30px_rgba(0,0,0,0.8),0_0_20px_rgba(179,255,201,0.05)]"
-                  >
-                    <div className="flex items-center justify-between text-white/50">
-                      <span className="text-[11px] uppercase font-bold tracking-wider" style={{ fontFamily: "'Syne', sans-serif" }}>Client Leads</span>
-                      <div className="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center text-[#B3FFC9] group-hover:scale-110 transition-transform">
-                        <Inbox size={14} />
-                      </div>
-                    </div>
-                    <div className="flex items-baseline justify-between">
-                      <p className="text-3xl font-extrabold text-[#B3FFC9]" style={{ fontFamily: "'Syne', sans-serif" }}>
-                        {enquiriesList.length}
-                      </p>
-                      <span className="text-[10px] font-mono text-[#B3FFC9] flex items-center gap-0.5">
-                        <Activity size={10} /> Active
-                      </span>
-                    </div>
-                    <div className="text-[10px] text-white/40 font-mono">
-                      <span>Inbound Inquiries</span>
                     </div>
                   </div>
                 </div>
@@ -2095,12 +2013,12 @@ export function Admin() {
                       <div className="space-y-1">
                         <div className="flex items-center gap-1.5 text-xs text-white/50">
                           <span className="w-2.5 h-2.5 rounded-full bg-[#B3FFC9]" />
-                          <span>Total Inbound Leads</span>
+                          <span>Candidate Applications</span>
                         </div>
                         <p className="text-lg font-bold text-white font-mono">
-                          {inquiryPipelineStats.total}
+                          {applicationPipelineStats.total}
                           <span className="text-xs font-normal text-[#B3FFC9] ml-1.5">
-                            ({inquiryPipelineStats.newCount} New)
+                            ({applicationPipelineStats.newCount} New)
                           </span>
                         </p>
                       </div>
@@ -2125,10 +2043,10 @@ export function Admin() {
                       <div className="space-y-1">
                         <div className="flex items-center gap-1.5 text-xs text-white/50">
                           <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
-                          <span>Lead Conversion</span>
+                          <span>Application Review Rate</span>
                         </div>
                         <p className="text-lg font-bold text-white font-mono">
-                          {inquiryPipelineStats.conversionRate}%
+                          {applicationPipelineStats.reviewRate}%
                         </p>
                       </div>
                     </div>
@@ -2252,22 +2170,25 @@ export function Admin() {
                 {/* ==================== ANALYTICS GRAPHS ROW 2 ==================== */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-                  {/* Left: Dynamic Inbound Leads Velocity Bar Chart (6 Cols) */}
-                  <div className="lg:col-span-6 p-6 sm:p-7 rounded-3xl bg-[#0c0c0c] border border-white/10 space-y-6 flex flex-col justify-between">
+                  {/* Left: Dynamic Applications Velocity Bar Chart (6 Cols) */}
+                  <div
+                    onClick={() => setActiveTab("jobApplications")}
+                    className="lg:col-span-6 p-6 sm:p-7 rounded-3xl bg-[#0c0c0c] border border-white/10 hover:border-white/20 transition-all space-y-6 flex flex-col justify-between cursor-pointer group"
+                  >
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="flex items-center gap-2">
                           <BarChart3 size={16} className="text-[#B3FFC9]" />
                           <h3 className="text-base sm:text-lg font-bold text-white tracking-tight" style={{ fontFamily: "'Syne', sans-serif" }}>
-                            Inbound Leads Velocity
+                            Applications Velocity
                           </h3>
                         </div>
                         <p className="text-xs text-white/40 font-mono mt-1">
-                          Weekly client inquiries &amp; project bookings distribution
+                          Weekly job candidate applications distribution
                         </p>
                       </div>
                       <span className="px-3 py-1 rounded-full bg-[#B3FFC9]/10 text-[#B3FFC9] text-xs font-mono font-bold border border-[#B3FFC9]/20">
-                        {leadsVelocityData.totalCount} Leads Recorded
+                        {leadsVelocityData.totalCount} Applications Recorded
                       </span>
                     </div>
 
@@ -2276,9 +2197,15 @@ export function Admin() {
                       {leadsVelocityData.bars.map((bar, idx) => (
                         <div
                           key={idx}
-                          onMouseEnter={() => setHoveredBarIndex(idx)}
-                          onMouseLeave={() => setHoveredBarIndex(null)}
-                          className="flex-1 flex flex-col items-center gap-2 h-full justify-end group cursor-pointer"
+                          onMouseEnter={(e) => {
+                            e.stopPropagation();
+                            setHoveredBarIndex(idx);
+                          }}
+                          onMouseLeave={(e) => {
+                            e.stopPropagation();
+                            setHoveredBarIndex(null);
+                          }}
+                          className="flex-1 flex flex-col items-center gap-2 h-full justify-end group/bar cursor-pointer"
                         >
                           {/* Top Count Badge */}
                           <span className={`text-[10px] font-mono transition-opacity duration-200 ${hoveredBarIndex === idx || bar.isPeak ? "opacity-100 text-[#B3FFC9] font-bold" : "opacity-0 text-white/50"
@@ -2289,16 +2216,16 @@ export function Admin() {
                           {/* Bar Pillar */}
                           <div className="w-full max-w-[38px] bg-[#161616] rounded-t-xl overflow-hidden h-full flex items-end">
                             <div
-                              className={`w-full rounded-t-xl transition-all duration-500 group-hover:scale-y-105 ${bar.isPeak
+                              className={`w-full rounded-t-xl transition-all duration-500 group-hover/bar:scale-y-105 ${bar.isPeak
                                 ? "bg-gradient-to-t from-[#0e3b26] to-[#B3FFC9] shadow-[0_0_20px_rgba(179,255,201,0.4)]"
-                                : "bg-gradient-to-t from-white/10 to-white/30 group-hover:to-[#B3FFC9]"
+                                : "bg-gradient-to-t from-white/10 to-white/30 group-hover/bar:to-[#B3FFC9]"
                                 }`}
                               style={{ height: bar.heightPct }}
                             />
                           </div>
 
                           {/* Weekday Label */}
-                          <span className={`text-[10px] font-mono uppercase ${bar.isPeak ? "text-[#B3FFC9] font-bold" : "text-white/40 group-hover:text-white"
+                          <span className={`text-[10px] font-mono uppercase ${bar.isPeak ? "text-[#B3FFC9] font-bold" : "text-white/40 group-hover/bar:text-white"
                             }`}>
                             {bar.day}
                           </span>
@@ -2309,36 +2236,24 @@ export function Admin() {
                     {/* Footer Analytics & Pipeline Status Chips */}
                     <div className="space-y-3 pt-1">
                       <div className="flex items-center justify-between text-xs font-mono text-white/60">
-                        <span>Peak Inflow: <strong className="text-white">{leadsVelocityData.peakDay} ({leadsVelocityData.peakCount} inquiries)</strong></span>
-                        <span className="text-[#B3FFC9] flex items-center gap-1 font-bold">Avg SLA: &lt; 2h</span>
+                        <span>Peak Inflow: <strong className="text-white">{leadsVelocityData.peakDay} ({leadsVelocityData.peakCount} applications)</strong></span>
+                        <span className="text-[#B3FFC9] flex items-center gap-1 font-bold">Review Pipeline</span>
                       </div>
 
-                      {/* Lead Status Pipeline Badges */}
+                      {/* Application Status Pipeline Badges */}
                       <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-white/5 text-[11px] font-mono">
                         <span className="text-white/40">Status:</span>
-                        <span
-                          onClick={() => setActiveTab("enquiries")}
-                          className="px-2.5 py-0.5 rounded-md bg-[#B3FFC9]/10 text-[#B3FFC9] border border-[#B3FFC9]/20 cursor-pointer hover:bg-[#B3FFC9]/20 transition-colors"
-                        >
-                          {inquiryPipelineStats.newCount} New
+                        <span className="px-2.5 py-0.5 rounded-md bg-[#B3FFC9]/10 text-[#B3FFC9] border border-[#B3FFC9]/20">
+                          {applicationPipelineStats.newCount} New
                         </span>
-                        <span
-                          onClick={() => setActiveTab("enquiries")}
-                          className="px-2.5 py-0.5 rounded-md bg-[#22D3EE]/10 text-[#22D3EE] border border-[#22D3EE]/20 cursor-pointer hover:bg-[#22D3EE]/20 transition-colors"
-                        >
-                          {inquiryPipelineStats.reviewedCount} In Review
+                        <span className="px-2.5 py-0.5 rounded-md bg-[#22D3EE]/10 text-[#22D3EE] border border-[#22D3EE]/20">
+                          {applicationPipelineStats.reviewedCount} In Review
                         </span>
-                        <span
-                          onClick={() => setActiveTab("enquiries")}
-                          className="px-2.5 py-0.5 rounded-md bg-pink-400/10 text-pink-400 border border-pink-400/20 cursor-pointer hover:bg-pink-400/20 transition-colors"
-                        >
-                          {inquiryPipelineStats.contactedCount} Contacted
+                        <span className="px-2.5 py-0.5 rounded-md bg-emerald-400/10 text-emerald-400 border border-emerald-400/20">
+                          {applicationPipelineStats.shortlistedCount} Shortlisted
                         </span>
-                        <span
-                          onClick={() => setActiveTab("enquiries")}
-                          className="px-2.5 py-0.5 rounded-md bg-white/5 text-white/50 border border-white/10 cursor-pointer hover:bg-white/10 transition-colors"
-                        >
-                          {inquiryPipelineStats.archivedCount} Archived
+                        <span className="px-2.5 py-0.5 rounded-md bg-red-400/10 text-red-400 border border-red-400/20">
+                          {applicationPipelineStats.rejectedCount} Rejected
                         </span>
                       </div>
                     </div>
@@ -2390,7 +2305,7 @@ export function Admin() {
                       </button>
 
                       <button
-                        onClick={() => handleOpenCaseStudyModal()}
+                        onClick={() => handleOpenCsModal()}
                         className="p-4 rounded-2xl bg-[#141414] hover:bg-[#1a1a1a] border border-white/10 hover:border-[#B3FFC9]/40 text-left transition-all group cursor-pointer flex items-center justify-between"
                       >
                         <div className="space-y-1">
@@ -2405,14 +2320,14 @@ export function Admin() {
                       </button>
 
                       <button
-                        onClick={() => setActiveTab("enquiries")}
+                        onClick={() => setActiveTab("jobApplications")}
                         className="p-4 rounded-2xl bg-[#141414] hover:bg-[#1a1a1a] border border-white/10 hover:border-[#B3FFC9]/40 text-left transition-all group cursor-pointer flex items-center justify-between"
                       >
                         <div className="space-y-1">
                           <p className="text-xs font-bold text-white group-hover:text-[#B3FFC9] transition-colors" style={{ fontFamily: "'Syne', sans-serif" }}>
-                            View Inquiries Inbox
+                            Review Applications
                           </p>
-                          <p className="text-[10px] text-white/40 font-mono">{enquiriesList.length} unread leads</p>
+                          <p className="text-[10px] text-white/40 font-mono">{jobApplicationsList.length} candidate profiles</p>
                         </div>
                         <div className="w-8 h-8 rounded-full bg-white/5 group-hover:bg-[#B3FFC9] text-white group-hover:text-black flex items-center justify-center text-xs transition-all">
                           <ArrowUpRight size={14} />
@@ -2937,7 +2852,7 @@ export function Admin() {
                             <div className="space-y-1.5 text-xs text-white/60">
                               <p>📍 {job.location}</p>
                               <p>💼 {job.experience || "2+ Years"}</p>
-                              <p>💰 {job.salary || "Competitive"}</p>
+                              <p>💰 {job.salary ? (job.salary.includes("₹") || job.salary.includes("Rs") ? job.salary : (job.salary.includes("$") ? job.salary.replace(/\$/g, "₹") : (job.salary.toLowerCase() === "competitive" ? "₹ Competitive" : `₹${job.salary}`))) : "₹ Competitive"}</p>
                             </div>
 
                             <p className="text-xs text-white/50 line-clamp-2 pt-2 border-t border-white/5">
@@ -3119,173 +3034,6 @@ export function Admin() {
                       })}
                     </div>
                     {renderPagination("jobApplications", filteredApplications.length, itemsPerPage.jobApplications, appsCurrentPage)}
-                  </>
-                )}
-              </div>
-            )}
-
-            {/* ==================== TAB: ENQUIRIES ==================== */}
-            {activeTab === "enquiries" && (
-              <div className="space-y-6">
-                {/* Header Controls & Filter Pills */}
-                <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-[#0e0e0e] border border-white/10">
-                  <div className="flex flex-wrap items-center gap-2">
-                    {["all", "new", "reviewed", "contacted", "archived"].map((st) => (
-                      <button
-                        key={st}
-                        onClick={() => setStatusFilter(st)}
-                        className={`px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${statusFilter === st ? "bg-[#B3FFC9] text-black shadow-[0_0_15px_rgba(179,255,201,0.25)]" : "bg-white/5 text-white/60 hover:text-white hover:bg-white/10"
-                          }`}
-                        style={{ fontFamily: "'Syne', sans-serif" }}
-                      >
-                        {st}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="flex items-center gap-4 text-xs font-mono text-white/50">
-                    <span>Showing page <strong className="text-white">{enqsCurrentPage}</strong> of <strong className="text-white">{enqsTotalPages}</strong> ({filteredEnquiries.length} leads)</span>
-                  </div>
-                </div>
-
-                {/* Empty State */}
-                {filteredEnquiries.length === 0 ? (
-                  <div className="text-center py-20 bg-[#0d0d0d] border border-white/10 rounded-3xl space-y-3">
-                    <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/30 mx-auto">
-                      <Inbox size={26} />
-                    </div>
-                    <p className="text-sm font-bold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>No Inquiries Found</p>
-                    <p className="text-xs text-white/40">Inquiries submitted from your website will appear here in real time.</p>
-                  </div>
-                ) : (
-                  <>
-                    <div className="space-y-4">
-                      {paginatedEnquiries.map((enq) => {
-                        const enqId = enq.id || enq._id;
-                        const initial = enq.name?.charAt(0)?.toUpperCase() || "L";
-                        return (
-                          <div
-                            key={enqId}
-                            className="p-6 rounded-3xl bg-[#0d0d0d] border border-white/10 hover:border-white/20 transition-all space-y-4 shadow-lg group"
-                          >
-                            {/* Top Row: Lead Overview & Quick Status */}
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-white/5">
-                              <div className="flex items-center gap-3.5">
-                                <div className="w-11 h-11 rounded-2xl bg-[#183626] border border-[#B3FFC9]/30 text-[#B3FFC9] flex items-center justify-center font-black text-sm shrink-0 shadow-[0_0_15px_rgba(179,255,201,0.15)]" style={{ fontFamily: "'Syne', sans-serif" }}>
-                                  {initial}
-                                </div>
-                                <div>
-                                  <div className="flex flex-wrap items-center gap-2">
-                                    <h4 className="font-bold text-white text-base tracking-tight" style={{ fontFamily: "'Syne', sans-serif" }}>
-                                      {enq.name}
-                                    </h4>
-                                    <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${enq.status === "New" ? "bg-[#B3FFC9]/20 text-[#B3FFC9] border border-[#B3FFC9]/30" :
-                                      (enq.status === "Reviewed" ? "bg-amber-400/20 text-amber-300 border border-amber-400/30" :
-                                        (enq.status === "Contacted" ? "bg-blue-400/20 text-blue-300 border border-blue-400/30" : "bg-white/10 text-white/50 border border-white/10"))
-                                      }`}>
-                                      {enq.status || "New"}
-                                    </span>
-                                  </div>
-                                  <p className="text-[11px] font-mono text-white/40 mt-0.5">
-                                    Submitted on: {enq.fullDate || enq.date}
-                                  </p>
-                                </div>
-                              </div>
-
-                              {/* Status Selector & Quick Action Buttons */}
-                              <div className="flex flex-wrap items-center gap-2">
-                                <select
-                                  value={enq.status || "New"}
-                                  onChange={(e) => handleSetEnquiryStatus(enqId, e.target.value)}
-                                  className="px-3 py-1.5 rounded-xl bg-[#161616] border border-white/15 text-xs text-white focus:border-[#B3FFC9] focus:outline-none cursor-pointer"
-                                >
-                                  <option value="New">Status: New</option>
-                                  <option value="Reviewed">Status: Reviewed</option>
-                                  <option value="Contacted">Status: Contacted</option>
-                                  <option value="Archived">Status: Archived</option>
-                                </select>
-
-                                <button
-                                  onClick={() => handleViewEnquiry(enq)}
-                                  className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/80 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
-                                >
-                                  <Eye size={13} className="text-[#B3FFC9]" />
-                                  <span>Details</span>
-                                </button>
-
-                                <a
-                                  href={`mailto:${enq.email}?subject=Littroi%20Media%20Strategy%20Inquiry%20Response`}
-                                  className="px-3 py-1.5 rounded-xl bg-[#183626] hover:bg-[#B3FFC9] text-[#B3FFC9] hover:text-black text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer"
-                                  style={{ fontFamily: "'Syne', sans-serif" }}
-                                >
-                                  <Send size={12} />
-                                  <span>Reply</span>
-                                </a>
-
-                                <button
-                                  onClick={() => setDeleteConfirm({ type: "enquiry", id: enqId, title: `Inquiry from ${enq.name}` })}
-                                  className="p-2 rounded-xl text-white/40 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
-                                  title="Delete Lead"
-                                >
-                                  <Trash2 size={14} />
-                                </button>
-                              </div>
-                            </div>
-
-                            {/* Contact Details Grid */}
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                              <div className="flex items-center gap-2.5 p-3 rounded-xl bg-[#131313] border border-white/5">
-                                <Mail size={14} className="text-[#B3FFC9] shrink-0" />
-                                <div className="truncate">
-                                  <span className="text-[10px] text-white/40 uppercase font-mono block">Email Address</span>
-                                  <a href={`mailto:${enq.email}`} className="text-white hover:text-[#B3FFC9] font-medium truncate block">
-                                    {enq.email}
-                                  </a>
-                                </div>
-                              </div>
-
-                              <div className="flex items-center gap-2.5 p-3 rounded-xl bg-[#131313] border border-white/5">
-                                <Building size={14} className="text-[#B3FFC9] shrink-0" />
-                                <div className="truncate">
-                                  <span className="text-[10px] text-white/40 uppercase font-mono block">Company / URL</span>
-                                  <span className="text-white font-medium truncate block">
-                                    {enq.company ? (
-                                      enq.company.startsWith("http") ? (
-                                        <a href={enq.company} target="_blank" rel="noopener noreferrer" className="hover:text-[#B3FFC9] flex items-center gap-1">
-                                          <span>{enq.company}</span>
-                                          <ExternalLink size={10} />
-                                        </a>
-                                      ) : enq.company
-                                    ) : "Direct Client / Individual"}
-                                  </span>
-                                </div>
-                              </div>
-
-                              <div className="flex items-center gap-2.5 p-3 rounded-xl bg-[#131313] border border-white/5">
-                                <Phone size={14} className="text-[#B3FFC9] shrink-0" />
-                                <div className="truncate">
-                                  <span className="text-[10px] text-white/40 uppercase font-mono block">Phone / Source</span>
-                                  <span className="text-white font-medium truncate block">
-                                    {enq.phone ? enq.phone : (enq.source ? `Source: ${enq.source}` : "Website Form")}
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Message Body */}
-                            <div className="p-4 rounded-2xl bg-[#141414] border border-white/5 space-y-1.5">
-                              <span className="text-[10px] font-mono uppercase text-white/40 tracking-wider flex items-center gap-1.5">
-                                <MessageSquare size={12} className="text-[#B3FFC9]" />
-                                Client Message / Project Scope
-                              </span>
-                              <p className="text-xs sm:text-sm text-white/80 leading-relaxed whitespace-pre-wrap">
-                                {enq.message}
-                              </p>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                    {renderPagination("enquiries", filteredEnquiries.length, itemsPerPage.enquiries, enqsCurrentPage)}
                   </>
                 )}
               </div>
@@ -4294,7 +4042,7 @@ export function Admin() {
         {/* ==================== MODAL: BLOG ADD / EDIT ==================== */}
         {modalType === "blog" && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-            <div className="max-w-2xl w-full bg-[#0d0d0d] border border-white/15 rounded-[28px] p-6 sm:p-8 space-y-6 max-h-[90vh] overflow-y-auto relative shadow-2xl">
+            <div className="max-w-4xl w-full bg-[#0d0d0d] border border-white/15 rounded-[28px] p-6 sm:p-8 space-y-6 max-h-[92vh] overflow-y-auto relative shadow-2xl">
               <div className="flex items-center justify-between border-b border-white/10 pb-4">
                 <h3 className="text-xl font-bold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>
                   {editingItem ? "Edit Article" : "Write New Article"}
@@ -4414,15 +4162,30 @@ export function Admin() {
                   />
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-white/60">Article Content (HTML supported) *</label>
-                  <textarea
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-white/70 flex items-center gap-1.5" style={{ fontFamily: "'Syne', sans-serif" }}>
+                      <span>Article Content</span>
+                      <span className="text-red-500 font-bold">*</span>
+                    </label>
+                    <span className="text-[11px] text-[#B3FFC9] font-mono">
+                      ✨ Auto-formats pasted text into &lt;h2&gt; and &lt;p&gt;
+                    </span>
+                  </div>
+                  <BlogRichEditor
                     value={blogForm.content}
-                    onChange={(e) => setBlogForm({ ...blogForm, content: e.target.value })}
-                    rows={6}
-                    placeholder="<h3>Section Title</h3><p>Article body paragraphs...</p>"
-                    className="w-full px-4 py-3 rounded-xl bg-[#161616] border border-white/10 text-white text-xs font-mono focus:border-[#B3FFC9] focus:outline-none"
-                    required
+                    onChange={(newContent) => setBlogForm((prev) => ({ ...prev, content: newContent }))}
+                    onAutoSyncReadTime={(time) => setBlogForm((prev) => ({ ...prev, readTime: time }))}
+                    onAutoFillMetadata={(meta) => {
+                      setBlogForm((prev) => ({
+                        ...prev,
+                        title: meta.title || prev.title,
+                        excerpt: meta.excerpt || prev.excerpt,
+                        slug: meta.slug ? meta.slug.replace(/^\/blog\/?/, "") : prev.slug,
+                        tags: meta.tags ? (Array.isArray(meta.tags) ? meta.tags.join(", ") : meta.tags) : prev.tags
+                      }));
+                    }}
+                    placeholder="Paste or write your article content here... headings automatically convert to <h2> and body paragraphs to <p>."
                   />
                 </div>
 
@@ -4517,7 +4280,7 @@ export function Admin() {
                       type="text"
                       value={jobForm.salary}
                       onChange={(e) => setJobForm({ ...jobForm, salary: e.target.value })}
-                      placeholder="Competitive / Negotiable"
+                      placeholder="e.g. ₹8,00,000 - ₹14,00,000 / year (or ₹ Competitive)"
                       className="w-full px-4 py-3 rounded-xl bg-[#161616] border border-white/10 text-white text-sm focus:border-[#B3FFC9] focus:outline-none"
                     />
                   </div>
@@ -4588,144 +4351,6 @@ export function Admin() {
                   allowFullScreen
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ==================== MODAL: VIEW ENQUIRY DETAILS ==================== */}
-        {modalType === "viewEnquiry" && selectedEnquiry && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
-            <div className="max-w-2xl w-full bg-[#0d0d0d] border border-white/15 rounded-[28px] p-6 sm:p-8 space-y-6 max-h-[90vh] overflow-y-auto relative shadow-2xl">
-              <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#183626] border border-[#B3FFC9]/30 text-[#B3FFC9] flex items-center justify-center font-black text-sm">
-                    {selectedEnquiry.name?.charAt(0)?.toUpperCase() || "L"}
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-white tracking-tight" style={{ fontFamily: "'Syne', sans-serif" }}>
-                      {selectedEnquiry.name}
-                    </h3>
-                    <span className="text-xs text-white/40 font-mono">
-                      Lead ID: {selectedEnquiry.id || selectedEnquiry._id}
-                    </span>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setModalType(null)}
-                  className="text-white/50 hover:text-white p-1 cursor-pointer"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-
-              {/* Status and Timestamp Bar */}
-              <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-2xl bg-[#141414] border border-white/5">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-white/50 font-mono">Status:</span>
-                  <select
-                    value={selectedEnquiry.status || "New"}
-                    onChange={(e) => handleSetEnquiryStatus(selectedEnquiry.id || selectedEnquiry._id, e.target.value)}
-                    className="px-3 py-1 rounded-xl bg-[#1a1a1a] border border-white/15 text-xs font-bold text-white focus:border-[#B3FFC9] focus:outline-none cursor-pointer"
-                  >
-                    <option value="New">🟢 New</option>
-                    <option value="Reviewed">🟡 Reviewed</option>
-                    <option value="Contacted">🔵 Contacted</option>
-                    <option value="Archived">⚪ Archived</option>
-                  </select>
-                </div>
-                <div className="text-xs font-mono text-white/40 flex items-center gap-1.5">
-                  <Calendar size={13} className="text-[#B3FFC9]" />
-                  <span>{selectedEnquiry.fullDate || selectedEnquiry.date}</span>
-                </div>
-              </div>
-
-              {/* Detail Fields 2-Column Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="p-4 rounded-2xl bg-[#121212] border border-white/5 space-y-1">
-                  <span className="text-[10px] uppercase font-mono text-white/40 block">Email Address</span>
-                  <div className="flex items-center justify-between gap-2">
-                    <a href={`mailto:${selectedEnquiry.email}`} className="text-sm font-semibold text-white hover:text-[#B3FFC9] truncate">
-                      {selectedEnquiry.email}
-                    </a>
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-[#121212] border border-white/5 space-y-1">
-                  <span className="text-[10px] uppercase font-mono text-white/40 block">Company / Project URL</span>
-                  <div className="text-sm font-semibold text-white truncate">
-                    {selectedEnquiry.company ? (
-                      selectedEnquiry.company.startsWith("http") ? (
-                        <a href={selectedEnquiry.company} target="_blank" rel="noopener noreferrer" className="hover:text-[#B3FFC9] flex items-center gap-1.5">
-                          <span className="truncate">{selectedEnquiry.company}</span>
-                          <ExternalLink size={12} className="shrink-0" />
-                        </a>
-                      ) : selectedEnquiry.company
-                    ) : "Direct Client / Individual"}
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-[#121212] border border-white/5 space-y-1">
-                  <span className="text-[10px] uppercase font-mono text-white/40 block">Phone Number</span>
-                  <div className="text-sm font-semibold text-white">
-                    {selectedEnquiry.phone ? (
-                      <a href={`tel:${selectedEnquiry.phone}`} className="hover:text-[#B3FFC9]">
-                        {selectedEnquiry.phone}
-                      </a>
-                    ) : "Not Provided"}
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-[#121212] border border-white/5 space-y-1">
-                  <span className="text-[10px] uppercase font-mono text-white/40 block">Lead Source</span>
-                  <div className="text-sm font-semibold text-white">
-                    {selectedEnquiry.source || "Website Contact Form"}
-                  </div>
-                </div>
-              </div>
-
-              {/* Full Message Section */}
-              <div className="space-y-2">
-                <span className="text-xs font-bold text-white/70 uppercase tracking-wider flex items-center gap-1.5 font-mono">
-                  <MessageSquare size={13} className="text-[#B3FFC9]" />
-                  Full Client Message &amp; Requirements
-                </span>
-                <div className="p-5 rounded-2xl bg-[#141414] border border-white/10 text-white/90 text-sm leading-relaxed whitespace-pre-wrap">
-                  {selectedEnquiry.message}
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-white/10">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setModalType(null);
-                    setDeleteConfirm({ type: "enquiry", id: selectedEnquiry.id || selectedEnquiry._id, title: `Inquiry from ${selectedEnquiry.name}` });
-                  }}
-                  className="px-4 py-2.5 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5"
-                >
-                  <Trash2 size={13} />
-                  <span>Delete Inquiry</span>
-                </button>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setModalType(null)}
-                    className="px-5 py-2.5 rounded-full text-xs font-bold text-white/60 hover:text-white bg-white/5 hover:bg-white/10 cursor-pointer transition-colors"
-                  >
-                    Close
-                  </button>
-                  <a
-                    href={`mailto:${selectedEnquiry.email}?subject=Response%20to%20your%20Littroi%20Inquiry`}
-                    className="px-6 py-2.5 rounded-full bg-[#B3FFC9] hover:bg-[#9effba] text-black font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-[0_0_20px_rgba(179,255,201,0.2)]"
-                    style={{ fontFamily: "'Syne', sans-serif" }}
-                  >
-                    <Send size={13} />
-                    <span>Send Reply Email</span>
-                  </a>
-                </div>
               </div>
             </div>
           </div>

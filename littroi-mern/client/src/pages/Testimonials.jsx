@@ -286,7 +286,7 @@ export function Testimonials() {
                   lineHeight: 1.1,
                 }}
               >
-                Testi<span style={{ color: "#B3FFC9" }}>monials</span>
+                Client <span style={{ color: "#B3FFC9" }}>Stories</span>
               </h1>
             </motion.div>
 
@@ -320,7 +320,7 @@ export function Testimonials() {
             className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 md:gap-6 pt-6 sm:pt-10"
           >
             {[
-              { label: "Organic Views Driven", value: "50M+", icon: TrendingUp },
+              { label: "Organic Views Driven", value: "100M+", icon: TrendingUp },
               { label: "Videos Mastered", value: "1,200+", icon: Video },
               { label: "Channels Scaled", value: "40+", icon: Layers },
               { label: "On-Time Delivery", value: "100%", icon: ShieldCheck }
@@ -436,278 +436,278 @@ export function Testimonials() {
             >
               {/* FEATURED VIDEO STORIES WITH CURSOR SPOTLIGHT */}
               {videoTestimonials.length > 0 && (
-              <section className="py-6 sm:py-12 max-w-[1400px] mx-auto px-4 sm:px-8 lg:px-14">
-                <div className="space-y-10 sm:space-y-20">
-                  {displayedVideos.map((item, idx) => {
-                    const authorName = item.name || item.clientName || "Client";
-                    const authorRole = item.role || item.clientRole || "";
-                    const quoteText = item.quote || item.testimonial || "";
-                    const avatarSrc = item.avatar || item.clientImage || avatarMarc;
-                    const videoId =
-                      item.videoId ||
-                      (item.videoUrl
-                        ? item.videoUrl.match(
-                          /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/
-                        )?.[1]
-                        : "") ||
-                      "FApmJphhF9Y";
-                    const isEven = idx % 2 === 0;
+                <section className="py-6 sm:py-12 max-w-[1400px] mx-auto px-4 sm:px-8 lg:px-14">
+                  <div className="space-y-10 sm:space-y-20">
+                    {displayedVideos.map((item, idx) => {
+                      const authorName = item.name || item.clientName || "Client";
+                      const authorRole = item.role || item.clientRole || "";
+                      const quoteText = item.quote || item.testimonial || "";
+                      const avatarSrc = item.avatar || item.clientImage || avatarMarc;
+                      const videoId =
+                        item.videoId ||
+                        (item.videoUrl
+                          ? item.videoUrl.match(
+                            /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/
+                          )?.[1]
+                          : "") ||
+                        "FApmJphhF9Y";
+                      const isEven = idx % 2 === 0;
 
-                    return (
-                      <SpotlightCard
-                        key={item._id || item.id || idx}
-                        className="p-4 sm:p-7 md:p-10"
-                      >
-                        <div
-                          className={`flex flex-col lg:flex-row items-center justify-between gap-6 sm:gap-8 lg:gap-14 ${isEven ? "" : "lg:flex-row-reverse"
-                            }`}
+                      return (
+                        <SpotlightCard
+                          key={item._id || item.id || idx}
+                          className="p-4 sm:p-7 md:p-10"
                         >
-                          {/* Video Column with Cinema mode button */}
-                          <div className="w-full lg:w-1/2 aspect-video rounded-2xl overflow-hidden border border-white/15 bg-[#111111] shadow-[0_25px_70px_rgba(0,0,0,0.85)] relative group">
-                            <iframe
-                              src={`https://www.youtube.com/embed/${videoId}?controls=1&rel=0&playsinline=0`}
-                              title={`${authorName} Client Video Review`}
-                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                              allowFullScreen
-                              className="w-full h-full border-none block"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => setActiveCinemaVideo(item)}
-                              className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-xl bg-black/80 hover:bg-[#B3FFC9] hover:text-black text-white text-xs font-mono font-bold border border-white/20 backdrop-blur-md flex items-center gap-1.5 shadow-lg cursor-pointer"
-                              title="Open in Cinema Mode"
-                            >
-                              <Maximize2 size={13} />
-                            </button>
-                          </div>
+                          <div
+                            className={`flex flex-col lg:flex-row items-center justify-between gap-6 sm:gap-8 lg:gap-14 ${isEven ? "" : "lg:flex-row-reverse"
+                              }`}
+                          >
+                            {/* Video Column with Cinema mode button */}
+                            <div className="w-full lg:w-1/2 aspect-video rounded-2xl overflow-hidden border border-white/15 bg-[#111111] shadow-[0_25px_70px_rgba(0,0,0,0.85)] relative group">
+                              <iframe
+                                src={`https://www.youtube.com/embed/${videoId}?controls=1&rel=0&playsinline=0`}
+                                title={`${authorName} Client Video Review`}
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                allowFullScreen
+                                className="w-full h-full border-none block"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setActiveCinemaVideo(item)}
+                                className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-xl bg-black/80 hover:bg-[#B3FFC9] hover:text-black text-white text-xs font-mono font-bold border border-white/20 backdrop-blur-md flex items-center gap-1.5 shadow-lg cursor-pointer"
+                                title="Open in Cinema Mode"
+                              >
+                                <Maximize2 size={13} />
+                              </button>
+                            </div>
 
-                          {/* Testimonial Quote Column */}
-                          <div className="w-full lg:w-1/2 flex flex-col justify-between space-y-4 sm:space-y-6">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <div className="flex text-[#B3FFC9]">
-                                  {[...Array(5)].map((_, sIdx) => (
-                                    <Star key={sIdx} size={15} className="fill-[#B3FFC9]" />
-                                  ))}
+                            {/* Testimonial Quote Column */}
+                            <div className="w-full lg:w-1/2 flex flex-col justify-between space-y-4 sm:space-y-6">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <div className="flex text-[#B3FFC9]">
+                                    {[...Array(5)].map((_, sIdx) => (
+                                      <Star key={sIdx} size={15} className="fill-[#B3FFC9]" />
+                                    ))}
+                                  </div>
+                                  {item.metric && (
+                                    <span className="text-[10px] sm:text-[11px] font-mono text-[#B3FFC9] bg-[#B3FFC9]/10 border border-[#B3FFC9]/25 px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full font-bold ml-1">
+                                      {item.metric}
+                                    </span>
+                                  )}
                                 </div>
-                                {item.metric && (
-                                  <span className="text-[10px] sm:text-[11px] font-mono text-[#B3FFC9] bg-[#B3FFC9]/10 border border-[#B3FFC9]/25 px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full font-bold ml-1">
-                                    {item.metric}
-                                  </span>
-                                )}
+
+                                <Quote
+                                  size={24}
+                                  className="sm:w-8 sm:h-8 text-white/15 group-hover:text-[#B3FFC9]/40 group-hover:scale-110 transition-all duration-300 shrink-0"
+                                />
                               </div>
 
-                              <Quote
-                                size={24}
-                                className="sm:w-8 sm:h-8 text-white/15 group-hover:text-[#B3FFC9]/40 group-hover:scale-110 transition-all duration-300 shrink-0"
-                              />
+                              <p
+                                className="text-gray-200 text-xs sm:text-sm md:text-base leading-relaxed whitespace-pre-line m-0"
+                                style={{
+                                  fontFamily: "'benzine', sans-serif",
+                                  fontSize: "clamp(13px, 1.1vw, 16px)",
+                                  fontWeight: 300,
+                                  lineHeight: 1.7,
+                                  color: "rgba(255, 255, 255, 0.9)",
+                                }}
+                              >
+                                "{quoteText}"
+                              </p>
+
+                              <div className="flex items-center gap-3 sm:gap-4 pt-4 sm:pt-5 border-t border-white/10">
+                                <img
+                                  src={avatarSrc}
+                                  alt={authorName}
+                                  className="w-11 h-11 sm:w-14 sm:h-14 rounded-full object-cover border border-white/15 bg-white/5 p-0.5 shadow-md shrink-0"
+                                  onError={(e) => {
+                                    e.target.src = avatarMarc;
+                                  }}
+                                />
+                                <div className="min-w-0">
+                                  <div className="flex items-center gap-1.5 sm:gap-2">
+                                    <h4
+                                      className="text-sm sm:text-base md:text-lg font-bold text-white tracking-wide truncate m-0"
+                                      style={{ fontFamily: "'Syne', sans-serif" }}
+                                    >
+                                      {authorName}
+                                    </h4>
+                                    <span className="inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-mono text-[#B3FFC9] bg-[#B3FFC9]/10 px-2 py-0.5 rounded-full shrink-0">
+                                      <CheckCircle2 size={10} /> Verified
+                                    </span>
+                                  </div>
+                                  <p
+                                    className="text-[11px] sm:text-xs text-gray-400 font-mono tracking-wide mt-0.5 sm:mt-1 truncate m-0"
+                                    style={{ fontFamily: "'benzine', 'Syne', sans-serif" }}
+                                  >
+                                    {authorRole}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </SpotlightCard>
+                      );
+                    })}
+                  </div>
+
+                  {/* =========================================================================
+                    VIDEO TESTIMONIALS PAGINATION ("LOAD MORE +3")
+                   ========================================================================= */}
+                  <div className="mt-10 sm:mt-14 pt-6 sm:pt-8 border-t border-white/10 flex flex-col items-center justify-center space-y-4">
+                    {hasMoreVideos ? (
+                      <button
+                        type="button"
+                        onClick={handleLoadMoreVideos}
+                        disabled={isLoadingMoreVideos}
+                        className="group px-6 sm:px-8 py-3 sm:py-3.5 rounded-full bg-white/5 hover:bg-[#B3FFC9] text-white hover:text-black border border-white/20 hover:border-[#B3FFC9] text-xs font-bold uppercase tracking-wider transition-all duration-300 flex items-center gap-2.5 shadow-lg hover:shadow-[0_0_30px_rgba(179,255,201,0.35)] hover:scale-105 cursor-pointer disabled:opacity-50"
+                        style={{ fontFamily: "'Syne', sans-serif" }}
+                      >
+                        {isLoadingMoreVideos ? (
+                          <>
+                            <Loader2 size={16} className="animate-spin text-black" />
+                            <span>Loading Video Stories...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Plus size={16} className="text-[#B3FFC9] group-hover:text-black group-hover:rotate-90 transition-transform duration-300" />
+                            <span>See More</span>
+                          </>
+                        )}
+                      </button>
+                    ) : (
+                      videoTestimonials.length > 3 && (
+                        <span className="px-4 py-1.5 rounded-full bg-[#B3FFC9]/10 border border-[#B3FFC9]/20 text-xs font-mono text-[#B3FFC9] flex items-center gap-1.5">
+                          <CheckCircle2 size={13} /> All {videoTestimonials.length} Video Stories Loaded
+                        </span>
+                      )
+                    )}
+                  </div>
+                </section>
+              )}
+
+              {/* WRITTEN CLIENT PRAISE GRID WITH 3D SPOTLIGHT CARDS */}
+              {writtenTestimonials.length > 0 && (
+                <section className="py-8 sm:py-14 max-w-[1400px] mx-auto px-4 sm:px-8 lg:px-14">
+                  <div className="mb-6 sm:mb-10 text-left">
+                    <span className="text-[10px] sm:text-xs font-mono tracking-widest text-[#B3FFC9] uppercase font-semibold block mb-1.5 sm:mb-2">
+                      IN-DEPTH PERSPECTIVES
+                    </span>
+                    <h2
+                      className="text-xl sm:text-3xl md:text-4xl font-extrabold text-white m-0"
+                      style={{ fontFamily: "'Syne', sans-serif" }}
+                    >
+                      More Stories from High-Growth Creators
+                    </h2>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                    {displayedTexts.map((item, idx) => {
+                      const authorName = item.name || item.clientName || "Client";
+                      const authorRole = item.role || item.clientRole || "";
+                      const quoteText = item.quote || item.testimonial || "";
+                      const avatarSrc = item.avatar || item.clientImage || avatarMarc;
+
+                      return (
+                        <SpotlightCard
+                          key={item._id || item.id || idx}
+                          className="p-4 sm:p-6 md:p-8 flex flex-col justify-between space-y-5"
+                        >
+                          <div className="space-y-3.5">
+                            <div className="flex items-center justify-between">
+                              <div className="flex text-[#B3FFC9]">
+                                {[...Array(5)].map((_, sIdx) => (
+                                  <Star key={sIdx} size={13} className="fill-[#B3FFC9]" />
+                                ))}
+                              </div>
+                              {item.metric && (
+                                <span className="text-[9px] sm:text-[10px] font-mono text-[#B3FFC9] bg-[#B3FFC9]/10 border border-[#B3FFC9]/20 px-2 sm:px-2.5 py-0.5 rounded-full font-bold">
+                                  {item.metric}
+                                </span>
+                              )}
                             </div>
 
                             <p
-                              className="text-gray-200 text-xs sm:text-sm md:text-base leading-relaxed whitespace-pre-line m-0"
-                              style={{
-                                fontFamily: "'benzine', sans-serif",
-                                fontSize: "clamp(13px, 1.1vw, 16px)",
-                                fontWeight: 300,
-                                lineHeight: 1.7,
-                                color: "rgba(255, 255, 255, 0.9)",
-                              }}
+                              className="text-white/85 text-xs sm:text-sm leading-relaxed m-0"
+                              style={{ fontFamily: "'Inter', sans-serif" }}
                             >
                               "{quoteText}"
                             </p>
+                          </div>
 
-                            <div className="flex items-center gap-3 sm:gap-4 pt-4 sm:pt-5 border-t border-white/10">
-                              <img
-                                src={avatarSrc}
-                                alt={authorName}
-                                className="w-11 h-11 sm:w-14 sm:h-14 rounded-full object-cover border border-white/15 bg-white/5 p-0.5 shadow-md shrink-0"
-                                onError={(e) => {
-                                  e.target.src = avatarMarc;
-                                }}
-                              />
-                              <div className="min-w-0">
-                                <div className="flex items-center gap-1.5 sm:gap-2">
-                                  <h4
-                                    className="text-sm sm:text-base md:text-lg font-bold text-white tracking-wide truncate m-0"
-                                    style={{ fontFamily: "'Syne', sans-serif" }}
-                                  >
-                                    {authorName}
-                                  </h4>
-                                  <span className="inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-mono text-[#B3FFC9] bg-[#B3FFC9]/10 px-2 py-0.5 rounded-full shrink-0">
-                                    <CheckCircle2 size={10} /> Verified
-                                  </span>
-                                </div>
-                                <p
-                                  className="text-[11px] sm:text-xs text-gray-400 font-mono tracking-wide mt-0.5 sm:mt-1 truncate m-0"
-                                  style={{ fontFamily: "'benzine', 'Syne', sans-serif" }}
+                          <div className="flex items-center gap-3 pt-3.5 sm:pt-4 border-t border-white/10">
+                            <img
+                              src={avatarSrc}
+                              alt={authorName}
+                              className="w-10 h-10 sm:w-11 sm:h-11 rounded-full object-cover border border-white/15 bg-white/5 shrink-0"
+                              onError={(e) => {
+                                e.target.src = avatarMarc;
+                              }}
+                            />
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-1.5">
+                                <h4
+                                  className="text-xs sm:text-sm font-bold text-white truncate m-0"
+                                  style={{ fontFamily: "'Syne', sans-serif" }}
                                 >
-                                  {authorRole}
-                                </p>
+                                  {authorName}
+                                </h4>
+                                <CheckCircle2 size={11} className="text-[#B3FFC9] shrink-0" />
                               </div>
+                              <p className="text-[10px] sm:text-[11px] text-white/50 font-mono truncate m-0">
+                                {authorRole}
+                              </p>
                             </div>
                           </div>
-                        </div>
-                      </SpotlightCard>
-                    );
-                  })}
-                </div>
-
-                {/* =========================================================================
-                    VIDEO TESTIMONIALS PAGINATION ("LOAD MORE +3")
-                   ========================================================================= */}
-                <div className="mt-10 sm:mt-14 pt-6 sm:pt-8 border-t border-white/10 flex flex-col items-center justify-center space-y-4">
-                  {hasMoreVideos ? (
-                    <button
-                      type="button"
-                      onClick={handleLoadMoreVideos}
-                      disabled={isLoadingMoreVideos}
-                      className="group px-6 sm:px-8 py-3 sm:py-3.5 rounded-full bg-white/5 hover:bg-[#B3FFC9] text-white hover:text-black border border-white/20 hover:border-[#B3FFC9] text-xs font-bold uppercase tracking-wider transition-all duration-300 flex items-center gap-2.5 shadow-lg hover:shadow-[0_0_30px_rgba(179,255,201,0.35)] hover:scale-105 cursor-pointer disabled:opacity-50"
-                      style={{ fontFamily: "'Syne', sans-serif" }}
-                    >
-                      {isLoadingMoreVideos ? (
-                        <>
-                          <Loader2 size={16} className="animate-spin text-black" />
-                          <span>Loading Video Stories...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Plus size={16} className="text-[#B3FFC9] group-hover:text-black group-hover:rotate-90 transition-transform duration-300" />
-                          <span>See More</span>
-                        </>
-                      )}
-                    </button>
-                  ) : (
-                    videoTestimonials.length > 3 && (
-                      <span className="px-4 py-1.5 rounded-full bg-[#B3FFC9]/10 border border-[#B3FFC9]/20 text-xs font-mono text-[#B3FFC9] flex items-center gap-1.5">
-                        <CheckCircle2 size={13} /> All {videoTestimonials.length} Video Stories Loaded
-                      </span>
-                    )
-                  )}
-                </div>
-              </section>
-            )}
-
-            {/* WRITTEN CLIENT PRAISE GRID WITH 3D SPOTLIGHT CARDS */}
-            {writtenTestimonials.length > 0 && (
-              <section className="py-8 sm:py-14 max-w-[1400px] mx-auto px-4 sm:px-8 lg:px-14">
-                <div className="mb-6 sm:mb-10 text-left">
-                  <span className="text-[10px] sm:text-xs font-mono tracking-widest text-[#B3FFC9] uppercase font-semibold block mb-1.5 sm:mb-2">
-                    IN-DEPTH PERSPECTIVES
-                  </span>
-                  <h2
-                    className="text-xl sm:text-3xl md:text-4xl font-extrabold text-white m-0"
-                    style={{ fontFamily: "'Syne', sans-serif" }}
-                  >
-                    More Stories from High-Growth Creators
-                  </h2>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                  {displayedTexts.map((item, idx) => {
-                    const authorName = item.name || item.clientName || "Client";
-                    const authorRole = item.role || item.clientRole || "";
-                    const quoteText = item.quote || item.testimonial || "";
-                    const avatarSrc = item.avatar || item.clientImage || avatarMarc;
-
-                    return (
-                      <SpotlightCard
-                        key={item._id || item.id || idx}
-                        className="p-4 sm:p-6 md:p-8 flex flex-col justify-between space-y-5"
-                      >
-                        <div className="space-y-3.5">
-                          <div className="flex items-center justify-between">
-                            <div className="flex text-[#B3FFC9]">
-                              {[...Array(5)].map((_, sIdx) => (
-                                <Star key={sIdx} size={13} className="fill-[#B3FFC9]" />
-                              ))}
-                            </div>
-                            {item.metric && (
-                              <span className="text-[9px] sm:text-[10px] font-mono text-[#B3FFC9] bg-[#B3FFC9]/10 border border-[#B3FFC9]/20 px-2 sm:px-2.5 py-0.5 rounded-full font-bold">
-                                {item.metric}
-                              </span>
-                            )}
-                          </div>
-
-                          <p
-                            className="text-white/85 text-xs sm:text-sm leading-relaxed m-0"
-                            style={{ fontFamily: "'Inter', sans-serif" }}
-                          >
-                            "{quoteText}"
-                          </p>
-                        </div>
-
-                        <div className="flex items-center gap-3 pt-3.5 sm:pt-4 border-t border-white/10">
-                          <img
-                            src={avatarSrc}
-                            alt={authorName}
-                            className="w-10 h-10 sm:w-11 sm:h-11 rounded-full object-cover border border-white/15 bg-white/5 shrink-0"
-                            onError={(e) => {
-                              e.target.src = avatarMarc;
-                            }}
-                          />
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-1.5">
-                              <h4
-                                className="text-xs sm:text-sm font-bold text-white truncate m-0"
-                                style={{ fontFamily: "'Syne', sans-serif" }}
-                              >
-                                {authorName}
-                              </h4>
-                              <CheckCircle2 size={11} className="text-[#B3FFC9] shrink-0" />
-                            </div>
-                            <p className="text-[10px] sm:text-[11px] text-white/50 font-mono truncate m-0">
-                              {authorRole}
-                            </p>
-                          </div>
-                        </div>
-                      </SpotlightCard>
-                    );
-                  })}
-                </div>
-
-                {/* =========================================================================
-                    TEXT TESTIMONIALS PAGINATION ("LOAD MORE +3")
-                   ========================================================================= */}
-                <div className="mt-10 sm:mt-14 pt-6 sm:pt-8 border-t border-white/10 flex flex-col items-center justify-center space-y-4">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-mono text-white/50">
-                      Showing <strong className="text-[#B3FFC9]">{displayedTexts.length}</strong> of <strong className="text-white">{writtenTestimonials.length}</strong> Written Reviews
-                    </span>
+                        </SpotlightCard>
+                      );
+                    })}
                   </div>
 
-                  {hasMoreTexts ? (
-                    <button
-                      type="button"
-                      onClick={handleLoadMoreTexts}
-                      disabled={isLoadingMoreTexts}
-                      className="group px-6 sm:px-8 py-3 sm:py-3.5 rounded-full bg-white/5 hover:bg-[#B3FFC9] text-white hover:text-black border border-white/20 hover:border-[#B3FFC9] text-xs font-bold uppercase tracking-wider transition-all duration-300 flex items-center gap-2.5 shadow-lg hover:shadow-[0_0_30px_rgba(179,255,201,0.35)] hover:scale-105 cursor-pointer disabled:opacity-50"
-                      style={{ fontFamily: "'Syne', sans-serif" }}
-                    >
-                      {isLoadingMoreTexts ? (
-                        <>
-                          <Loader2 size={16} className="animate-spin text-black" />
-                          <span>Loading Text Reviews...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Plus size={16} className="text-[#B3FFC9] group-hover:text-black group-hover:rotate-90 transition-transform duration-300" />
-                          <span>Load More Text Testimonials (+3)</span>
-                        </>
-                      )}
-                    </button>
-                  ) : (
-                    writtenTestimonials.length > 3 && (
-                      <span className="px-4 py-1.5 rounded-full bg-[#B3FFC9]/10 border border-[#B3FFC9]/20 text-xs font-mono text-[#B3FFC9] flex items-center gap-1.5">
-                        <CheckCircle2 size={13} /> All {writtenTestimonials.length} Text Reviews Loaded
+                  {/* =========================================================================
+                    TEXT TESTIMONIALS PAGINATION ("LOAD MORE +3")
+                   ========================================================================= */}
+                  <div className="mt-10 sm:mt-14 pt-6 sm:pt-8 border-t border-white/10 flex flex-col items-center justify-center space-y-4">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-mono text-white/50">
+                        Showing <strong className="text-[#B3FFC9]">{displayedTexts.length}</strong> of <strong className="text-white">{writtenTestimonials.length}</strong> Written Reviews
                       </span>
-                    )
-                  )}
-                </div>
-              </section>
-            )}
-          </motion.div>
-        </AnimatePresence>
-      )}
+                    </div>
+
+                    {hasMoreTexts ? (
+                      <button
+                        type="button"
+                        onClick={handleLoadMoreTexts}
+                        disabled={isLoadingMoreTexts}
+                        className="group px-6 sm:px-8 py-3 sm:py-3.5 rounded-full bg-white/5 hover:bg-[#B3FFC9] text-white hover:text-black border border-white/20 hover:border-[#B3FFC9] text-xs font-bold uppercase tracking-wider transition-all duration-300 flex items-center gap-2.5 shadow-lg hover:shadow-[0_0_30px_rgba(179,255,201,0.35)] hover:scale-105 cursor-pointer disabled:opacity-50"
+                        style={{ fontFamily: "'Syne', sans-serif" }}
+                      >
+                        {isLoadingMoreTexts ? (
+                          <>
+                            <Loader2 size={16} className="animate-spin text-black" />
+                            <span>Loading Text Reviews...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Plus size={16} className="text-[#B3FFC9] group-hover:text-black group-hover:rotate-90 transition-transform duration-300" />
+                            <span>Load More Text Testimonials (+3)</span>
+                          </>
+                        )}
+                      </button>
+                    ) : (
+                      writtenTestimonials.length > 3 && (
+                        <span className="px-4 py-1.5 rounded-full bg-[#B3FFC9]/10 border border-[#B3FFC9]/20 text-xs font-mono text-[#B3FFC9] flex items-center gap-1.5">
+                          <CheckCircle2 size={13} /> All {writtenTestimonials.length} Text Reviews Loaded
+                        </span>
+                      )
+                    )}
+                  </div>
+                </section>
+              )}
+            </motion.div>
+          </AnimatePresence>
+        )}
 
         {/* =========================================================================
             BOTTOM CALL-TO-ACTION SECTION WITH SLEEK GLOW

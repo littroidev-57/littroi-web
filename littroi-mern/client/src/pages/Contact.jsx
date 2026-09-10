@@ -332,7 +332,7 @@ export function Contact() {
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-2">
                   <div className="p-4 rounded-xl bg-white/[0.03] border border-white/5 hover:border-[#B3FFC9]/30 transition-all duration-300">
                     <p className="text-xl sm:text-2xl font-black text-[#B3FFC9] m-0" style={{ fontFamily: "'Syne', sans-serif" }}>
-                      <CountUpNumber value="50M+" duration={2.2} delay={0.1} />
+                      <CountUpNumber value="100M+" duration={2.2} delay={0.1} />
                     </p>
                     <p className="text-xs text-white/60 m-0 mt-1">Views Generated</p>
                   </div>
@@ -573,44 +573,6 @@ export function Contact() {
               </div>
             </div>
 
-            {/* Phone / WhatsApp Card */}
-            <div className="p-6 sm:p-8 rounded-2xl bg-white/[0.02] border border-white/10 flex flex-col justify-between space-y-6">
-              <div className="space-y-3">
-                <div className="w-10 h-10 rounded-xl bg-[#B3FFC9]/10 border border-[#B3FFC9]/20 flex items-center justify-center text-[#B3FFC9]">
-                  <Phone size={20} />
-                </div>
-                <h4 className="text-lg font-bold text-white m-0" style={{ fontFamily: "'Syne', sans-serif" }}>
-                  Phone &amp; WhatsApp
-                </h4>
-                <p className="text-xs text-white/50 m-0">
-                  Available Mon–Sat for rapid voice or text inquiries.
-                </p>
-                <p className="text-sm font-semibold text-white pt-1 m-0">
-                  {SITE_CONFIG.phone}
-                </p>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <a
-                  href={`https://wa.me/917248772464?text=Hi%20Littroi%20team,%20I'd%20like%20to%20inquire%20about%20video%20production.`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 py-2.5 px-4 rounded-xl bg-[#25D366] text-white text-xs font-bold hover:bg-[#20ba59] transition-all text-center flex items-center justify-center gap-1.5 shadow-md"
-                  style={{ fontFamily: "'Syne', sans-serif" }}
-                >
-                  <MessageSquare size={14} />
-                  <span>Chat on WhatsApp</span>
-                </a>
-                <a
-                  href={`tel:${SITE_CONFIG.phone}`}
-                  className="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-white transition-colors flex items-center justify-center"
-                  title="Direct phone call"
-                  aria-label="Direct phone call"
-                >
-                  <Phone size={16} />
-                </a>
-              </div>
-            </div>
 
             {/* Studio Headquarters Card */}
             <div className="p-6 sm:p-8 rounded-2xl bg-white/[0.02] border border-white/10 flex flex-col justify-between space-y-6">
@@ -629,11 +591,6 @@ export function Contact() {
                 </p>
               </div>
 
-              <div className="pt-2">
-                <span className="text-xs font-mono text-[#B3FFC9] flex items-center gap-1.5">
-                  <Clock size={14} /> Production Hours: 9:30 AM – 5:30 PM IST
-                </span>
-              </div>
             </div>
           </div>
         </section>

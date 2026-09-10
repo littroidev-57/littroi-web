@@ -73,14 +73,38 @@ export function Blog() {
     loadPosts();
   }, []);
 
-  const categories = [
-    { key: "all", label: "ALL" },
-    { key: "Performance Marketing", label: "PERFORMANCE MARKETING" },
-    { key: "Video Strategy", label: "VIDEO STRATEGY" },
-    { key: "CRO", label: "CRO" },
-    { key: "Marketing", label: "MARKETING" },
-    { key: "SEO", label: "SEO" }
-  ];
+  // Dynamically extract only categories that exist in uploaded posts from the DB
+  const categories = useMemo(() => {
+    const list = [{ key: "all", label: "ALL" }];
+    const seen = new Set();
+
+    posts.forEach((p) => {
+      const rawCat = (p.category || "").trim();
+      if (!rawCat) return;
+      const lower = rawCat.toLowerCase();
+      if (!seen.has(lower)) {
+        seen.add(lower);
+        list.push({
+          key: lower,
+          label: rawCat.toUpperCase(),
+        });
+      }
+    });
+
+    return list;
+  }, [posts]);
+
+  // Reset category to "all" if the selected category is no longer present in DB posts
+  useEffect(() => {
+    if (
+      selectedCategory !== "all" &&
+      !categories.some(
+        (c) => c.key === selectedCategory || c.key.toLowerCase() === selectedCategory.toLowerCase()
+      )
+    ) {
+      setSelectedCategory("all");
+    }
+  }, [categories, selectedCategory]);
 
   // Calculate total views across all posts
   const totalViewsCount = useMemo(() => {
@@ -90,21 +114,17 @@ export function Blog() {
   // Filter & Sort Posts
   const filteredAndSortedPosts = useMemo(() => {
     let result = posts.filter((p) => {
+      const postCat = (p.category || "").trim().toLowerCase();
       const matchCat =
         selectedCategory === "all" ||
-        p.category?.toLowerCase() === selectedCategory.toLowerCase() ||
-        (selectedCategory === "Performance Marketing" && p.category?.toLowerCase().includes("performance")) ||
-        (selectedCategory === "Video Strategy" && (p.category?.toLowerCase().includes("video") || p.category?.toLowerCase().includes("podcast"))) ||
-        (selectedCategory === "CRO" && p.category?.toLowerCase().includes("cro")) ||
-        (selectedCategory === "Marketing" && p.category?.toLowerCase().includes("market")) ||
-        (selectedCategory === "SEO" && p.category?.toLowerCase().includes("seo"));
+        postCat === selectedCategory.toLowerCase();
 
       const matchSearch =
         !searchQuery.trim() ||
         p.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         p.excerpt?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         p.category?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (Array.isArray(p.tags) && p.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase())));
+        (Array.isArray(p.tags) && p.tags.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase())));
 
       return matchCat && matchSearch;
     });
@@ -142,37 +162,20 @@ export function Blog() {
         {/* ==================== PAGE HEADER HERO ==================== */}
         <section className="pt-32 sm:pt-40 pb-14 px-6 sm:px-10 lg:px-16 max-w-[1400px] w-full mx-auto relative z-10">
           
-          {/* Eyebrow & Live Readers Pill */}
-          <div className="flex flex-wrap items-center justify-between gap-4 mb-6 sm:mb-8">
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          {/* Eyebrow */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="mb-6 sm:mb-8"
+          >
+            <span
+              className="text-xs sm:text-[13px] font-bold tracking-[0.16em] uppercase text-white hover:text-[#B3FFC9] transition-colors duration-300 cursor-pointer select-none inline-block"
+              style={{ fontFamily: "'Syne', sans-serif" }}
             >
-              <span
-                className="text-xs sm:text-[13px] font-bold tracking-[0.18em] uppercase text-white/80 hover:text-[#B3FFC9] transition-colors duration-300 inline-flex items-center gap-2"
-                style={{ fontFamily: "'Syne', sans-serif" }}
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-[#B3FFC9] shadow-[0_0_8px_#B3FFC9]" />
-                LITTROI EDITORIAL &amp; INSIGHTS
-              </span>
-            </motion.div>
-
-            {/* Live Aggregate Read Counter Pill */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.15 }}
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 backdrop-blur-md text-[11px] font-mono text-white/60 shadow-lg"
-            >
-              <Eye size={13} className="text-[#B3FFC9]" />
-              <span>
-                <strong className="text-white font-bold">{formatViews(totalViewsCount)}</strong> Total Reads
-              </span>
-              <span className="w-1 h-1 rounded-full bg-white/30" />
-              <span>{posts.length} Articles</span>
-            </motion.div>
-          </div>
+              — BLOG
+            </span>
+          </motion.div>
 
           {/* Title and Subtitle Row */}
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 sm:gap-12">

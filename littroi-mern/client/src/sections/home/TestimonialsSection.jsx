@@ -102,60 +102,56 @@ export function TestimonialsSection() {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-[#B3FFC9]/[0.025] rounded-full blur-[140px] pointer-events-none" />
 
       <div className="max-w-[1400px] w-full mx-auto px-6 sm:px-10 lg:px-14 relative z-10">
-        {/* Header: Hear it directly from Our Clients */}
-        <div className="text-center max-w-4xl mx-auto mb-16 sm:mb-24 space-y-5">
-          {/* Eyebrow Tag */}
-
-
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-60px" }}
-            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <h2
-              className="elementor-heading-title elementor-size-default m-0 text-white sm:whitespace-nowrap"
-              style={{
-                fontFamily: "'Syne', sans-serif",
-                fontSize: "clamp(20px, 2.5vw, 38px)",
-                fontWeight: 800,
-                lineHeight: 1.2,
-                letterSpacing: "-0.02em",
-              }}
+        {/* Header: Client Testimonials */}
+        <div className="w-full mx-auto mb-12 sm:mb-16">
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 sm:gap-8">
+            <motion.div
+              initial={{ opacity: 0, x: -80 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
             >
-              Hear it directly from{" "}
-              <span style={{ color: "#B3FFC9" }}>Our Clients</span>
-            </h2>
-          </motion.div>
+              <h2
+                className="elementor-heading-title elementor-size-default m-0 text-white"
+                style={{
+                  fontFamily: "'Syne', sans-serif",
+                  fontSize: "clamp(30px, 3.8vw, 46px)",
+                  fontWeight: 800,
+                  lineHeight: 1.1,
+                  letterSpacing: "-0.01em",
+                }}
+              >
+                Client <span style={{ color: "#B3FFC9" }}>Testimonials</span>
+              </h2>
+            </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 25 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-60px" }}
-            transition={{ duration: 1.2, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <p
-              className="elementor-heading-title elementor-size-default text-gray-300 max-w-4xl mx-auto text-center"
-              style={{
-                fontFamily: "'benzine', 'Syne', sans-serif",
-                fontSize: "clamp(13px, 1.05vw, 15.5px)",
-                fontWeight: 300,
-                lineHeight: 1.6,
-                color: "rgba(255, 255, 255, 0.72)",
-              }}
-            >
-              <span className="block sm:whitespace-nowrap">
-                Real feedback from brands and creators we've worked with. From content to design,
-              </span>
-              <span className="block sm:whitespace-nowrap ">
-                our work is built to help people stand out, grow faster and create impact online.
-              </span>
-            </p>
-          </motion.div>
-
-          {/* Top See More CTA with magnetic transition */}
-
+            <div className="max-w-[700px]">
+              <motion.div
+                initial={{ opacity: 0, x: 50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 1.4, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <p
+                  className="m-0 lg:text-left"
+                  style={{
+                    fontFamily: "'benzine', sans-serif",
+                    fontSize: "clamp(12.5px, 1.05vw, 14px)",
+                    fontWeight: 200,
+                    lineHeight: 1.65,
+                    color: "rgba(255, 255, 255, 0.58)",
+                    letterSpacing: "0.015em",
+                  }}
+                >
+                  Real feedback from brands and creators who trust Littroi to scale.<br className="hidden md:inline" />
+                  Our work is built to help ambitious teams stand out and create genuine impact.
+                </p>
+              </motion.div>
+            </div>
+          </div>
         </div>
+
+        {/* Top See More CTA with magnetic transition */}
 
         {/* Dynamic Testimonials List */}
         {isLoading ? (

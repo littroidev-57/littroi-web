@@ -6,7 +6,7 @@ export const jobs = [
     location: "Remote (Global)",
     employmentType: "Full-time",
     experience: "3+ Years",
-    salary: "$60,000 - $85,000 / year",
+    salary: "₹8,00,000 - ₹14,00,000 / year",
     overview: "We're looking for a world-class YouTube & Long-Form Video Editor with an instinctive grasp of retention storytelling, pacing, sound engineering, and creative direction.",
     responsibilities: [
       "Edit high-retention long-form YouTube videos, documentaries, and masterclasses from start to finish",
@@ -29,7 +29,7 @@ export const jobs = [
     location: "Remote (Global)",
     employmentType: "Full-time",
     experience: "3+ Years",
-    salary: "$70,000 - $95,000 / year",
+    salary: "₹10,00,000 - ₹18,00,000 / year",
     overview: "Join our core creative unit to direct and animate cinematic 3D product renders, abstract technological visualizations, and kinetic typography for high-growth tech brands.",
     responsibilities: [
       "Produce photorealistic 3D product animations and digital environments",
@@ -52,7 +52,7 @@ export const jobs = [
     location: "Remote (Global)",
     employmentType: "Full-time / Contract",
     experience: "2+ Years",
-    salary: "$45,000 - $65,000 / year",
+    salary: "₹5,00,000 - ₹9,00,000 / year",
     overview: "We need an algorithmic storyteller obsessed with hook psychology, kinetic subtitles, meme culture, and visual metaphor pacing for TikTok, Instagram Reels, and YouTube Shorts.",
     responsibilities: [
       "Transform raw podcast episodes and talking head videos into viral vertical clips",
@@ -75,7 +75,7 @@ export const jobs = [
     location: "Remote (Global)",
     employmentType: "Part-time / Contract",
     experience: "4+ Years",
-    salary: "$50,000 - $75,000 / year (pro-rata)",
+    salary: "₹6,00,000 - ₹11,00,000 / year (pro-rata)",
     overview: "Help shape the core narrative, positioning, video scripting, and messaging frameworks for innovative tech companies and visionary founders.",
     responsibilities: [
       "Write high-converting video scripts for product launches and brand manifestos",

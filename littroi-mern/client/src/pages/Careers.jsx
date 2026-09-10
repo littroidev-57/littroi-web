@@ -145,6 +145,17 @@ const CORE_VALUES = [
   }
 ];
 
+const formatSalaryInRupees = (salary) => {
+  if (!salary) return " Competitive";
+  const str = String(salary).trim();
+  if (str.toLowerCase() === "competitive") return " Competitive";
+  if (str.includes("₹") || str.includes("INR") || str.includes("Rs")) return str;
+  if (str.includes("$")) {
+    return str.replace(/\$/g, "₹");
+  }
+  return `₹${str}`;
+};
+
 export function Careers() {
   const [jobList, setJobList] = useState(fallbackJobs);
   const [expandedJob, setExpandedJob] = useState(fallbackJobs[0]?.id || null);
@@ -243,13 +254,13 @@ export function Careers() {
       errors.resumeUrl = "Please enter a valid web URL (e.g. https://drive.google.com/...)";
     }
 
-    // Portfolio URL validation (Optional)
-    if (trimmedPortfolio) {
-      if (!/^https?:\/\//i.test(trimmedPortfolio)) {
-        errors.portfolioUrl = "URL must start with http:// or https://";
-      } else if (!urlRegex.test(trimmedPortfolio)) {
-        errors.portfolioUrl = "Please enter a valid web URL (e.g. https://vimeo.com/...)";
-      }
+    // Portfolio URL validation (Required)
+    if (!trimmedPortfolio) {
+      errors.portfolioUrl = "Portfolio / Showreel link is required";
+    } else if (!/^https?:\/\//i.test(trimmedPortfolio)) {
+      errors.portfolioUrl = "URL must start with http:// or https://";
+    } else if (!urlRegex.test(trimmedPortfolio)) {
+      errors.portfolioUrl = "Please enter a valid web URL (e.g. https://vimeo.com/...)";
     }
 
     // Cover Letter validation (Optional)
@@ -373,7 +384,7 @@ export function Careers() {
                   className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-none"
                   style={{ fontFamily: "'Syne', sans-serif" }}
                 >
-                  <CareerStatCounter value={8} suffix="+" delay={0.1} />
+                  <CareerStatCounter value={jobList.length} delay={0.1} />
                 </div>
                 <div className="text-[11px] uppercase font-mono text-white/40 tracking-wider">
                   Open roles
@@ -428,57 +439,7 @@ export function Careers() {
           </div>
         </div>
 
-        {/* ==================== CULTURE SECTION (3 COLUMNS) ==================== */}
-        <section className="border-b border-white/[0.08]">
-          <div className="max-w-[1400px] mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-white/[0.08]">
-              {CULTURE_PILLARS.map((pillar, idx) => (
-                <FadeIn key={idx} delay={0.1 * idx}>
-                  <div className="p-8 sm:p-12 lg:p-14 hover:bg-[#B3FFC9]/[0.02] transition-colors duration-300 space-y-4 h-full flex flex-col justify-between">
-                    <div>
-                      <div className="text-xs font-mono font-bold text-[#B3FFC9] tracking-wider mb-5">
-                        {pillar.num}
-                      </div>
-                      <h3
-                        className="text-lg sm:text-xl font-bold text-white tracking-tight mb-3"
-                        style={{ fontFamily: "'Syne', sans-serif" }}
-                      >
-                        {pillar.title}
-                      </h3>
-                      <p className="text-white/50 text-xs sm:text-sm leading-relaxed font-light">
-                        {pillar.text}
-                      </p>
-                    </div>
-                  </div>
-                </FadeIn>
-              ))}
-            </div>
-          </div>
-        </section>
 
-        {/* ==================== 3 CORE VALUES (ICON BOXES) ==================== */}
-        {/* <section className="py-16 sm:py-24 px-6 sm:px-10 lg:px-16 max-w-[1400px] w-full mx-auto border-b border-white/[0.08]">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {CORE_VALUES.map((val, idx) => (
-              <FadeIn key={idx} delay={0.1 * idx}>
-                <div className="p-7 rounded-3xl bg-[#0c0c0c] border border-white/10 hover:border-[#B3FFC9]/30 transition-all duration-300 space-y-4 group">
-                  <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    {val.icon}
-                  </div>
-                  <h3
-                    className="text-lg font-bold text-white group-hover:text-[#B3FFC9] transition-colors"
-                    style={{ fontFamily: "'Syne', sans-serif" }}
-                  >
-                    {val.title}
-                  </h3>
-                  <p className="text-white/50 text-xs sm:text-sm leading-relaxed">
-                    {val.description}
-                  </p>
-                </div>
-              </FadeIn>
-            ))}
-          </div>
-        </section> */}
 
         {/* ==================== OPEN JOB POSITIONS ACCORDION ==================== */}
         <section className="py-20 sm:py-28 px-6 sm:px-10 lg:px-16 max-w-[1100px] w-full mx-auto space-y-10">
@@ -516,8 +477,8 @@ export function Careers() {
                           <span className="px-3 py-1 rounded-full bg-[#161616] text-[#B3FFC9] border border-[#B3FFC9]/25 text-[10px] font-bold uppercase tracking-wider">
                             {job.department || "Post-Production"}
                           </span>
-                          <span className="text-xs font-mono text-white/60 font-semibold">
-                            {job.salary || "Competitive"}
+                          <span className="text-xs font-mono text-white/70 font-semibold inline-flex items-center gap-1 bg-white/5 px-2.5 py-0.5 rounded-full border border-white/10">
+                            {formatSalaryInRupees(job.salary)}
                           </span>
                         </div>
 
@@ -675,6 +636,14 @@ export function Careers() {
                       <span className="text-xs text-white/40 font-mono">
                         {selectedJobForApply?.type || "Full-time"}
                       </span>
+                      {selectedJobForApply?.salary && (
+                        <>
+                          <span className="text-white/20 font-mono">·</span>
+                          <span className="text-xs text-[#B3FFC9] font-mono font-medium">
+                            {formatSalaryInRupees(selectedJobForApply.salary)}
+                          </span>
+                        </>
+                      )}
                     </div>
                     <h3
                       className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight"
@@ -843,14 +812,14 @@ export function Careers() {
                     {/* Portfolio / Showreel */}
                     <div className="space-y-1.5">
                       <div className="flex items-center justify-between">
-                        <label className="text-[11px] font-bold uppercase tracking-wider text-white/70 flex items-center gap-1.5" style={{ fontFamily: "'Syne', sans-serif" }}>
-                          <span>Portfolio / Showreel URL</span>
-                          <span className="text-white/40 text-[10px] font-normal font-mono">(Optional)</span>
+                        <label className="text-[11px] font-bold uppercase tracking-wider text-white/70" style={{ fontFamily: "'Syne', sans-serif" }}>
+                          Portfolio / Showreel URL <span className="text-red-500 font-bold">*</span>
                         </label>
                         <span className="text-[10px] text-white/40 font-mono">YouTube, Vimeo, Behance, Drive</span>
                       </div>
                       <input
                         type="url"
+                        required
                         value={applicantForm.portfolioUrl}
                         onChange={(e) => {
                           setApplicantForm({ ...applicantForm, portfolioUrl: e.target.value });

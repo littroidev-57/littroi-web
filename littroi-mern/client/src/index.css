@@ -321,3 +321,161 @@
   pointer-events: none;
 }
 
+/* ── Mobile Performance & Smooth Scrolling Optimizations ── */
+@media (max-width: 768px) {
+  /* Disable heavy continuous oscillating float animations on mobile to guarantee smooth 60fps scrolling */
+  .video-card,
+  .reel,
+  .littroi-reel,
+  .littroi-reel img,
+  .fronttextt,
+  .fronttextt img {
+    animation: none !important;
+    transform: none !important;
+    will-change: auto !important;
+  }
+
+  /* Optimize horizontal carousel touch momentum */
+  .video-slider,
+  .reels-stage,
+  .littroi-reels-stage {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    overscroll-behavior-x: contain;
+  }
+}
+
+/* ── Video Player Buffering Spinner ── */
+@keyframes videoSpinner {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.video-loading-spinner {
+  border: 3px solid rgba(179, 255, 201, 0.2);
+  border-top-color: #B3FFC9;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  animation: videoSpinner 0.8s linear infinite;
+}
+
+/* ── Blog Rich Content & Article Body Typography ── */
+.blog-rich-content,
+.article-body {
+  color: rgba(255, 255, 255, 0.82);
+  line-height: 1.8;
+  word-break: break-word;
+}
+
+.blog-rich-content h2,
+.article-body h2 {
+  font-family: 'Syne', sans-serif !important;
+  font-size: clamp(24px, 2.8vw, 34px) !important;
+  font-weight: 800 !important;
+  color: #FFFFFF !important;
+  margin-top: 2rem !important;
+  margin-bottom: 0.85rem !important;
+  line-height: 1.25 !important;
+  letter-spacing: -0.02em !important;
+}
+
+.blog-rich-content h3,
+.article-body h3 {
+  font-family: 'Syne', sans-serif !important;
+  font-size: clamp(19px, 2vw, 24px) !important;
+  font-weight: 700 !important;
+  color: #B3FFC9 !important;
+  margin-top: 1.6rem !important;
+  margin-bottom: 0.65rem !important;
+  line-height: 1.3 !important;
+  letter-spacing: -0.01em !important;
+}
+
+.blog-rich-content p,
+.article-body p {
+  font-size: clamp(15px, 1.1vw, 17px) !important;
+  line-height: 1.8 !important;
+  color: rgba(255, 255, 255, 0.82) !important;
+  margin-top: 0 !important;
+  margin-bottom: 1.25rem !important;
+}
+
+.blog-rich-content ul,
+.article-body ul {
+  list-style-type: disc !important;
+  padding-left: 1.5rem !important;
+  margin-top: 0.75rem !important;
+  margin-bottom: 1.25rem !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.blog-rich-content ol,
+.article-body ol {
+  list-style-type: decimal !important;
+  padding-left: 1.5rem !important;
+  margin-top: 0.75rem !important;
+  margin-bottom: 1.25rem !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.blog-rich-content li,
+.article-body li {
+  margin-bottom: 0.45rem !important;
+  line-height: 1.7 !important;
+  color: rgba(255, 255, 255, 0.82) !important;
+}
+
+.blog-rich-content blockquote,
+.article-body blockquote {
+  border-left: 3px solid #B3FFC9 !important;
+  padding: 0.85rem 1.25rem !important;
+  margin: 1.5rem 0 !important;
+  background: rgba(179, 255, 201, 0.04) !important;
+  border-radius: 0 14px 14px 0 !important;
+  font-style: italic !important;
+  color: #FFFFFF !important;
+}
+
+.blog-rich-content blockquote p,
+.article-body blockquote p {
+  margin-bottom: 0 !important;
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
+.blog-rich-content a,
+.article-body a {
+  color: #B3FFC9 !important;
+  text-decoration: underline !important;
+  text-underline-offset: 4px !important;
+  transition: opacity 0.2s ease !important;
+}
+
+.blog-rich-content a:hover,
+.article-body a:hover {
+  opacity: 0.8 !important;
+}
+
+.blog-rich-content strong,
+.article-body strong {
+  color: #FFFFFF !important;
+  font-weight: 700 !important;
+}
+
+.blog-rich-content hr,
+.article-body hr {
+  border: 0 !important;
+  height: 1px !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  margin: 2rem 0 !important;
+}
+
+.blog-rich-content[contenteditable]:empty:before {
+  content: attr(data-placeholder);
+  color: rgba(255, 255, 255, 0.25);
+  pointer-events: none;
+  display: block;
+}
+
+
+

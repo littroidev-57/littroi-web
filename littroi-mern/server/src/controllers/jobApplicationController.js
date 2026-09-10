@@ -63,8 +63,13 @@ export const submitApplication = async (req, res, next) => {
       });
     }
 
-    // Portfolio URL (optional)
-    if (trimmedPortfolio && !urlRegex.test(trimmedPortfolio)) {
+    // Portfolio URL (required)
+    if (!trimmedPortfolio) {
+      return res.status(400).json({
+        success: false,
+        message: "Portfolio / Showreel URL is required."
+      });
+    } else if (!urlRegex.test(trimmedPortfolio)) {
       return res.status(400).json({
         success: false,
         message: "Portfolio URL must start with http:// or https:// (e.g. https://vimeo.com/...)."
