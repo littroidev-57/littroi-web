@@ -182,7 +182,7 @@ export function BlogPost() {
       .join("")
       .toUpperCase()
     : "VM";
-  const coverImg = post.featuredImage || post.coverImage || "https://littroi.com/wp-content/uploads/2026/07/Screenshot-2026-07-15-at-6.22.21-PM.png";
+  const coverImg = post.featuredImage || post.coverImage;
   const tagsList = Array.isArray(post.tags) ? post.tags : (post.tags ? post.tags.split(",").map(t => t.trim()) : ["Strategy", "Video", "Retention"]);
   const catStyle = getCategoryColor(post.category);
 
@@ -372,7 +372,7 @@ export function BlogPost() {
                   >
                     <div className="aspect-[16/10] rounded-xl overflow-hidden bg-[#161616] relative">
                       <img
-                        src={rPost.featuredImage || rPost.coverImage || "https://littroi.com/wp-content/uploads/2026/07/Screenshot-2026-07-15-at-6.22.21-PM.png"}
+                        src={rPost.featuredImage || rPost.coverImage}
                         alt={rPost.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />

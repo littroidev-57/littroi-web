@@ -21,7 +21,8 @@ export const getProjects = async (req, res, next) => {
     }
 
     const total = await Project.countDocuments(filter);
-    let query = Project.find(filter).sort({ createdAt: -1, order: 1 });
+    const sortOptions = req.query.sort === "latest" ? { createdAt: -1 } : { order: 1, createdAt: -1 };
+    let query = Project.find(filter).sort(sortOptions);
 
     if (page && limit) {
       const pageNum = Math.max(1, parseInt(page, 10) || 1);

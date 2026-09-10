@@ -64,8 +64,10 @@ function MarqueeGroup({ logos, isReverse = false }) {
               <img
                 src={logo.src}
                 alt={logo.alt}
-                loading="lazy"
-                decoding="async"
+                width="104"
+                height="104"
+                loading="eager"
+                decoding="sync"
                 draggable={false}
               />
             </div>

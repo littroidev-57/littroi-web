@@ -161,7 +161,7 @@ export function Blog() {
 
         {/* ==================== PAGE HEADER HERO ==================== */}
         <section className="pt-32 sm:pt-40 pb-14 px-6 sm:px-10 lg:px-16 max-w-[1400px] w-full mx-auto relative z-10">
-          
+
           {/* Eyebrow */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -252,11 +252,10 @@ export function Blog() {
                   <button
                     key={cat.key}
                     onClick={() => setSelectedCategory(cat.key)}
-                    className={`relative px-4 sm:px-5 py-2 rounded-full text-xs font-bold tracking-wider transition-all duration-300 cursor-pointer ${
-                      isActive
+                    className={`relative px-4 sm:px-5 py-2 rounded-full text-xs font-bold tracking-wider transition-all duration-300 cursor-pointer ${isActive
                         ? "bg-[#132c1e] text-[#B3FFC9] border border-[#B3FFC9]/60 shadow-[0_0_25px_rgba(179,255,201,0.25)]"
                         : "bg-[#0f0f0f] text-white/60 border border-white/10 hover:text-white hover:border-white/25 hover:bg-white/[0.04]"
-                    }`}
+                      }`}
                     style={{ fontFamily: "'Syne', sans-serif" }}
                   >
                     {cat.label}
@@ -372,8 +371,7 @@ export function Blog() {
                         <img
                           src={
                             featuredPost.featuredImage ||
-                            featuredPost.coverImage ||
-                            "https://littroi.com/wp-content/uploads/2026/07/Screenshot-2026-07-15-at-6.22.21-PM.png"
+                            featuredPost.coverImage
                           }
                           alt={featuredPost.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
@@ -393,7 +391,7 @@ export function Blog() {
                       {/* Right Body Content (7 cols) */}
                       <div className="lg:col-span-7 flex flex-col justify-between h-full space-y-6">
                         <div className="space-y-4">
-                          
+
                           {/* Tags & Views Row */}
                           <div className="flex flex-wrap items-center gap-2.5">
                             {(() => {
@@ -470,8 +468,7 @@ export function Blog() {
                     const articleSlug = post.slug || post.id || post._id;
                     const coverImage =
                       post.featuredImage ||
-                      post.coverImage ||
-                      "https://littroi.com/wp-content/uploads/2026/07/Screenshot-2026-07-15-at-6.22.21-PM.png";
+                      post.coverImage;
                     const catStyle = getCategoryColor(post.category);
 
                     return (
@@ -490,7 +487,7 @@ export function Blog() {
                                 loading="lazy"
                               />
                               <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-                              
+
                               {/* Category Tag on Image */}
                               <div className="absolute top-3 left-3">
                                 <span

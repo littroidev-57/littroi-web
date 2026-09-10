@@ -9,7 +9,7 @@ export const SITE_CONFIG = {
   phone: "+91 72487 72464",
   address: "DD Puram, Bareilly, Uttar Pradesh, India — 243001",
   location: "Bareilly, UP, India",
-  showreelUrl: "https://littroi.com/wp-content/uploads/2026/06/vidssave.com-Littroi-Showreel-720P.mp4",
+  showreelUrl: "https://res.cloudinary.com/eikgki2a/video/upload/v1789036180/vidssave.com-Littroi-Showreel-720P.mp4",
   socials: {
     instagram: "https://www.instagram.com/littroi/",
     facebook: "https://www.facebook.com/people/Littroius/61572722251178/",

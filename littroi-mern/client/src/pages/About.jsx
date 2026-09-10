@@ -236,14 +236,14 @@ function CtaBuildHeading() {
               hoveredLine === 2
                 ? "#B3FFC9"
                 : isBlockHovered
-                ? "#ffffff"
-                : "rgba(255, 255, 255, 0.4)",
+                  ? "#ffffff"
+                  : "rgba(255, 255, 255, 0.4)",
             textShadow:
               hoveredLine === 2
                 ? "0 0 35px rgba(179, 255, 201, 0.65), 0 0 10px rgba(179, 255, 201, 0.3)"
                 : isBlockHovered
-                ? "0 0 20px rgba(255, 255, 255, 0.35)"
-                : "none",
+                  ? "0 0 20px rgba(255, 255, 255, 0.35)"
+                  : "none",
             transform:
               hoveredLine === 2 ? "scale(1.02) translateY(-2px)" : "none",
           }}
@@ -259,14 +259,14 @@ function CtaBuildHeading() {
               hoveredLine === 3
                 ? "#B3FFC9"
                 : isBlockHovered
-                ? "#ffffff"
-                : "rgba(255, 255, 255, 0.4)",
+                  ? "#ffffff"
+                  : "rgba(255, 255, 255, 0.4)",
             textShadow:
               hoveredLine === 3
                 ? "0 0 35px rgba(179, 255, 201, 0.65), 0 0 10px rgba(179, 255, 201, 0.3)"
                 : isBlockHovered
-                ? "0 0 20px rgba(255, 255, 255, 0.35)"
-                : "none",
+                  ? "0 0 20px rgba(255, 255, 255, 0.35)"
+                  : "none",
             transform:
               hoveredLine === 3 ? "scale(1.02) translateY(-2px)" : "none",
           }}
@@ -280,10 +280,10 @@ function CtaBuildHeading() {
 
 export function About() {
   const stats = [
-    { label: "Views", value: 116, suffix: "M+", delay: 0.05 },
+    { label: "Views", value: 100, suffix: "M+", delay: 0.05 },
     { label: "Years", value: 5, suffix: "+", delay: 0.1 },
-    { label: "Channel Helped", value: 70, suffix: "+", delay: 0.15 },
-    { label: "Videos", value: 11, suffix: "K+", delay: 0.2 },
+    { label: "Channel Helped", value: 40, suffix: "+", delay: 0.15 },
+    { label: "Videos", value: 1200, suffix: "+", delay: 0.2 },
   ];
 
   const team = [

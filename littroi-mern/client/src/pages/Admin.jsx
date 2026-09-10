@@ -247,7 +247,7 @@ export function Admin() {
     try {
       const [cs, projs, tests, blogs, jobs, jobApps] = await Promise.all([
         caseStudiesAPI.getAll(),
-        projectsAPI.getAll(),
+        projectsAPI.getAll({ all: "true", sort: "latest" }),
         testimonialsAPI.getAll(true),
         blogAPI.getAll(),
         jobsAPI.getAll(),
@@ -725,8 +725,8 @@ export function Admin() {
       // Keep project screenshot gallery strictly separate from cover thumbnail
       const existingImages = Array.isArray(item.images)
         ? (item.images.length === 1 && (item.images[0] === item.thumbnail || item.images[0] === item.coverImage)
-            ? []
-            : item.images)
+          ? []
+          : item.images)
         : [];
 
       const stats = item.stats || (item.metrics ? item.metrics.map(m => ({ num: m.value, label: m.label })) : []);
@@ -927,19 +927,22 @@ export function Admin() {
 
     const payload = {
       ...projectForm,
+      order: Number(projectForm.order) || 1,
       youtubeId: yId,
       videoUrl: projectForm.videoUrl || (projectForm.category === "our-projects" || projectForm.category === "saas-video" ? `https://www.youtube.com/watch?v=${yId}` : `https://www.youtube.com/shorts/${yId}`),
       categoryLabel: catLabel,
       thumbnail: projectForm.thumbnail || defaultThumb,
-      aspectRatio: projectForm.category === "our-projects" || projectForm.category === "saas-video" ? "16/9" : "9/16",
-      createdAt: new Date().toISOString()
+      aspectRatio: projectForm.category === "our-projects" || projectForm.category === "saas-video" ? "16/9" : "9/16"
     };
 
     if (editingItem) {
       await projectsAPI.update(editingItem._id || editingItem.id, payload);
       showToast("Home video showcase updated");
     } else {
-      await projectsAPI.create(payload);
+      await projectsAPI.create({
+        ...payload,
+        createdAt: new Date().toISOString()
+      });
       showToast("New video showcase added to Home");
     }
     await loadAllData();
@@ -1176,14 +1179,16 @@ export function Admin() {
     cs.category?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const filteredProjects = projectsList.filter((p) => {
-    const matchesSearch =
-      p.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.videoUrl?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.category?.toLowerCase().includes(searchQuery.toLowerCase());
-    if (videoCategoryFilter === "all") return matchesSearch;
-    return matchesSearch && (p.category === videoCategoryFilter);
-  });
+  const filteredProjects = [...projectsList]
+    .sort((a, b) => new Date(b.createdAt || b.updatedAt || 0) - new Date(a.createdAt || a.updatedAt || 0))
+    .filter((p) => {
+      const matchesSearch =
+        p.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.videoUrl?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.category?.toLowerCase().includes(searchQuery.toLowerCase());
+      if (videoCategoryFilter === "all") return matchesSearch;
+      return matchesSearch && (p.category === videoCategoryFilter);
+    });
 
   const filteredTestimonials = testimonialsList.filter((t) => {
     const matchesSearch =
@@ -2512,6 +2517,9 @@ export function Admin() {
                                 <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-black/80 backdrop-blur-md text-[#B3FFC9] text-[9px] font-semibold">
                                   {p.categoryLabel || p.category}
                                 </span>
+                                <span className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-black/80 backdrop-blur-md text-[#B3FFC9] text-[9px] font-mono border border-[#B3FFC9]/30 font-bold" title="Display sequence order in section">
+                                  Seq #{p.order ?? 1}
+                                </span>
                                 <button
                                   onClick={() => {
                                     setPreviewVideoUrl(p.videoUrl || `https://www.youtube.com/watch?v=${yId}`);
@@ -2533,19 +2541,48 @@ export function Admin() {
                               </div>
                             </div>
 
-                            <div className="flex items-center justify-end gap-2 pt-2 border-t border-white/5">
-                              <button
-                                onClick={() => handleOpenProjectModal(p)}
-                                className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-white/80 hover:text-white text-[11px] font-semibold flex items-center gap-1 transition-colors cursor-pointer"
-                              >
-                                <Edit3 size={11} /> Edit
-                              </button>
-                              <button
-                                onClick={() => setDeleteConfirm({ type: "homeVideo", id: p.id || p._id, title: p.title || "Home Video" })}
-                                className="px-2.5 py-1 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 text-[11px] font-semibold flex items-center gap-1 transition-colors cursor-pointer"
-                              >
-                                <Trash2 size={11} /> Delete
-                              </button>
+                            <div className="flex items-center justify-between gap-2 pt-2 border-t border-white/5">
+                              <div className="flex items-center gap-1.5" title="Set video sequence (1 = 1st, 2 = 2nd...)">
+                                <span className="text-[10px] text-white/40 uppercase font-mono">Seq:</span>
+                                <input
+                                  type="number"
+                                  min="1"
+                                  defaultValue={p.order ?? 1}
+                                  key={`seq-${p._id || p.id}-${p.order}`}
+                                  onBlur={async (e) => {
+                                    const newOrder = parseInt(e.target.value, 10);
+                                    if (!isNaN(newOrder) && newOrder !== p.order) {
+                                      try {
+                                        await projectsAPI.update(p._id || p.id, { ...p, order: newOrder });
+                                        showToast(`Sequence updated to #${newOrder}`);
+                                        await loadAllData();
+                                      } catch (err) {
+                                        showToast("Failed to update sequence", "error");
+                                      }
+                                    }
+                                  }}
+                                  onKeyDown={async (e) => {
+                                    if (e.key === "Enter") {
+                                      e.target.blur();
+                                    }
+                                  }}
+                                  className="w-11 px-1.5 py-0.5 rounded bg-black/60 border border-white/15 text-[#B3FFC9] text-xs font-bold text-center focus:border-[#B3FFC9] focus:outline-none cursor-text"
+                                />
+                              </div>
+                              <div className="flex items-center gap-1.5">
+                                <button
+                                  onClick={() => handleOpenProjectModal(p)}
+                                  className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-white/80 hover:text-white text-[11px] font-semibold flex items-center gap-1 transition-colors cursor-pointer"
+                                >
+                                  <Edit3 size={11} /> Edit
+                                </button>
+                                <button
+                                  onClick={() => setDeleteConfirm({ type: "homeVideo", id: p.id || p._id, title: p.title || "Home Video" })}
+                                  className="px-2.5 py-1 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 text-[11px] font-semibold flex items-center gap-1 transition-colors cursor-pointer"
+                                >
+                                  <Trash2 size={11} /> Delete
+                                </button>
+                              </div>
                             </div>
                           </div>
                         );
@@ -2763,7 +2800,7 @@ export function Admin() {
                           <div className="space-y-3">
                             <div className="aspect-[16/10] rounded-xl overflow-hidden bg-[#161616] relative">
                               <img
-                                src={post.featuredImage || post.coverImage || "https://littroi.com/wp-content/uploads/2026/07/Screenshot-2026-07-15-at-6.22.21-PM.png"}
+                                src={post.featuredImage || post.coverImage}
                                 alt={post.title}
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                               />
@@ -3669,12 +3706,17 @@ export function Admin() {
                     </select>
                   </div>
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-white/60">Display Order</label>
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-bold text-white/60">Sequence / Order</label>
+                      <span className="text-[10px] text-[#B3FFC9] font-mono">1 = First</span>
+                    </div>
                     <input
                       type="number"
+                      min="1"
                       value={projectForm.order}
                       onChange={(e) => setProjectForm({ ...projectForm, order: Number(e.target.value) })}
-                      className="w-full px-4 py-3 rounded-xl bg-[#161616] border border-white/10 text-white text-sm focus:border-[#B3FFC9] focus:outline-none"
+                      className="w-full px-4 py-3 rounded-xl bg-[#161616] border border-white/10 text-white text-sm focus:border-[#B3FFC9] focus:outline-none font-bold text-[#B3FFC9]"
+                      placeholder="1"
                     />
                   </div>
                 </div>

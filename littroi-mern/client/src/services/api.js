@@ -3,7 +3,6 @@ import { caseStudies as fallbackCaseStudies } from "../data/caseStudies";
 import { blogPosts as fallbackBlogs } from "../data/blogPosts";
 import { jobs as fallbackJobs } from "../data/jobs";
 import { services as fallbackServices } from "../data/services";
-import { LIVE_PROJECTS_SNAPSHOT, SNAPSHOT_BY_CATEGORY } from "../data/projectsSnapshot";
 
 // LocalStorage SWR Caching helper with instantaneous retrieval
 export const swrCache = {
@@ -553,59 +552,27 @@ export const projectsAPI = {
     const isCategoryStr = typeof categoryOrParams === "string" && categoryOrParams.length > 0;
     const cacheKey = isCategoryStr ? `projects_${categoryOrParams}` : "projects_all";
 
-    // 1. Check local storage cache for instant retrieval
-    const cached = swrCache.get(cacheKey);
-
-    // 2. Pre-seeded live snapshot fallback if cache is not yet warmed
-    let initialData = cached;
-    if (!initialData || !Array.isArray(initialData) || initialData.length === 0) {
-      if (isCategoryStr && SNAPSHOT_BY_CATEGORY[categoryOrParams]) {
-        initialData = SNAPSHOT_BY_CATEGORY[categoryOrParams];
-      } else if (!isCategoryStr) {
-        initialData = LIVE_PROJECTS_SNAPSHOT;
+    try {
+      let url = `${API_BASE_URL}/projects`;
+      if (isCategoryStr) {
+        url = `${API_BASE_URL}/projects?category=${encodeURIComponent(categoryOrParams)}`;
+      } else if (typeof categoryOrParams === "object" && categoryOrParams !== null) {
+        const query = new URLSearchParams(categoryOrParams).toString();
+        url = query ? `${API_BASE_URL}/projects?${query}` : url;
       }
-    }
 
-    // Background or on-demand revalidation
-    const revalidate = async () => {
-      try {
-        let url = `${API_BASE_URL}/projects`;
-        if (isCategoryStr) {
-          url = `${API_BASE_URL}/projects?category=${encodeURIComponent(categoryOrParams)}`;
-        } else if (typeof categoryOrParams === "object" && categoryOrParams !== null) {
-          const query = new URLSearchParams(categoryOrParams).toString();
-          url = query ? `${API_BASE_URL}/projects?${query}` : url;
-        }
-
-        const res = await fetchWithTimeout(url, {}, 12000);
-        const data = await res.json();
-        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
-          swrCache.set(cacheKey, data.data);
-          // If this was an unfiltered query, update category caches too
-          if (!isCategoryStr) {
-            ["our-projects", "podcast-clips", "short-form", "saas-video"].forEach((cat) => {
-              const catData = data.data.filter((p) => p.category === cat);
-              if (catData.length > 0) swrCache.set(`projects_${cat}`, catData);
-            });
-          }
-          return data.data;
-        }
-      } catch {
-        // Cold-start / network timeout: keep initial data
+      const res = await fetchWithTimeout(url, {}, 12000);
+      const data = await res.json();
+      if (data.success && Array.isArray(data.data)) {
+        swrCache.set(cacheKey, data.data);
+        return data.data;
       }
-      return initialData || [];
-    };
-
-    // If skipCache requested (e.g. forced admin refresh), await revalidation
-    if (options?.skipCache) {
-      return await revalidate();
+    } catch (err) {
+      console.warn("Live projects fetch notice:", err?.message || err);
+      const cached = swrCache.get(cacheKey);
+      if (Array.isArray(cached) && cached.length > 0) return cached;
     }
-
-    // Trigger non-blocking revalidation in the background
-    revalidate().catch(() => {});
-
-    // Return instant snapshot/cached data immediately (0ms)
-    return initialData || [];
+    return [];
   },
 
   getPaginated: async (category = "", page = 1, limit = 6) => {

@@ -1,7 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { projectsAPI } from "../../services/api";
-import { SNAPSHOT_BY_CATEGORY } from "../../data/projectsSnapshot";
 
 function extractYoutubeId(urlOrId) {
   if (!urlOrId) return "";
@@ -11,40 +10,43 @@ function extractYoutubeId(urlOrId) {
   return match && match[1] ? match[1] : trimmed;
 }
 
-const INITIAL_SHORTS = (SNAPSHOT_BY_CATEGORY["short-form"] || []).map((p) => {
-  const yId = extractYoutubeId(p.youtubeId || p.videoUrl || p.id);
-  return {
-    id: yId,
-    thumb: p.thumbnail || `https://img.youtube.com/vi/${yId}/hqdefault.jpg`,
-    title: p.title || "Short Form Content"
-  };
-});
-
 export function ShortFormSection() {
   const stageRef = useRef(null);
   const [activeShort, setActiveShort] = useState(null);
   const [loadingVideo, setLoadingVideo] = useState(false);
-  const [shortsList, setShortsList] = useState(INITIAL_SHORTS);
+  const [shortsList, setShortsList] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
     const fetchShorts = async () => {
       try {
         const data = await projectsAPI.getAll("short-form");
-        if (isMounted && data && Array.isArray(data) && data.length > 0) {
-          const formatted = data.map((p) => {
-            const yId = extractYoutubeId(p.youtubeId || p.videoUrl || p.id);
-            return {
-              id: yId,
-              thumb: p.thumbnail || `https://img.youtube.com/vi/${yId}/hqdefault.jpg`,
-              title: p.title || "Short Form Content"
-            };
-          }).filter((item) => Boolean(item.id));
+        if (isMounted && data && Array.isArray(data)) {
+          const formatted = data
+            .filter((p) => p.isActive !== false)
+            .sort((a, b) => {
+              const orderA = typeof a.order === "number" ? a.order : 999;
+              const orderB = typeof b.order === "number" ? b.order : 999;
+              if (orderA !== orderB) return orderA - orderB;
+              return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+            })
+            .map((p) => {
+              const yId = extractYoutubeId(p.youtubeId || p.videoUrl || p.id || p._id);
+              return {
+                id: yId,
+                thumb: p.thumbnail || (yId ? `https://img.youtube.com/vi/${yId}/hqdefault.jpg` : ""),
+                title: p.title || "Short Form Content"
+              };
+            })
+            .filter((item) => Boolean(item.id));
 
-          if (formatted.length > 0) setShortsList(formatted);
+          setShortsList(formatted);
         }
       } catch (err) {
         console.warn("Short form fetch notice:", err);
+      } finally {
+        if (isMounted) setLoading(false);
       }
     };
     fetchShorts();
@@ -178,7 +180,17 @@ export function ShortFormSection() {
             msOverflowStyle: "none",
           }}
         >
-          {shortsList.map((item, index) => {
+          {loading && shortsList.length === 0 ? (
+            [1, 2, 3, 4, 5].map((n) => (
+              <div
+                key={`skel-short-${n}`}
+                className="littroi-reel flex-shrink-0 w-[220px] aspect-[9/16] rounded-[22px] border border-white/10 bg-[#141414] animate-pulse flex items-center justify-center"
+              >
+                <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10" />
+              </div>
+            ))
+          ) : (
+            shortsList.map((item, index) => {
             const isOdd = index % 2 === 0;
             const videoId = item.id || item;
             const thumbUrl = item.thumb || `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
@@ -257,7 +269,8 @@ export function ShortFormSection() {
                 )}
               </div>
             );
-          })}
+          })
+        )}
         </div>
       </div>
     </section>

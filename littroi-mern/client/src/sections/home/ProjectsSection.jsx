@@ -1,7 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { projectsAPI } from "../../services/api";
-import { SNAPSHOT_BY_CATEGORY } from "../../data/projectsSnapshot";
 
 function extractYoutubeId(urlOrId) {
   if (!urlOrId) return "";
@@ -11,39 +10,42 @@ function extractYoutubeId(urlOrId) {
   return match && match[1] ? match[1] : trimmed;
 }
 
-const INITIAL_PROJECTS = (SNAPSHOT_BY_CATEGORY["our-projects"] || []).map((p) => {
-  const yId = extractYoutubeId(p.youtubeId || p.videoUrl || p.id);
-  return {
-    id: yId,
-    thumb: p.thumbnail || p.thumb || `https://img.youtube.com/vi/${yId}/hqdefault.jpg`,
-    title: p.title || "Project Video"
-  };
-});
-
 export function ProjectsSection() {
   const sliderRef = useRef(null);
   const [activeVideo, setActiveVideo] = useState(null);
   const [loadingVideo, setLoadingVideo] = useState(false);
-  const [projectList, setProjectList] = useState(INITIAL_PROJECTS);
+  const [projectList, setProjectList] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
     const fetchProjects = async () => {
       try {
         const data = await projectsAPI.getAll("our-projects");
-        if (isMounted && data && Array.isArray(data) && data.length > 0) {
-          const formatted = data.map((p) => {
-            const yId = extractYoutubeId(p.youtubeId || p.videoUrl || p.id);
-            return {
-              id: yId,
-              thumb: p.thumbnail || p.thumb || `https://img.youtube.com/vi/${yId}/hqdefault.jpg`,
-              title: p.title || "Project Video"
-            };
-          });
+        if (isMounted && data && Array.isArray(data)) {
+          const formatted = data
+            .filter((p) => p.isActive !== false)
+            .sort((a, b) => {
+              const orderA = typeof a.order === "number" ? a.order : 999;
+              const orderB = typeof b.order === "number" ? b.order : 999;
+              if (orderA !== orderB) return orderA - orderB;
+              return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+            })
+            .map((p) => {
+              const yId = extractYoutubeId(p.youtubeId || p.videoUrl || p.id || p._id);
+              return {
+                id: yId,
+                thumb: p.thumbnail || p.thumb || (yId ? `https://img.youtube.com/vi/${yId}/hqdefault.jpg` : ""),
+                title: p.title || "Project Video"
+              };
+            })
+            .filter((p) => Boolean(p.id));
           setProjectList(formatted);
         }
       } catch (err) {
         console.warn("Projects fetch notice:", err);
+      } finally {
+        if (isMounted) setLoading(false);
       }
     };
     fetchProjects();
@@ -177,7 +179,17 @@ export function ProjectsSection() {
             msOverflowStyle: "none",
           }}
         >
-          {projectList.map((proj, index) => {
+          {loading && projectList.length === 0 ? (
+            [1, 2, 3].map((n) => (
+              <div
+                key={`skel-${n}`}
+                className="flex-shrink-0 w-[88vw] sm:w-[680px] md:w-[clamp(650px,64vw,980px)] aspect-video rounded-[22px] border border-white/10 bg-[#141414] animate-pulse flex items-center justify-center"
+              >
+                <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10" />
+              </div>
+            ))
+          ) : (
+            projectList.map((proj, index) => {
             const isOdd = index % 2 === 0;
             const isPlaying = activeVideo === proj.id;
 
@@ -256,7 +268,8 @@ export function ProjectsSection() {
                 )}
               </div>
             );
-          })}
+          })
+        )}
         </div>
       </div>
     </section>
