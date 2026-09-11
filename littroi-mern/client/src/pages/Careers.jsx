@@ -378,7 +378,7 @@ export function Careers() {
             </div>
 
             {/* 3 Metric Counters with Counting Transition */}
-            <div className="flex items-center justify-start lg:justify-end gap-10 sm:gap-14">
+            {/* <div className="flex items-center justify-start lg:justify-end gap-10 sm:gap-14">
               <div className="space-y-1 text-left">
                 <div
                   className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-none"
@@ -414,7 +414,7 @@ export function Careers() {
                   On-Site
                 </div>
               </div>
-            </div>
+            </div> */}
           </motion.div>
         </section>
 
@@ -449,7 +449,7 @@ export function Careers() {
                 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight"
                 style={{ fontFamily: "'Syne', sans-serif" }}
               >
-                Current Openings ({jobList.length})
+                Current Openings
               </h2>
               <p className="text-xs text-white/40 font-mono mt-1">
                 Roles updated weekly — apply directly with your reel or portfolio

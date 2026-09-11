@@ -502,7 +502,7 @@ export function About() {
                   className="elementor-icon-box-description m-0 text-white/60 text-sm sm:text-base leading-relaxed max-w-sm"
                   style={{ fontFamily: "'Syne', sans-serif", fontWeight: 400 }}
                 >
-                  Fast and forgettable isn't a win. We'd rather take the time to make something that holds up.
+                  Fast and forgettable isn't a win. We'd rather take the time to make "Something that actually holds up".
                 </p>
               </motion.div>
 
@@ -640,31 +640,7 @@ export function About() {
                   </svg>
                 </a>
 
-                {/* Facebook — Official Blue */}
-                <a
-                  href="https://www.facebook.com/people/Littroius/61572722251178/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-8 h-8 rounded-[8px] bg-[#1877F2] text-white flex items-center justify-center hover:bg-[#166fe5] hover:scale-110 hover:shadow-[0_0_18px_rgba(24,119,242,0.6)] transition-all duration-300 shadow-md"
-                  aria-label="Facebook"
-                >
-                  <svg className="w-4 h-4 fill-white" viewBox="0 0 512 512">
-                    <path d="M504 256C504 119 393 8 256 8S8 119 8 256c0 123.78 90.69 226.38 209.25 245V327.69h-63V256h63v-54.64c0-62.15 37-96.48 93.67-96.48 27.14 0 55.52 4.84 55.52 4.84v61h-31.28c-30.8 0-40.41 19.12-40.41 38.73V256h68.78l-11 71.69h-57.78V501C413.31 482.38 504 379.78 504 256z" />
-                  </svg>
-                </a>
 
-                {/* YouTube — Official Red */}
-                <a
-                  href="https://www.youtube.com/@Littroi"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-8 h-8 rounded-[8px] bg-[#FF0000] text-white flex items-center justify-center hover:bg-[#e60000] hover:scale-110 hover:shadow-[0_0_18px_rgba(255,0,0,0.6)] transition-all duration-300 shadow-md"
-                  aria-label="Youtube"
-                >
-                  <svg className="w-4 h-4 fill-white" viewBox="0 0 576 512">
-                    <path d="M549.655 124.083c-6.281-23.65-24.787-42.276-48.284-48.597C458.781 64 288 64 288 64S117.22 64 74.629 75.486c-23.497 6.322-42.003 24.947-48.284 48.597-11.412 42.867-11.412 132.305-11.412 132.305s0 89.438 11.412 132.305c6.281 23.65 24.787 41.5 48.284 47.821C117.22 448 288 448 288 448s170.78 0 213.371-11.486c23.497-6.321 42.003-24.171 48.284-47.821 11.412-42.867 11.412-132.305 11.412-132.305s0-89.438-11.412-132.305zm-317.51 213.508V175.185l142.739 81.205-142.739 81.201z" />
-                  </svg>
-                </a>
 
                 {/* LinkedIn — Official Blue */}
                 <a
@@ -739,7 +715,7 @@ export function About() {
         <section className="max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-16 pb-28 sm:pb-40 text-center">
           <motion.div
             {...smoothFadeInUp}
-            className="p-10 sm:p-20 rounded-3xl bg-[#080808] border border-white/10 flex flex-col items-center justify-center space-y-8 shadow-2xl relative overflow-hidden"
+            className="p-10 sm:p-20 rounded-3xl bg-[#080808] border border-white/10 flex flex-col items-center justify-center space-y-10 sm:space-y-14 shadow-2xl relative overflow-hidden"
           >
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#B3FFC9]/5 rounded-full blur-3xl pointer-events-none" />
 
@@ -749,7 +725,7 @@ export function About() {
               href="https://calendly.com/littroi-info/strategy-call"
               target="_blank"
               rel="noopener noreferrer"
-              className="elementor-button elementor-button-link relative z-10 px-8 py-4 rounded-full bg-[#B3FFC9] text-black font-bold text-base uppercase tracking-wider hover:bg-[#9effba] hover:scale-105 hover:shadow-[0_0_30px_rgba(179,255,201,0.4)] transition-all duration-300"
+              className="elementor-button elementor-button-link relative z-10 mt-2 sm:mt-4 px-8 sm:px-10 py-4 sm:py-5 rounded-full bg-[#B3FFC9] text-black font-bold text-base uppercase tracking-wider hover:bg-[#9effba] hover:scale-105 hover:shadow-[0_0_30px_rgba(179,255,201,0.4)] transition-all duration-300"
               style={{ fontFamily: "'Syne', sans-serif" }}
             >
               <span className="elementor-button-content-wrapper">

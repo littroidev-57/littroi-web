@@ -67,7 +67,6 @@ export function Admin() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [videoCategoryFilter, setVideoCategoryFilter] = useState("all");
-  const [testimonialTypeFilter, setTestimonialTypeFilter] = useState("all"); // 'all' | 'video' | 'text'
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [chartRange, setChartRange] = useState("30D"); // '7D' | '30D' | '90D' | '1Y'
   const [chartMetric, setChartMetric] = useState("all"); // 'all' | 'leads' | 'reach'
@@ -1068,19 +1067,18 @@ export function Admin() {
     }
   };
 
-  // ==================== CRUD: TESTIMONIALS ====================
+  // ==================== CRUD: TESTIMONIALS (VIDEO ONLY) ====================
   const handleOpenTestimonialModal = (item = null) => {
     if (item) {
       setEditingItem(item);
       const vidId = item.videoId || (item.videoUrl ? item.videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/)?.[1] : "") || "";
-      const determinedType = item.type || (vidId || item.videoUrl ? "video" : "text");
       setTestimonialForm({
         name: item.name || item.clientName || "",
         role: item.role || item.clientRole || "",
         company: item.company || item.clientCompany || "",
         quote: item.quote || item.testimonial || "",
         avatar: item.avatar || item.clientImage || "",
-        type: determinedType,
+        type: "video",
         videoUrl: item.videoUrl || (vidId ? `https://www.youtube.com/watch?v=${vidId}` : ""),
         videoId: vidId,
         videoFirst: item.videoFirst !== undefined ? item.videoFirst : true,
@@ -1112,36 +1110,42 @@ export function Admin() {
 
   const handleSaveTestimonial = async (e) => {
     e.preventDefault();
-    if (!testimonialForm.name || !testimonialForm.quote) {
-      showToast("Please provide client name and testimonial quote");
+    if (!testimonialForm.name) {
+      showToast("Please provide client or creator name");
+      return;
+    }
+    if (!testimonialForm.videoUrl && !testimonialForm.videoId) {
+      showToast("Please provide a YouTube video URL or ID for the video testimonial");
       return;
     }
 
-    let extractedVideoId = testimonialForm.type === "video" ? testimonialForm.videoId : "";
-    if (testimonialForm.type === "video" && testimonialForm.videoUrl && !extractedVideoId) {
+    let extractedVideoId = testimonialForm.videoId || "";
+    if (testimonialForm.videoUrl && !extractedVideoId) {
       const match = testimonialForm.videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
       if (match) extractedVideoId = match[1];
+      else extractedVideoId = testimonialForm.videoUrl.trim();
     }
 
     const payload = {
       ...testimonialForm,
-      type: testimonialForm.type,
-      videoUrl: testimonialForm.type === "video" ? testimonialForm.videoUrl : "",
+      type: "video",
+      videoUrl: testimonialForm.videoUrl,
       videoId: extractedVideoId,
       clientName: testimonialForm.name,
       clientRole: testimonialForm.role,
       clientCompany: testimonialForm.company,
       clientImage: testimonialForm.avatar,
-      testimonial: testimonialForm.quote
+      testimonial: testimonialForm.quote,
+      quote: testimonialForm.quote || "Video Testimonial"
     };
 
     try {
       if (editingItem) {
         await testimonialsAPI.update(editingItem._id || editingItem.id, payload);
-        showToast("Testimonial updated successfully ✓");
+        showToast("Video testimonial updated successfully ✓");
       } else {
         await testimonialsAPI.create(payload);
-        showToast("New testimonial added successfully ✓");
+        showToast("New video testimonial added successfully ✓");
       }
       await loadAllData();
       setModalType(null);
@@ -1204,11 +1208,7 @@ export function Admin() {
       (t.company || t.clientCompany)?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (t.quote || t.testimonial)?.toLowerCase().includes(searchQuery.toLowerCase());
 
-    if (!matchesSearch) return false;
-    const isVideo = Boolean(t.videoId || t.videoUrl || t.type === "video");
-    if (testimonialTypeFilter === "video") return isVideo;
-    if (testimonialTypeFilter === "text") return !isVideo || t.type === "text";
-    return true;
+    return matchesSearch;
   });
 
   const filteredBlogs = blogsList.filter((b) =>
@@ -1243,7 +1243,7 @@ export function Admin() {
       jobs: 1,
       jobApplications: 1
     });
-  }, [searchQuery, statusFilter, videoCategoryFilter, testimonialTypeFilter, activeTab]);
+  }, [searchQuery, statusFilter, videoCategoryFilter, activeTab]);
 
   // Paginated Slices & Total Pages for all tabs
   const csTotalPages = Math.max(1, Math.ceil(filteredCaseStudies.length / itemsPerPage.caseStudies));
@@ -2610,45 +2610,32 @@ export function Admin() {
             {activeTab === "testimonials" && (
               <div className="space-y-6">
                 <div className="flex flex-wrap items-center justify-between gap-4">
-                  <div className="flex flex-wrap items-center gap-2">
-                    {[
-                      { key: "all", label: `All (${testimonialsList.length})` },
-                      { key: "video", label: `Video (${testimonialsList.filter(t => t.videoId || t.videoUrl || t.type === 'video').length})` },
-                      { key: "text", label: `Text Only (${testimonialsList.filter(t => (!t.videoId && !t.videoUrl) || t.type === 'text').length})` },
-                    ].map((tab) => (
-                      <button
-                        key={tab.key}
-                        onClick={() => setTestimonialTypeFilter(tab.key)}
-                        className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${testimonialTypeFilter === tab.key
-                          ? "bg-[#B3FFC9] text-black"
-                          : "bg-white/5 text-white/60 hover:text-white"
-                          }`}
-                        style={{ fontFamily: "'Syne', sans-serif" }}
-                      >
-                        {tab.label}
-                      </button>
-                    ))}
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#B3FFC9]/10 border border-[#B3FFC9]/20 text-xs font-bold text-[#B3FFC9]" style={{ fontFamily: "'Syne', sans-serif" }}>
+                      <Video size={14} />
+                      <span>Video Testimonials ({filteredTestimonials.length})</span>
+                    </span>
                   </div>
 
                   <div className="text-xs text-white/50 font-mono">
-                    Showing page <strong className="text-white">{testsCurrentPage}</strong> of <strong className="text-white">{testsTotalPages}</strong> ({filteredTestimonials.length} testimonials)
+                    Showing page <strong className="text-white">{testsCurrentPage}</strong> of <strong className="text-white">{testsTotalPages}</strong> ({filteredTestimonials.length} video stories)
                   </div>
                 </div>
 
                 {filteredTestimonials.length === 0 ? (
                   <div className="text-center py-20 rounded-2xl border border-dashed border-white/10 bg-[#0d0d0d] space-y-4">
                     <div className="w-14 h-14 rounded-2xl bg-white/5 mx-auto flex items-center justify-center text-[#B3FFC9]">
-                      <Quote size={24} />
+                      <Video size={24} />
                     </div>
                     <div>
-                      <h3 className="text-base font-bold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>No Testimonials Found</h3>
-                      <p className="text-xs text-white/40 mt-1">Post a video testimonial or text testimonial from clients and creators.</p>
+                      <h3 className="text-base font-bold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>No Video Testimonials Found</h3>
+                      <p className="text-xs text-white/40 mt-1">Post a client YouTube video review with key results and quote.</p>
                     </div>
                     <button
                       onClick={() => handleOpenTestimonialModal()}
                       className="px-4 py-2 rounded-full bg-[#B3FFC9] text-black text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5 cursor-pointer"
                     >
-                      <Plus size={14} /> Add Testimonial
+                      <Plus size={14} /> Add Video Testimonial
                     </button>
                   </div>
                 ) : (
@@ -2662,7 +2649,6 @@ export function Admin() {
                         const quote = t.quote || t.testimonial || "";
                         const avatar = t.avatar || t.clientImage;
                         const vidId = t.videoId || (t.videoUrl ? t.videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/)?.[1] : "");
-                        const isVideo = Boolean(vidId || (t.type === "video" && t.videoUrl));
 
                         return (
                           <div
@@ -2672,12 +2658,9 @@ export function Admin() {
                             <div className="space-y-3">
                               {/* Format Badge */}
                               <div className="flex items-center justify-between">
-                                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold ${isVideo
-                                  ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
-                                  : "bg-[#B3FFC9]/10 text-[#B3FFC9] border border-[#B3FFC9]/20"
-                                  }`}>
-                                  {isVideo ? <Video size={11} /> : <Quote size={11} />}
-                                  <span>{isVideo ? "Video Testimonial" : "Text Testimonial"}</span>
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                                  <Video size={11} />
+                                  <span>Video Testimonial</span>
                                 </span>
 
                                 {t.metric && (
@@ -2687,8 +2670,8 @@ export function Admin() {
                                 )}
                               </div>
 
-                              {/* Video Preview / Embed Thumbnail or Text Review Box */}
-                              {isVideo && vidId ? (
+                              {/* Video Preview / Embed Thumbnail */}
+                              {vidId ? (
                                 <div className="relative rounded-xl overflow-hidden aspect-video border border-white/10 bg-black group/vid">
                                   <img
                                     src={`https://img.youtube.com/vi/${vidId}/hqdefault.jpg`}
@@ -2712,13 +2695,8 @@ export function Admin() {
                                   </div>
                                 </div>
                               ) : (
-                                <div className="rounded-xl p-4 border border-white/5 bg-white/[0.02] flex items-center justify-between">
-                                  <div className="flex text-[#B3FFC9]">
-                                    {[...Array(t.rating || 5)].map((_, i) => (
-                                      <Star key={i} size={14} className="fill-[#B3FFC9]" />
-                                    ))}
-                                  </div>
-                                  <span className="text-[11px] font-mono text-white/50">Verified Review</span>
+                                <div className="rounded-xl p-4 border border-yellow-500/20 bg-yellow-500/5 flex items-center justify-between">
+                                  <span className="text-[11px] font-mono text-yellow-400">⚠️ Missing YouTube URL</span>
                                 </div>
                               )}
 
@@ -3818,9 +3796,9 @@ export function Admin() {
               <div className="flex items-center justify-between border-b border-white/10 pb-4">
                 <div>
                   <h3 className="text-xl font-bold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>
-                    {editingItem ? "Edit Testimonial" : "Add Client Testimonial"}
+                    {editingItem ? "Edit Video Testimonial" : "Add Video Testimonial"}
                   </h3>
-                  <p className="text-xs text-white/40">Manage video reviews and feedback displayed on the Home Page</p>
+                  <p className="text-xs text-white/40">Manage client video reviews displayed on the website</p>
                 </div>
                 <button onClick={() => setModalType(null)} className="text-white/50 hover:text-white p-1 cursor-pointer">
                   <X size={20} />
@@ -3828,36 +3806,6 @@ export function Admin() {
               </div>
 
               <form onSubmit={handleSaveTestimonial} className="space-y-4">
-                {/* Type Switcher: Video Testimonial vs Text Testimonial */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-white/60">Testimonial Format *</label>
-                  <div className="grid grid-cols-2 gap-3 p-1 rounded-2xl bg-[#141414] border border-white/10">
-                    <button
-                      type="button"
-                      onClick={() => setTestimonialForm({ ...testimonialForm, type: "video" })}
-                      className={`py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${testimonialForm.type === "video"
-                        ? "bg-[#B3FFC9] text-black shadow-md font-extrabold"
-                        : "text-white/60 hover:text-white"
-                        }`}
-                      style={{ fontFamily: "'Syne', sans-serif" }}
-                    >
-                      <Video size={15} />
-                      <span>Video Testimonial</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setTestimonialForm({ ...testimonialForm, type: "text", videoUrl: "", videoId: "" })}
-                      className={`py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${testimonialForm.type === "text"
-                        ? "bg-[#B3FFC9] text-black shadow-md font-extrabold"
-                        : "text-white/60 hover:text-white"
-                        }`}
-                      style={{ fontFamily: "'Syne', sans-serif" }}
-                    >
-                      <Quote size={15} />
-                      <span>Text Testimonial</span>
-                    </button>
-                  </div>
-                </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1">
@@ -3935,65 +3883,69 @@ export function Admin() {
                   </div>
                 </div>
 
-                {/* Conditional: YouTube Video Link & Position (Only for Video type) */}
-                {testimonialForm.type === "video" ? (
-                  <div className="space-y-3 p-4 rounded-2xl bg-[#141414] border border-white/10">
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-white/60">YouTube Testimonial Video Link / ID *</label>
-                      <div className="relative">
-                        <input
-                          type="text"
-                          value={testimonialForm.videoUrl}
-                          onChange={(e) => {
-                            const url = e.target.value;
-                            const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
-                            setTestimonialForm({
-                              ...testimonialForm,
-                              videoUrl: url,
-                              videoId: match ? match[1] : url
-                            });
-                          }}
-                          placeholder="https://www.youtube.com/watch?v=..."
-                          className="w-full pl-4 pr-10 py-2.5 rounded-xl bg-[#1c1c1c] border border-white/10 text-white text-xs focus:border-[#B3FFC9] focus:outline-none"
+                {/* YouTube Video Link & Position (Video Testimonial) */}
+                <div className="space-y-3 p-4 rounded-2xl bg-[#141414] border border-white/10">
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-white/60">YouTube Testimonial Video Link / ID *</label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        required
+                        value={testimonialForm.videoUrl}
+                        onChange={(e) => {
+                          const url = e.target.value;
+                          const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
+                          setTestimonialForm({
+                            ...testimonialForm,
+                            videoUrl: url,
+                            videoId: match ? match[1] : url
+                          });
+                        }}
+                        placeholder="https://www.youtube.com/watch?v=..."
+                        className="w-full pl-4 pr-10 py-2.5 rounded-xl bg-[#1c1c1c] border border-white/10 text-white text-xs focus:border-[#B3FFC9] focus:outline-none"
+                      />
+                      <Video size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/40" />
+                    </div>
+                    {testimonialForm.videoId && (
+                      <div className="flex items-center gap-3 pt-2">
+                        <img
+                          src={`https://img.youtube.com/vi/${testimonialForm.videoId}/hqdefault.jpg`}
+                          alt="Video Preview"
+                          className="w-24 aspect-video rounded-lg object-cover border border-white/15"
                         />
-                        <Video size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/40" />
+                        <span className="text-[11px] font-mono text-[#B3FFC9]">
+                          ✓ Video ID: {testimonialForm.videoId}
+                        </span>
                       </div>
-                    </div>
+                    )}
+                  </div>
 
-                    <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-                      <label className="text-xs font-bold text-white/60">Home Page Video Alignment</label>
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => setTestimonialForm({ ...testimonialForm, videoFirst: true })}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${testimonialForm.videoFirst
-                            ? "bg-[#B3FFC9] text-black"
-                            : "bg-white/5 text-white/60 hover:text-white"
-                            }`}
-                        >
-                          Left: Video | Right: Text
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setTestimonialForm({ ...testimonialForm, videoFirst: false })}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${!testimonialForm.videoFirst
-                            ? "bg-[#B3FFC9] text-black"
-                            : "bg-white/5 text-white/60 hover:text-white"
-                            }`}
-                        >
-                          Left: Text | Right: Video
-                        </button>
-                      </div>
+                  <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+                    <label className="text-xs font-bold text-white/60">Home Page Video Alignment</label>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setTestimonialForm({ ...testimonialForm, videoFirst: true })}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${testimonialForm.videoFirst
+                          ? "bg-[#B3FFC9] text-black"
+                          : "bg-white/5 text-white/60 hover:text-white"
+                          }`}
+                      >
+                        Left: Video | Right: Text
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setTestimonialForm({ ...testimonialForm, videoFirst: false })}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${!testimonialForm.videoFirst
+                          ? "bg-[#B3FFC9] text-black"
+                          : "bg-white/5 text-white/60 hover:text-white"
+                          }`}
+                      >
+                        Left: Text | Right: Video
+                      </button>
                     </div>
                   </div>
-                ) : (
-                  <div className="p-4 rounded-2xl bg-[#B3FFC9]/5 border border-[#B3FFC9]/20 flex items-center gap-3 text-xs text-white/80">
-                    <Quote size={20} className="text-[#B3FFC9] shrink-0" />
-                    <span>
-                      <strong>Text Review Mode:</strong> No video required. Displays as a glowing client testimonial card with verified badge and star rating.
-                    </span>
-                  </div>
-                )}
+                </div>
 
                 {/* Client Avatar Upload to Cloudinary */}
                 <div className="space-y-2">
