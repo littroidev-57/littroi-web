@@ -405,7 +405,7 @@ export function Careers() {
                 Roles updated weekly — apply directly with your reel or portfolio
               </p>
             </div>
-            <span className="px-3.5 py-1.5 rounded-full bg-[#132c1e] text-[#B3FFC9] border border-[#B3FFC9]/30 text-xs font-mono font-bold">
+            <span className="px-3.5 py-1.5 rounded-full bg-[#132c1e] text-[#B3FFC9] border border-[#B3FFC9]/30 text-xs font-mono font-bold hover:bg-white hover:text-black hover:border-white transition-all duration-300 cursor-pointer select-none">
               We're Hiring
             </span>
           </div>

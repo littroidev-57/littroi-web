@@ -172,7 +172,6 @@ export function BlogPost() {
   }
 
   const authorName = typeof post.author === "object" ? post.author?.name : (post.author || "Vishal Singh Mahar");
-  const authorRole = typeof post.author === "object" ? post.author?.role : "Strategy & Growth Lead";
   const authorInitials = authorName
     ? authorName
       .split(" ")
@@ -283,7 +282,6 @@ export function BlogPost() {
                   >
                     {authorName}
                   </span>
-                  <span className="text-xs text-white/45 font-mono">{authorRole}</span>
                 </div>
               </div>
 

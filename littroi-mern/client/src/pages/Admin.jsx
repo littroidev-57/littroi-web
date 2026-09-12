@@ -94,7 +94,7 @@ export function Admin() {
   });
 
   // Auth States
-  const [credentials, setCredentials] = useState({ email: "admin@littroi.com", password: "" });
+  const [credentials, setCredentials] = useState({ email: "[EMAIL_ADDRESS]", password: "" });
   const [loginError, setLoginError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
@@ -1556,7 +1556,7 @@ export function Admin() {
                 <input
                   type="password"
                   value={credentials.password}
-                  placeholder="Enter password (admin123)"
+                  placeholder="Enter password"
                   onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
                   className="w-full px-4 py-3.5 rounded-xl bg-[#141414] border border-white/10 text-white text-sm focus:outline-none focus:border-[#B3FFC9] transition-colors"
                   required
@@ -1572,10 +1572,6 @@ export function Admin() {
                 {isSubmitting ? "Authenticating..." : "Enter Admin Console"}
               </button>
             </form>
-
-            <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/5 text-[11px] text-white/50 text-center">
-              Credentials: <strong className="text-[#B3FFC9]">admin@littroi.com</strong> / <strong className="text-[#B3FFC9]">admin123</strong>
-            </div>
           </div>
         </div>
       </>
