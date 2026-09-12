@@ -7,9 +7,14 @@ export function MainLayout() {
   const { pathname } = useLocation();
   const isAdmin = pathname.startsWith("/admin");
 
-  // Scroll to top automatically on route changes
+  // Scroll to top automatically on route changes and track SPA navigation in GA
   useEffect(() => {
     window.scrollTo(0, 0);
+    if (typeof window.gtag === "function") {
+      window.gtag("config", "G-RM8VNFK9CK", {
+        page_path: pathname + window.location.search,
+      });
+    }
   }, [pathname]);
 
   if (isAdmin) {

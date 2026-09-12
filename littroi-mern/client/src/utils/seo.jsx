@@ -7,7 +7,8 @@ export function SEO({
   description = SITE_CONFIG.positioning,
   canonical,
   ogImage = "https://littroi.com/android-chrome-512x512.png",
-  ogType = "website"
+  ogType = "website",
+  noindex = false,
 }) {
   const siteUrl = import.meta.env.VITE_SITE_URL || "https://littroi.com";
   const fullTitle = !title || title === "Home" 
@@ -35,7 +36,7 @@ export function SEO({
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={ogImage} />
 
-      <meta name="robots" content="index, follow" />
+      <meta name="robots" content={noindex ? "noindex, nofollow" : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"} />
     </Helmet>
   );
 }

@@ -1391,7 +1391,7 @@ export function Admin() {
   if (!isAuthenticated) {
     return (
       <>
-        <SEO title="Admin Login — Littroi" />
+        <SEO title="Admin Login — Littroi" noindex={true} />
         <div className="min-h-screen flex items-center justify-center pt-24 pb-20 px-4 bg-[#050505] text-white">
           <div className="max-w-md w-full bg-[#0c0c0c] p-8 sm:p-10 rounded-[28px] border border-white/10 shadow-[0_30px_90px_rgba(0,0,0,0.9),0_0_60px_rgba(179,255,201,0.03)] space-y-6 relative overflow-hidden">
             <div className="absolute top-0 left-1/4 w-1/2 h-[1px] bg-gradient-to-r from-transparent via-[#B3FFC9] to-transparent pointer-events-none" />
@@ -1462,7 +1462,7 @@ export function Admin() {
   // ==================== REDESIGNED ADMIN CONSOLE ====================
   return (
     <>
-      <SEO title="Admin Console — Littroi" />
+      <SEO title="Admin Console — Littroi" noindex={true} />
 
       {/* Toast Notification */}
       {toastMessage && (

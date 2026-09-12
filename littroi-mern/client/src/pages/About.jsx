@@ -478,7 +478,7 @@ export function About() {
                   Strategy first
                 </h3>
                 <p
-                  className="elementor-icon-box-description m-0 text-white/60 text-sm sm:text-base leading-relaxed max-w-sm"
+                  className="elementor-icon-box-description m-0 pt-2 sm:pt-3 text-white/60 text-sm sm:text-base leading-relaxed max-w-sm"
                   style={{ fontFamily: "'Syne', sans-serif", fontWeight: 400 }}
                 >
                   We don't open Illustrator before we understand your business. Every visual decision is backed by a reason.
@@ -499,7 +499,7 @@ export function About() {
                   Craft over speed
                 </h3>
                 <p
-                  className="elementor-icon-box-description m-0 text-white/60 text-sm sm:text-base leading-relaxed max-w-sm"
+                  className="elementor-icon-box-description m-0 pt-3 sm:pt-4 text-white/60 text-sm sm:text-base leading-relaxed max-w-sm"
                   style={{ fontFamily: "'Syne', sans-serif", fontWeight: 400 }}
                 >
                   Fast and forgettable isn't a win. We'd rather take the time to make "Something that actually holds up".
@@ -520,7 +520,7 @@ export function About() {
                   Honest partnership
                 </h3>
                 <p
-                  className="elementor-icon-box-description m-0 text-white/60 text-sm sm:text-base leading-relaxed max-w-sm"
+                  className="elementor-icon-box-description m-0 pt-3 sm:pt-4 text-white/60 text-sm sm:text-base leading-relaxed max-w-sm"
                   style={{ fontFamily: "'Syne', sans-serif", fontWeight: 400 }}
                 >
                   We tell you when an idea isn't working. You're paying for perspective, not just execution.

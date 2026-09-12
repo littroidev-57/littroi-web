@@ -2,6 +2,18 @@
 <html lang="en" class="dark scroll-smooth">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RM8VNFK9CK"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-RM8VNFK9CK');
+    </script>
+
     <meta name="theme-color" content="#030303" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
@@ -9,42 +21,78 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Littroi — Defining New Media in India | Content Media Agency</title>
     <meta name="description" content="Littroi is the content media agency for brands that refuse to blend in. High-retention podcasts, long-form video, and SaaS content built for brand growth." />
     <meta name="author" content="Littroi" />
+    <link rel="canonical" href="https://littroi.com/" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Littroi" />
+    <meta property="og:url" content="https://littroi.com/" />
+    <meta property="og:title" content="Littroi — Defining New Media in India | Content Media Agency" />
+    <meta property="og:description" content="Littroi is the content media agency for brands that refuse to blend in. High-retention podcasts, long-form video, and SaaS content built for brand growth." />
+    <meta property="og:image" content="https://littroi.com/android-chrome-512x512.png" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Littroi — Defining New Media in India | Content Media Agency" />
+    <meta name="twitter:description" content="Littroi is the content media agency for brands that refuse to blend in. High-retention podcasts, long-form video, and SaaS content built for brand growth." />
+    <meta name="twitter:image" content="https://littroi.com/android-chrome-512x512.png" />
     
-    <!-- Schema.org Organization Structured Data for Google Search Snippet & Logo -->
+    <!-- Schema.org WebSite & Organization Structured Data for Google Search Snippets & Logo -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "Littroi",
-      "alternateName": "Littroi Media",
-      "url": "https://littroi.com",
-      "logo": "https://littroi.com/android-chrome-512x512.png",
-      "image": "https://littroi.com/android-chrome-512x512.png",
-      "description": "The content media agency for brands that refuse to blend in. Podcasts, long-form video, and SaaS content built for growth.",
-      "sameAs": [
-        "https://www.instagram.com/littroi/",
-        "https://www.youtube.com/@Littroi",
-        "https://www.linkedin.com/company/littroi",
-        "https://www.facebook.com/people/Littroius/61572722251178/"
-      ],
-      "address": {
-        "@type": "PostalAddress",
-        "streetAddress": "DD Puram",
-        "addressLocality": "Bareilly",
-        "addressRegion": "Uttar Pradesh",
-        "postalCode": "243001",
-        "addressCountry": "IN"
-      },
-      "contactPoint": {
-        "@type": "ContactPoint",
-        "telephone": "+91-72487-72464",
-        "contactType": "customer service",
-        "email": "Info@Littroi.com"
-      }
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://littroi.com/#website",
+          "url": "https://littroi.com/",
+          "name": "Littroi",
+          "alternateName": ["Littroi Media", "Littroi Media Private Limited"],
+          "description": "Defining New Media in India. Content media agency for podcasts, long-form video, and SaaS content.",
+          "publisher": {
+            "@id": "https://littroi.com/#organization"
+          }
+        },
+        {
+          "@type": "Organization",
+          "@id": "https://littroi.com/#organization",
+          "name": "Littroi",
+          "alternateName": ["Littroi Media", "Littroi Media Private Limited"],
+          "url": "https://littroi.com/",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://littroi.com/android-chrome-512x512.png",
+            "width": 512,
+            "height": 512
+          },
+          "image": "https://littroi.com/android-chrome-512x512.png",
+          "description": "The content media agency for brands that refuse to blend in. Podcasts, long-form video, and SaaS content built for growth.",
+          "sameAs": [
+            "https://www.instagram.com/littroi/",
+            "https://www.youtube.com/@Littroi",
+            "https://www.linkedin.com/company/littroi",
+            "https://www.facebook.com/people/Littroius/61572722251178/"
+          ],
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "DD Puram",
+            "addressLocality": "Bareilly",
+            "addressRegion": "Uttar Pradesh",
+            "postalCode": "243001",
+            "addressCountry": "IN"
+          },
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "telephone": "+91-72487-72464",
+            "contactType": "customer service",
+            "email": "Info@Littroi.com"
+          }
+        }
+      ]
     }
     </script>
     <!-- Google Fonts -->

@@ -45,7 +45,11 @@ export function App() {
           <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="/contact-us" element={<Contact />} />
           <Route path="/contact" element={<Navigate to="/contact-us" replace />} />
+          <Route path="/services" element={<Navigate to="/" replace />} />
           <Route path="/legal-policies" element={<LegalPolicies />} />
+          <Route path="/privacy-policy" element={<Navigate to="/legal-policies" replace />} />
+          <Route path="/terms" element={<Navigate to="/legal-policies" replace />} />
+          <Route path="/terms-and-conditions" element={<Navigate to="/legal-policies" replace />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
