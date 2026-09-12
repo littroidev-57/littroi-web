@@ -13,7 +13,7 @@ export function Footer() {
     { name: "Careers", path: "/careers" },
     { name: "Blog", path: "/blog" },
     { name: "Contact Us", path: "/contact-us" },
-    { name: "Legal-policies", path: "/legal-policies" },
+    { name: "Legal & Policies", path: "/legal-policies" },
   ];
 
   return (

@@ -204,6 +204,8 @@ export function Admin() {
     responsibilities: "",
     requirements: ""
   });
+  const [rawJobPaste, setRawJobPaste] = useState("");
+  const [showRawJobPaste, setShowRawJobPaste] = useState(false);
 
   const showToast = (msg) => {
     setToastMessage(msg);
@@ -1000,6 +1002,8 @@ export function Admin() {
 
   // ==================== CRUD: JOBS ====================
   const handleOpenJobModal = (item = null) => {
+    setRawJobPaste("");
+    setShowRawJobPaste(false);
     if (item) {
       setEditingItem(item);
       setJobForm({
@@ -1030,23 +1034,142 @@ export function Admin() {
     setModalType("job");
   };
 
+  // Smart Parser for pasting job description files (Markdown, Plain Text, or structured notes)
+  const handleAutoParseJob = () => {
+    if (!rawJobPaste || !rawJobPaste.trim()) {
+      showToast("Please paste the job text first");
+      return;
+    }
+    const text = rawJobPaste.trim();
+
+    // 1. Title Extraction
+    let extractedTitle = "";
+    const titleMatch =
+      text.match(/^(?:#{1,3}\s*(?:\d+\.?)?\s*|\*\*(?:\d+\.?)?\s*|Position:\s*|Title:\s*)([^\n]+)/m) ||
+      text.match(/^(?:\d+\.\s*)([^\n]+)/m);
+    if (titleMatch) {
+      extractedTitle = titleMatch[1].replace(/[*_#]/g, "").trim();
+    }
+
+    // 2. Department Mapping
+    let extractedDept = "Post-Production";
+    const lookup = (extractedTitle || text).toLowerCase();
+    if (lookup.includes("designer") || lookup.includes("design") || lookup.includes("thumbnail")) {
+      extractedDept = "Creative & Design";
+    } else if (lookup.includes("social media") || lookup.includes("community")) {
+      extractedDept = "Content & Distribution";
+    } else if (lookup.includes("content head") || lookup.includes("creative director") || lookup.includes("strategy")) {
+      extractedDept = "Leadership & Strategy";
+    } else if (lookup.includes("web") || lookup.includes("developer") || lookup.includes("engineer")) {
+      extractedDept = "Engineering & Web";
+    } else if (lookup.includes("performance") || lookup.includes("ads") || lookup.includes("marketer")) {
+      extractedDept = "Growth & Media Buying";
+    } else if (lookup.includes("sales") || lookup.includes("business development") || lookup.includes("partnership")) {
+      extractedDept = "Sales & Partnerships";
+    } else if (lookup.includes("youtube") || lookup.includes("growth")) {
+      extractedDept = "Channel Growth & Strategy";
+    }
+
+    // 3. Experience Extraction
+    let extractedExp = "2+ Years";
+    const expMatch =
+      text.match(/(?:at least|minimum|min\.?)\s*(\d+[\+\-]?\s*(?:years?|yrs?))/i) ||
+      text.match(/(\d+[\+\-]?\s*(?:years?|yrs?))\s*(?:of\s+experience|experience)/i);
+    if (expMatch) {
+      extractedExp = expMatch[1].trim();
+      if (!/years?/i.test(extractedExp)) {
+        extractedExp += " Years";
+      }
+    }
+
+    // 4. Key Responsibilities Extraction
+    let extractedResponsibilities = "";
+    const respMatch = text.match(/(?:\*{0,2}Key Responsibilities\*{0,2}|\*{0,2}Responsibilities\*{0,2})[\s\S]*?(?=(?:\*{0,2}Requirements\*{0,2}|\*{0,2}Skills\*{0,2}|--|$))/i);
+    if (respMatch) {
+      const lines = respMatch[0]
+        .split("\n")
+        .slice(1) // skip the section header
+        .map((l) => l.replace(/^[\s•\-\*\d\.\)\:]+/, "").trim())
+        .filter(Boolean);
+      extractedResponsibilities = lines.join("\n");
+    }
+
+    // 5. Requirements Extraction
+    let extractedRequirements = "";
+    const reqMatch = text.match(/(?:\*{0,2}Requirements\*{0,2}|\*{0,2}Requirements & Skills\*{0,2})[\s\S]*?(?=(?:\*{0,2}Key Responsibilities\*{0,2}|--|$))/i);
+    if (reqMatch) {
+      const lines = reqMatch[0]
+        .split("\n")
+        .slice(1) // skip the section header
+        .map((l) => l.replace(/^[\s•\-\*\d\.\)\:]+/, "").trim())
+        .filter(Boolean);
+      extractedRequirements = lines.join("\n");
+    }
+
+    // 6. Overview / Description
+    let extractedDesc = "";
+    const introPart = text.split(/(?:\*{0,2}Key Responsibilities|\*{0,2}Requirements)/i)[0];
+    if (introPart) {
+      const candidateLines = introPart
+        .split("\n")
+        .filter((l) => !l.trim().startsWith("#") && !l.trim().startsWith("---") && l.trim().length > 20);
+      if (candidateLines.length > 0) {
+        extractedDesc = candidateLines.join("\n").trim();
+      }
+    }
+    if (!extractedDesc && extractedTitle) {
+      extractedDesc = `We're seeking a skilled and driven ${extractedTitle} to join our high-growth content production team at Littroi Media.`;
+    }
+
+    setJobForm((prev) => ({
+      ...prev,
+      title: extractedTitle || prev.title,
+      department: extractedDept || prev.department,
+      experience: extractedExp || prev.experience,
+      description: extractedDesc || prev.description,
+      responsibilities: extractedResponsibilities || prev.responsibilities,
+      requirements: extractedRequirements || prev.requirements
+    }));
+
+    showToast("Job details auto-extracted successfully! ✓");
+    setShowRawJobPaste(false);
+  };
+
   const handleSaveJob = async (e) => {
     e.preventDefault();
-    const requirementsArr = typeof jobForm.requirements === "string"
-      ? jobForm.requirements.split(/[\n,]/).map((r) => r.trim()).filter(Boolean)
-      : (Array.isArray(jobForm.requirements) ? jobForm.requirements : []);
 
-    const responsibilitiesArr = typeof jobForm.responsibilities === "string"
-      ? jobForm.responsibilities.split(/[\n,]/).map((r) => r.trim()).filter(Boolean)
-      : (Array.isArray(jobForm.responsibilities) ? jobForm.responsibilities : []);
+    // Clean line-based lists without splitting on inner commas
+    const cleanList = (val) => {
+      if (Array.isArray(val)) {
+        return val
+          .flatMap((item) => (typeof item === "string" ? item.split("\n") : []))
+          .map((r) => String(r).replace(/^[\s•\-\*\d\.\)\:]+/, "").trim())
+          .filter(Boolean);
+      }
+      if (typeof val === "string") {
+        return val
+          .split("\n")
+          .map((r) => r.replace(/^[\s•\-\*\d\.\)\:]+/, "").trim())
+          .filter(Boolean);
+      }
+      return [];
+    };
+
+    const requirementsArr = cleanList(jobForm.requirements);
+    const responsibilitiesArr = cleanList(jobForm.responsibilities);
+
+    const desc =
+      (jobForm.description || "").trim() ||
+      (jobForm.overview || "").trim() ||
+      `Exciting career role for ${jobForm.title || "candidate"} at Littroi Media.`;
 
     const payload = {
       ...jobForm,
-      overview: jobForm.description || jobForm.overview || "Exciting role at Littroi Media.",
-      description: jobForm.description || jobForm.overview || "Exciting role at Littroi Media.",
+      overview: desc,
+      description: desc,
       employmentType: jobForm.type || "Full-time",
       type: jobForm.type || "Full-time",
-      slug: jobForm.title.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+      slug: (jobForm.title || "career-role").toLowerCase().replace(/[^a-z0-9]+/g, "-"),
       responsibilities: responsibilitiesArr,
       requirements: requirementsArr
     };
@@ -4222,13 +4345,54 @@ export function Admin() {
               </div>
 
               <form onSubmit={handleSaveJob} className="space-y-4">
+                {/* Smart Auto-Extract Accordion */}
+                <div className="rounded-2xl bg-white/[0.02] border border-white/10 p-3.5 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <button
+                      type="button"
+                      onClick={() => setShowRawJobPaste(!showRawJobPaste)}
+                      className="text-xs font-bold text-[#B3FFC9] hover:underline flex items-center gap-1.5 cursor-pointer"
+                      style={{ fontFamily: "'Syne', sans-serif" }}
+                    >
+                      <Sparkles size={14} />
+                      {showRawJobPaste ? "Hide Document Auto-Fill" : "Paste from Job Descriptions (Auto-Fill)"}
+                    </button>
+                    <span className="text-[10px] text-white/40">Markdown / text parser</span>
+                  </div>
+
+                  {showRawJobPaste && (
+                    <div className="space-y-2.5 pt-1">
+                      <textarea
+                        value={rawJobPaste}
+                        onChange={(e) => setRawJobPaste(e.target.value)}
+                        rows={5}
+                        placeholder={`Paste whole role section from your Job_Descriptions.md file, e.g.:\n\n## 1. Video Editor\n**Key Responsibilities**\n- Edit podcasts, trailers, and short-form content...\n\n**Requirements**\n- Minimum 3 years of professional video editing experience...`}
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#141414] border border-white/15 text-white text-xs font-mono focus:border-[#B3FFC9] focus:outline-none"
+                      />
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-white/50">
+                          Auto-extracts title, department, responsibilities &amp; requirements.
+                        </span>
+                        <button
+                          type="button"
+                          onClick={handleAutoParseJob}
+                          className="px-4 py-2 rounded-full bg-[#B3FFC9] text-black font-bold text-xs uppercase tracking-wider hover:bg-[#9effba] cursor-pointer shadow-[0_0_15px_rgba(179,255,201,0.3)]"
+                          style={{ fontFamily: "'Syne', sans-serif" }}
+                        >
+                          Auto-Fill Fields
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-white/60">Position Title *</label>
                   <input
                     type="text"
                     value={jobForm.title}
                     onChange={(e) => setJobForm({ ...jobForm, title: e.target.value })}
-                    placeholder="e.g. Senior Motion Graphics Artist"
+                    placeholder="e.g. Video Editor"
                     className="w-full px-4 py-3 rounded-xl bg-[#161616] border border-white/10 text-white text-sm focus:border-[#B3FFC9] focus:outline-none"
                     required
                   />
@@ -4286,43 +4450,48 @@ export function Admin() {
                       type="text"
                       value={jobForm.salary}
                       onChange={(e) => setJobForm({ ...jobForm, salary: e.target.value })}
-                      placeholder="e.g. ₹8,00,000 - ₹14,00,000 / year (or ₹ Competitive)"
+                      placeholder="e.g. Competitive or ₹8,00,000 - ₹14,00,000 / yr"
                       className="w-full px-4 py-3 rounded-xl bg-[#161616] border border-white/10 text-white text-sm focus:border-[#B3FFC9] focus:outline-none"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-white/60">Job Description *</label>
+                  <label className="text-xs font-bold text-white/60">Job Overview / Description</label>
                   <textarea
                     value={jobForm.description}
                     onChange={(e) => setJobForm({ ...jobForm, description: e.target.value })}
-                    rows={3}
-                    placeholder="Overview of the position and role expectations..."
-                    className="w-full px-4 py-3 rounded-xl bg-[#161616] border border-white/10 text-white text-xs focus:border-[#B3FFC9] focus:outline-none"
-                    required
+                    rows={4}
+                    placeholder="Brief summary of the role and vision..."
+                    className="w-full px-4 py-3 rounded-xl bg-[#161616] border border-white/10 text-white text-xs leading-relaxed focus:border-[#B3FFC9] focus:outline-none"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-white/60">Key Responsibilities (One per line)</label>
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-white/60">Key Responsibilities (One per line)</label>
+                    <span className="text-[10px] text-white/40">Bullet points cleaned automatically</span>
+                  </div>
                   <textarea
                     value={jobForm.responsibilities}
                     onChange={(e) => setJobForm({ ...jobForm, responsibilities: e.target.value })}
-                    rows={3}
-                    placeholder="e.g.&#10;Edit high-retention short-form videos&#10;Collaborate with creative directors&#10;Audio mastering and color grading"
-                    className="w-full px-4 py-3 rounded-xl bg-[#161616] border border-white/10 text-white text-xs focus:border-[#B3FFC9] focus:outline-none font-mono"
+                    rows={6}
+                    placeholder={`- Edit podcasts, trailers, and short-form content with strong pacing\n- Edit long-form videos with attention to narrative flow\n- Sync audio/video, color correct, and sound design`}
+                    className="w-full px-4 py-3 rounded-xl bg-[#161616] border border-white/10 text-white text-xs leading-relaxed focus:border-[#B3FFC9] focus:outline-none font-sans"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-white/60">Requirements &amp; Skills (One per line)</label>
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-white/60">Requirements &amp; Skills (One per line)</label>
+                    <span className="text-[10px] text-white/40">Bullet points cleaned automatically</span>
+                  </div>
                   <textarea
                     value={jobForm.requirements}
                     onChange={(e) => setJobForm({ ...jobForm, requirements: e.target.value })}
-                    rows={3}
-                    placeholder="e.g.&#10;2+ years Premiere Pro & After Effects&#10;Deep understanding of social media hooks&#10;Fast turnaround and attention to detail"
-                    className="w-full px-4 py-3 rounded-xl bg-[#161616] border border-white/10 text-white text-xs focus:border-[#B3FFC9] focus:outline-none font-mono"
+                    rows={6}
+                    placeholder={`- Minimum 3 years of professional video editing experience\n- Proficiency in Adobe Premiere Pro, After Effects, or DaVinci Resolve\n- Strong understanding of pacing, storytelling, and YouTube formats`}
+                    className="w-full px-4 py-3 rounded-xl bg-[#161616] border border-white/10 text-white text-xs leading-relaxed focus:border-[#B3FFC9] focus:outline-none font-sans"
                   />
                 </div>
 

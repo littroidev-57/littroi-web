@@ -47,7 +47,7 @@ export function Navbar() {
     { name: "Careers", path: "/careers" },
     { name: "Blog", path: "/blog" },
     { name: "Contact Us", path: "/contact-us" },
-    { name: "Legal Policies", path: "/legal-policies" },
+    { name: "Legal & Policies", path: "/legal-policies" },
   ];
 
   const linkMotion = {

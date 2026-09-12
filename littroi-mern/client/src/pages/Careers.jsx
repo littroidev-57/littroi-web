@@ -98,16 +98,7 @@ function CareerStatCounter({ value, suffix = "", duration = 1800, delay = 0 }) {
   );
 }
 
-const MARQUEE_WORDS = [
-  "Kill average",
-  "Bareilly to the world",
-  "Craft over comfort",
-  "Get seen, get chosen",
-  "No boring work",
-  "Own the outcome",
-  "Cuts that get watched",
-  "Bold or nothing"
-];
+
 
 const CULTURE_PILLARS = [
   {
@@ -154,6 +145,24 @@ const formatSalaryInRupees = (salary) => {
     return str.replace(/\$/g, "₹");
   }
   return `₹${str}`;
+};
+
+// Robust list parser for bulleted/multiline responsibilities & requirements
+const parseListItems = (data) => {
+  if (!data) return [];
+  if (Array.isArray(data)) {
+    return data
+      .flatMap((item) => (typeof item === "string" ? item.split("\n") : []))
+      .map((item) => (typeof item === "string" ? item.replace(/^[\s•\-\*\d\.\)\:]+/, "").trim() : ""))
+      .filter(Boolean);
+  }
+  if (typeof data === "string") {
+    return data
+      .split("\n")
+      .map((line) => line.replace(/^[\s•\-\*\d\.\)\:]+/, "").trim())
+      .filter(Boolean);
+  }
+  return [];
 };
 
 export function Careers() {
@@ -377,68 +386,9 @@ export function Careers() {
               </p>
             </div>
 
-            {/* 3 Metric Counters with Counting Transition */}
-            {/* <div className="flex items-center justify-start lg:justify-end gap-10 sm:gap-14">
-              <div className="space-y-1 text-left">
-                <div
-                  className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-none"
-                  style={{ fontFamily: "'Syne', sans-serif" }}
-                >
-                  <CareerStatCounter value={jobList.length} delay={0.1} />
-                </div>
-                <div className="text-[11px] uppercase font-mono text-white/40 tracking-wider">
-                  Open roles
-                </div>
-              </div>
 
-              <div className="space-y-1 text-left">
-                <div
-                  className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-none"
-                  style={{ fontFamily: "'Syne', sans-serif" }}
-                >
-                  <CareerStatCounter value={15} suffix="+" delay={0.2} />
-                </div>
-                <div className="text-[11px] uppercase font-mono text-white/40 tracking-wider">
-                  Team members
-                </div>
-              </div>
-
-              <div className="space-y-1 text-left">
-                <div
-                  className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-none"
-                  style={{ fontFamily: "'Syne', sans-serif" }}
-                >
-                  <CareerStatCounter value={100} suffix="%" delay={0.3} />
-                </div>
-                <div className="text-[11px] uppercase font-mono text-white/40 tracking-wider">
-                  On-Site
-                </div>
-              </div>
-            </div> */}
           </motion.div>
         </section>
-
-        {/* ==================== CONTINUOUS MARQUEE RIBBON ==================== */}
-        <div className="border-t border-b border-white/[0.07] py-3.5 bg-[#B3FFC9]/[0.02] overflow-hidden whitespace-nowrap">
-          <div className="flex w-max animate-marquee">
-            {[...Array(3)].map((_, loopIdx) => (
-              <div key={loopIdx} className="flex items-center">
-                {MARQUEE_WORDS.map((word, wIdx) => (
-                  <React.Fragment key={`${loopIdx}-${wIdx}`}>
-                    <span
-                      className="px-7 text-[11px] font-bold tracking-[0.16em] uppercase text-white/30 font-mono"
-                      style={{ fontFamily: "'Syne', sans-serif" }}
-                    >
-                      {word}
-                    </span>
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#B3FFC9] opacity-30 flex-shrink-0" />
-                  </React.Fragment>
-                ))}
-              </div>
-            ))}
-          </div>
-        </div>
-
 
 
         {/* ==================== OPEN JOB POSITIONS ACCORDION ==================== */}
@@ -518,56 +468,62 @@ export function Careers() {
 
                     {/* Expanded Details */}
                     {isExpanded && (
-                      <div className="px-6 pb-8 sm:px-8 pt-4 border-t border-white/5 space-y-6">
-                        <p className="text-white/70 text-sm sm:text-base leading-relaxed">
-                          {job.overview || job.description}
-                        </p>
+                      <div className="px-6 pb-8 sm:px-8 pt-5 border-t border-white/5 space-y-6">
+                        {(job.overview || job.description) && (
+                          <p className="text-white/70 text-sm sm:text-base leading-relaxed whitespace-pre-line">
+                            {job.overview || job.description}
+                          </p>
+                        )}
 
                         {/* Key Responsibilities */}
-                        {Array.isArray(job.responsibilities) && job.responsibilities.length > 0 && (
-                          <div className="space-y-3">
-                            <h4
-                              className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider"
-                              style={{ fontFamily: "'Syne', sans-serif" }}
-                            >
-                              Key Responsibilities
-                            </h4>
-                            <div className="space-y-2.5">
-                              {job.responsibilities.map((resp, rIdx) => (
-                                <div key={rIdx} className="flex items-start gap-3 text-xs sm:text-sm text-white/60">
-                                  <CheckCircle2 size={16} className="text-[#B3FFC9] shrink-0 mt-0.5" />
-                                  <span>{resp}</span>
-                                </div>
-                              ))}
+                        {(() => {
+                          const responsibilities = parseListItems(job.responsibilities);
+                          if (responsibilities.length === 0) return null;
+                          return (
+                            <div className="space-y-3 pt-2">
+                              <h4
+                                className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2"
+                                style={{ fontFamily: "'Syne', sans-serif" }}
+                              >
+                                <span className="w-2 h-2 rounded-full bg-[#B3FFC9]" />
+                                Key Responsibilities
+                              </h4>
+                              <div className="grid grid-cols-1 gap-2.5">
+                                {responsibilities.map((resp, rIdx) => (
+                                  <div key={rIdx} className="flex items-start gap-3 text-xs sm:text-sm text-white/70 leading-relaxed">
+                                    <CheckCircle2 size={16} className="text-[#B3FFC9] shrink-0 mt-0.5" />
+                                    <span>{resp}</span>
+                                  </div>
+                                ))}
+                              </div>
                             </div>
-                          </div>
-                        )}
+                          );
+                        })()}
 
                         {/* Requirements */}
-                        {((Array.isArray(job.requirements) && job.requirements.length > 0) || (typeof job.requirements === "string" && job.requirements.trim().length > 0)) && (
-                          <div className="space-y-3">
-                            <h4
-                              className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider"
-                              style={{ fontFamily: "'Syne', sans-serif" }}
-                            >
-                              Requirements
-                            </h4>
-                            <div className="space-y-2.5">
-                              {Array.isArray(job.requirements) ? (
-                                job.requirements.map((req, reqIdx) => (
-                                  <div key={reqIdx} className="flex items-start gap-3 text-xs sm:text-sm text-white/60">
-                                    <div className="w-2 h-2 rounded-full bg-[#B3FFC9] shrink-0 mt-1.5" />
+                        {(() => {
+                          const requirements = parseListItems(job.requirements);
+                          if (requirements.length === 0) return null;
+                          return (
+                            <div className="space-y-3 pt-2">
+                              <h4
+                                className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2"
+                                style={{ fontFamily: "'Syne', sans-serif" }}
+                              >
+                                <span className="w-2 h-2 rounded-full bg-[#B3FFC9]" />
+                                Requirements &amp; Skills
+                              </h4>
+                              <div className="grid grid-cols-1 gap-2.5">
+                                {requirements.map((req, reqIdx) => (
+                                  <div key={reqIdx} className="flex items-start gap-3 text-xs sm:text-sm text-white/70 leading-relaxed">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-[#B3FFC9] shrink-0 mt-2" />
                                     <span>{req}</span>
                                   </div>
-                                ))
-                              ) : (
-                                <p className="text-xs text-white/60">{job.requirements}</p>
-                              )}
+                                ))}
+                              </div>
                             </div>
-                          </div>
-                        )}
-
-
+                          );
+                        })()}
                       </div>
                     )}
                   </div>

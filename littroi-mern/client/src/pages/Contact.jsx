@@ -65,7 +65,7 @@ export function Contact() {
     {
       question: "What if I have a quick question and prefer not to book a call?",
       answer:
-        "No problem at all! You can reach out directly via email at Info@Littroi.com or ping our studio via WhatsApp. Our leadership personally reviews and responds to every message within 12 hours."
+        "No problem at all! You can reach out directly via email at Info@Littroi.com or ping our studio via WhatsApp. Our leadership personally reviews and responds to every message within 24 hours."
     }
   ];
 

@@ -20,6 +20,14 @@ export function HeroSection() {
         {/* Spacer for top navigation */}
         <div className="w-full h-12 sm:h-16 flex-shrink-0 pointer-events-none" />
 
+        {/* Semantic H1 & Description for Search Crawlers (Google Indexing) */}
+        <div className="sr-only">
+          <h1>Littroi — Defining Media in India | Content Media Agency</h1>
+          <p>
+            Littroi is the content media agency for brands that refuse to blend in. High-retention podcasts, long-form video, and SaaS content built for brand growth.
+          </p>
+        </div>
+
         {/* ── elementor-element-7bf9d12 fronttextt: EXACT DEAD CENTER in Viewport ── */}
         <div
           className="elementor-element elementor-element-7bf9d12 fronttextt exad-sticky-section-no exad-glass-effect-no elementor-widget elementor-widget-image flex items-center justify-center overflow-hidden w-full max-w-[1400px] px-3 sm:px-6 md:px-8 text-center select-none my-auto"
