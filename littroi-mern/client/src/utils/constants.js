@@ -1,7 +1,7 @@
 export const SITE_CONFIG = {
   name: "Littroi",
-  title: "Littroi — Defining New Media in India | Content Media Agency",
-  tagline: "Defining New Media in India.",
+  title: "Littroi — Defining the New Age of Media",
+  tagline: "Defining the New Age of Media.",
   positioning: "The content arm for brands that refuse to blend in. Podcasts, long-form video, and SaaS content — built for growth.",
   heroBadge: "Content Media Agency — Bareilly, India",
   calendlyUrl: "https://calendly.com/littroi-info/strategy-call",

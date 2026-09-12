@@ -101,6 +101,62 @@ function SoundwaveEqualizer() {
   );
 }
 
+/**
+ * Skeleton Loader Card for Video Testimonials
+ */
+function TestimonialSkeletonCard({ isEven = true }) {
+  return (
+    <div className="relative rounded-3xl overflow-hidden bg-[#0a0a0a] border border-white/10 p-4 sm:p-7 md:p-10 animate-pulse">
+      <div
+        className={`flex flex-col lg:flex-row items-center justify-between gap-6 sm:gap-8 lg:gap-14 ${
+          isEven ? "" : "lg:flex-row-reverse"
+        }`}
+      >
+        {/* Video Player Column Skeleton */}
+        <div className="w-full lg:w-1/2 aspect-video rounded-2xl overflow-hidden border border-white/10 bg-white/[0.03] flex items-center justify-center relative shadow-lg">
+          <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
+            <Play size={20} className="text-white/20 ml-0.5" />
+          </div>
+        </div>
+
+        {/* Quote & Author Column Skeleton */}
+        <div className="w-full lg:w-1/2 flex flex-col justify-between space-y-5 sm:space-y-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="flex gap-1">
+                {[...Array(5)].map((_, sIdx) => (
+                  <div key={sIdx} className="w-3.5 h-3.5 rounded-sm bg-[#B3FFC9]/20" />
+                ))}
+              </div>
+              <div className="w-20 h-5 rounded-full bg-[#B3FFC9]/10 border border-[#B3FFC9]/20" />
+            </div>
+            <div className="w-7 h-7 rounded-lg bg-white/5" />
+          </div>
+
+          {/* Simulated Quote Lines */}
+          <div className="space-y-2.5">
+            <div className="h-4 bg-white/10 rounded-md w-full" />
+            <div className="h-4 bg-white/10 rounded-md w-[92%]" />
+            <div className="h-4 bg-white/10 rounded-md w-[75%]" />
+          </div>
+
+          {/* Simulated Author Info */}
+          <div className="flex items-center gap-3 sm:gap-4 pt-4 sm:pt-5 border-t border-white/10">
+            <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-white/10 border border-white/15 shrink-0" />
+            <div className="space-y-2 flex-1">
+              <div className="flex items-center gap-2">
+                <div className="h-4 bg-white/15 rounded w-32" />
+                <div className="h-3.5 bg-[#B3FFC9]/15 rounded-full w-14" />
+              </div>
+              <div className="h-3 bg-white/10 rounded w-44" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function Testimonials() {
   const [testimonials, setTestimonials] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -312,12 +368,13 @@ export function Testimonials() {
             ALL VIDEO STORIES CONTAINER WITH 3D SPOTLIGHT CARDS
            ========================================================================= */}
         {isLoading ? (
-          <div className="py-32 flex flex-col items-center justify-center space-y-4">
-            <div className="w-12 h-12 border-2 border-[#B3FFC9] border-t-transparent rounded-full animate-spin" />
-            <span className="text-xs font-mono text-white/50 tracking-wider uppercase">
-              Loading video client stories...
-            </span>
-          </div>
+          <section className="py-6 sm:py-12 max-w-[1400px] mx-auto px-4 sm:px-8 lg:px-14">
+            <div className="space-y-10 sm:space-y-20">
+              {[0, 1].map((idx) => (
+                <TestimonialSkeletonCard key={idx} isEven={idx % 2 === 0} />
+              ))}
+            </div>
+          </section>
         ) : videoTestimonials.length === 0 ? (
           <div className="py-24 text-center max-w-lg mx-auto space-y-4 px-6">
             <div className="w-14 h-14 mx-auto rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[#B3FFC9]">
