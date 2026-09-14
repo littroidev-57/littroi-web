@@ -2,7 +2,7 @@ import rateLimit from "express-rate-limit";
 
 export const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 200, // Limit each IP to 200 requests per windowMs
+  max: 250, // Limit each IP to 250 requests per windowMs
   standardHeaders: true,
   legacyHeaders: false,
   message: {
@@ -19,5 +19,17 @@ export const contactLimiter = rateLimit({
   message: {
     success: false,
     message: "Too many inquiry submissions. Please try again later or email directly."
+  }
+});
+
+// Strict brute-force protection for login attempts
+export const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // Limit each IP to 10 login requests per 15 minutes
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: "Too many login attempts from this IP. Please try again after 15 minutes."
   }
 });

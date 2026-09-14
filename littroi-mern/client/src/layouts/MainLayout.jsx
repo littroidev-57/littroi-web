@@ -5,7 +5,7 @@ import { Footer } from "../components/shared/Footer";
 
 export function MainLayout() {
   const { pathname } = useLocation();
-  const isAdmin = pathname.startsWith("/admin");
+  const isAdmin = pathname.startsWith("/studio-hq");
 
   // Scroll to top automatically on route changes and track SPA navigation in GA
   useEffect(() => {

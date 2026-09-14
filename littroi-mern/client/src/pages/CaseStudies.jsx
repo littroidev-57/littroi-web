@@ -4,8 +4,41 @@ import { SEO } from "../utils/seo";
 import { caseStudiesAPI } from "../services/api";
 import { caseStudies as fallbackCaseStudies } from "../data/caseStudies";
 
+/**
+ * Skeleton Loader Card for Case Studies matching .cs-card design exactly
+ */
+function CaseStudySkeletonCard({ index = 0 }) {
+  const numStr = `0${index + 1}`;
+  return (
+    <div className="cs-card animate-pulse" style={{ cursor: "default", pointerEvents: "none" }}>
+      {/* Thumb Area Skeleton */}
+      <div className="cs-thumb" style={{ background: "linear-gradient(160deg, #141414 0%, #080808 100%)" }}>
+        <div className="cs-thumb-overlay" />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-2xl bg-white/[0.04] border border-white/5 flex items-center justify-center">
+            <span className="w-3.5 h-3.5 rounded-full bg-[#B3FFC9]/20" />
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Bar Skeleton matching .cs-card-bar */}
+      <div className="cs-card-bar">
+        <div>
+          <div className="h-2.5 w-28 bg-[#B3FFC9]/25 rounded-full mb-2" />
+          <div className="h-5 w-44 bg-white/15 rounded-md" />
+        </div>
+        <div className="cs-card-right">
+          <span className="cs-card-arrow text-white/20">→</span>
+          <span className="cs-card-num text-white/20">{numStr}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function CaseStudies() {
   const [studies, setStudies] = useState(fallbackCaseStudies);
+  const [isLoading, setIsLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState("all");
   const [visibleCount, setVisibleCount] = useState(4);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -13,13 +46,27 @@ export function CaseStudies() {
   const [lightboxImg, setLightboxImg] = useState(null);
 
   useEffect(() => {
+    let isMounted = true;
     const loadStudies = async () => {
-      const data = await caseStudiesAPI.getAll();
-      if (data && data.length) {
-        setStudies(data);
+      try {
+        const data = await caseStudiesAPI.getAll();
+        if (isMounted) {
+          if (data && data.length) {
+            setStudies(data);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load case studies", err);
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
     loadStudies();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Handle ESC key to close modal & lightbox
@@ -967,96 +1014,104 @@ export function CaseStudies() {
 
         {/* ==================== 2-COL CARD GRID ==================== */}
         <section className="cs-grid-container">
-          {visibleStudies.map((study, idx) => {
-            const thumbImg =
-              study.thumbnail ||
-              study.coverImage ||
-              (Array.isArray(study.images) && study.images[0]) ||
-              "";
+          {isLoading ? (
+            <>
+              {[0, 1, 2, 3].map((idx) => (
+                <CaseStudySkeletonCard key={idx} index={idx} />
+              ))}
+            </>
+          ) : (
+            visibleStudies.map((study, idx) => {
+              const thumbImg =
+                study.thumbnail ||
+                study.coverImage ||
+                (Array.isArray(study.images) && study.images[0]) ||
+                "";
 
-            const numStr = study.num || `0${idx + 1}`;
-            const stats = study.stats || [];
+              const numStr = study.num || `0${idx + 1}`;
+              const stats = study.stats || [];
 
-            return (
-              <div
-                key={study.id || study._id || idx}
-                onClick={() => setActiveModalStudy(study)}
-                className="cs-card group"
-              >
-                {/* Thumb Area with Cover Image & Gradient Overlay */}
-                <div className="cs-thumb">
-                  {thumbImg ? (
-                    <>
-                      <img
-                        src={thumbImg}
-                        alt={study.name || study.title || "Case study thumbnail"}
-                        loading="lazy"
-                        decoding="async"
-                        className="cs-thumb-img"
-                      />
-                      <div className="cs-thumb-overlay" />
-                    </>
-                  ) : (
-                    <div className="cs-thumb-fallback" />
-                  )}
-                </div>
+              return (
+                <div
+                  key={study.id || study._id || idx}
+                  onClick={() => setActiveModalStudy(study)}
+                  className="cs-card group"
+                >
+                  {/* Thumb Area with Cover Image & Gradient Overlay */}
+                  <div className="cs-thumb">
+                    {thumbImg ? (
+                      <>
+                        <img
+                          src={thumbImg}
+                          alt={study.name || study.title || "Case study thumbnail"}
+                          loading="lazy"
+                          decoding="async"
+                          className="cs-thumb-img"
+                        />
+                        <div className="cs-thumb-overlay" />
+                      </>
+                    ) : (
+                      <div className="cs-thumb-fallback" />
+                    )}
+                  </div>
 
-                {/* Hover Detail Overlay (above the bar) */}
-                <div className="cs-card-detail">
-                  {((study.beforeAfter && study.beforeAfter.length > 0) || (study.beforeImage && study.afterImage)) && (
-                    <div className="cs-card-ba-pill">
-                      <span className="dot" />
-                      <span>
-                        {(study.beforeAfter && study.beforeAfter.length > 1)
-                          ? `${study.beforeAfter.length} Before & After Proofs`
-                          : "Before & After Proof"}
-                      </span>
-                    </div>
-                  )}
-
-                  {stats.length > 0 && (
-                    <div className="cs-detail-stats">
-                      {stats.slice(0, 2).map((s, sIdx) => (
-                        <div key={sIdx}>
-                          <div className="cs-detail-num">{s.num}</div>
-                          <div className="cs-detail-label">{s.label}</div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {study.tags && study.tags.length > 0 && (
-                    <div className="cs-detail-tags">
-                      {study.tags.slice(0, 2).map((t, tIdx) => (
-                        <span key={tIdx} className="cs-detail-tag">
-                          {t}
+                  {/* Hover Detail Overlay (above the bar) */}
+                  <div className="cs-card-detail">
+                    {((study.beforeAfter && study.beforeAfter.length > 0) || (study.beforeImage && study.afterImage)) && (
+                      <div className="cs-card-ba-pill">
+                        <span className="dot" />
+                        <span>
+                          {(study.beforeAfter && study.beforeAfter.length > 1)
+                            ? `${study.beforeAfter.length} Before & After Proofs`
+                            : "Before & After Proof"}
                         </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                      </div>
+                    )}
 
-                {/* Bottom Bar */}
-                <div className="cs-card-bar">
-                  <div>
-                    <p className="cs-card-cat">
-                      {study.cardCat || study.category || "Case Study"}
-                    </p>
-                    <p className="cs-card-name">
-                      {study.name || study.title}
-                    </p>
+                    {stats.length > 0 && (
+                      <div className="cs-detail-stats">
+                        {stats.slice(0, 2).map((s, sIdx) => (
+                          <div key={sIdx}>
+                            <div className="cs-detail-num">{s.num}</div>
+                            <div className="cs-detail-label">{s.label}</div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {study.tags && study.tags.length > 0 && (
+                      <div className="cs-detail-tags">
+                        {study.tags.slice(0, 2).map((t, tIdx) => (
+                          <span key={tIdx} className="cs-detail-tag">
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                  <div className="cs-card-right">
-                    <span className="cs-card-arrow">→</span>
-                    <span className="cs-card-num">{numStr}</span>
+
+                  {/* Bottom Bar */}
+                  <div className="cs-card-bar">
+                    <div>
+                      <p className="cs-card-cat">
+                        {study.cardCat || study.category || "Case Study"}
+                      </p>
+                      <p className="cs-card-name">
+                        {study.name || study.title}
+                      </p>
+                    </div>
+                    <div className="cs-card-right">
+                      <span className="cs-card-arrow">→</span>
+                      <span className="cs-card-num">{numStr}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })
+          )}
 
           {/* SEE MORE BUTTON */}
-          {hasMore && (
+          {!isLoading && hasMore && (
             <div className="cs-view-all">
               <button
                 className="cs-btn-all"
@@ -1073,7 +1128,7 @@ export function CaseStudies() {
             </div>
           )}
 
-          {!hasMore && filteredStudies.length > 4 && (
+          {!isLoading && !hasMore && filteredStudies.length > 4 && (
             <div className="cs-view-all">
               <p className="cs-count-note">
                 ✓ All {filteredStudies.length} Case Studies

@@ -43,6 +43,80 @@ function getAuthorInitial(author) {
   return trimmed.charAt(0).toUpperCase();
 }
 
+/**
+ * Skeleton Loader for Blog Page (Hero card + 3-card grid)
+ */
+function BlogSkeletonLoader() {
+  return (
+    <div className="space-y-12 animate-pulse select-none">
+      {/* Featured Article Hero Skeleton */}
+      <div className="p-6 sm:p-8 rounded-[32px] bg-[#0d0d0d] border border-white/10 relative overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          <div className="lg:col-span-5 aspect-[16/10] rounded-2xl bg-white/[0.04] border border-white/5" />
+          <div className="lg:col-span-7 space-y-6">
+            <div className="space-y-4">
+              <div className="flex gap-2">
+                <div className="h-5 w-24 rounded-full bg-[#B3FFC9]/20" />
+                <div className="h-5 w-16 rounded-full bg-white/10" />
+              </div>
+              <div className="h-8 sm:h-10 w-4/5 bg-white/15 rounded-xl" />
+              <div className="space-y-2">
+                <div className="h-3.5 w-full bg-white/5 rounded" />
+                <div className="h-3.5 w-5/6 bg-white/5 rounded" />
+              </div>
+            </div>
+            <div className="pt-4 border-t border-white/10 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-white/10" />
+              <div className="space-y-1.5">
+                <div className="h-3.5 w-28 bg-white/10 rounded" />
+                <div className="h-2.5 w-16 bg-white/5 rounded" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Grid of 3 Article Skeletons */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="p-5 sm:p-6 rounded-[28px] bg-[#0c0c0c] border border-white/10 flex flex-col justify-between h-full space-y-4 relative overflow-hidden">
+            <div className="space-y-4">
+              {/* Image Skeleton with Category & Views Overlay */}
+              <div className="aspect-[16/10] overflow-hidden rounded-2xl bg-white/[0.04] border border-white/5 relative">
+                <div className="absolute top-3 left-3">
+                  <div className="h-5 w-20 rounded-full bg-[#B3FFC9]/20" />
+                </div>
+                <div className="absolute bottom-2.5 right-2.5">
+                  <div className="h-5 w-14 rounded-full bg-black/80 border border-white/10" />
+                </div>
+              </div>
+
+              {/* Title & Excerpt Skeleton */}
+              <div className="space-y-2.5">
+                <div className="h-5 w-full bg-white/15 rounded-md" />
+                <div className="h-5 w-3/4 bg-white/15 rounded-md" />
+                <div className="space-y-1.5 pt-1">
+                  <div className="h-3 w-full bg-white/5 rounded" />
+                  <div className="h-3 w-4/5 bg-white/5 rounded" />
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Meta Skeleton */}
+            <div className="pt-4 border-t border-white/10 flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-full bg-white/10" />
+                <div className="h-3 w-28 bg-white/10 rounded" />
+              </div>
+              <div className="w-8 h-8 rounded-full bg-white/5" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function Blog() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -324,8 +398,10 @@ export function Blog() {
             </div>
           )}
 
-          {/* If No Posts Found */}
-          {filteredAndSortedPosts.length === 0 ? (
+          {/* SKELETON LOADER */}
+          {isLoading ? (
+            <BlogSkeletonLoader />
+          ) : filteredAndSortedPosts.length === 0 ? (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}

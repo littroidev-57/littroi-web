@@ -4,6 +4,17 @@
  * with proper <h2>, <h3>, <ul>, <ol>, <blockquote>, and <p> tags.
  */
 
+export function sanitizeHtml(html) {
+  if (!html || typeof html !== "string") return "";
+  return html
+    .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, "")
+    .replace(/<iframe[\s\S]*?>[\s\S]*?<\/iframe>/gi, "")
+    .replace(/<object[\s\S]*?>[\s\S]*?<\/object>/gi, "")
+    .replace(/<embed[\s\S]*?>[\s\S]*?<\/embed>/gi, "")
+    .replace(/\son\w+\s*=\s*(?:'[^']*'|"[^"]*"|[^\s>]+)/gi, "")
+    .replace(/href\s*=\s*(['"]?)\s*javascript:[^'"]*\1/gi, 'href="#"');
+}
+
 export function autoFormatTextToHtml(input) {
   if (!input || typeof input !== "string") return "";
 
@@ -11,11 +22,11 @@ export function autoFormatTextToHtml(input) {
   if (!text) return "";
 
   // If text is already well-structured semantic HTML (has <h2> or <h3>, plus paragraphs/lists),
-  // return as-is without stripping.
+  // return sanitized without stripping.
   const hasSemanticHeadings = /<h[1-6][\s>]/i.test(text);
   const hasMultipleHtmlTags = (text.match(/<\/(?:p|h[1-6]|ul|ol|blockquote|div)>/gi) || []).length >= 3;
   if (hasSemanticHeadings && hasMultipleHtmlTags) {
-    return text;
+    return sanitizeHtml(text);
   }
 
   // Strip non-semantic or basic <p>/<div> wrapper tags from pasted text to rebuild cleanly
@@ -423,7 +434,7 @@ export function autoFormatTextToHtml(input) {
     }
   }
 
-  return blocks.join("\n\n");
+  return sanitizeHtml(blocks.join("\n\n"));
 }
 
 /**

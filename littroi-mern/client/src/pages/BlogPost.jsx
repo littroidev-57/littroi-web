@@ -138,12 +138,60 @@ export function BlogPost() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#060606] flex items-center justify-center pt-24 pb-20">
-        <div className="flex flex-col items-center space-y-4">
-          <div className="w-12 h-12 border-2 border-[#B3FFC9] border-t-transparent rounded-full animate-spin shadow-[0_0_20px_rgba(179,255,201,0.3)]" />
-          <p className="text-xs font-mono text-white/50 tracking-wider uppercase">Loading Article &amp; Insights...</p>
+      <article className="pt-28 sm:pt-36 pb-24 bg-[#060606] text-white min-h-screen relative overflow-hidden select-none animate-pulse">
+        <div className="max-w-4xl mx-auto px-6 sm:px-10 lg:px-12 space-y-10">
+          {/* Back button & share skeleton */}
+          <div className="flex items-center justify-between">
+            <div className="h-4 w-32 bg-white/10 rounded" />
+            <div className="h-7 w-20 bg-white/5 rounded-full" />
+          </div>
+
+          {/* Title & Metadata Skeleton */}
+          <div className="space-y-6">
+            <div className="flex items-center gap-3">
+              <div className="h-6 w-24 rounded-full bg-[#B3FFC9]/20" />
+              <div className="h-4 w-16 rounded bg-white/10" />
+            </div>
+
+            <div className="space-y-3">
+              <div className="h-8 sm:h-12 w-full bg-white/15 rounded-2xl" />
+              <div className="h-8 sm:h-12 w-3/4 bg-white/15 rounded-2xl" />
+            </div>
+
+            {/* Author Bar Skeleton */}
+            <div className="flex items-center justify-between py-5 border-y border-white/10">
+              <div className="flex items-center gap-3.5">
+                <div className="w-11 h-11 rounded-full bg-white/10" />
+                <div className="space-y-1.5">
+                  <div className="h-2.5 w-16 bg-white/10 rounded" />
+                  <div className="h-4 w-28 bg-white/15 rounded" />
+                </div>
+              </div>
+              <div className="h-6 w-24 rounded-full bg-white/5" />
+            </div>
+          </div>
+
+          {/* Hero Image Skeleton */}
+          <div className="rounded-3xl aspect-[16/9] bg-white/[0.04] border border-white/10" />
+
+          {/* Excerpt Callout Quote Skeleton */}
+          <div className="p-6 sm:p-8 rounded-2xl bg-gradient-to-r from-[#0f0f0f] to-[#0a0a0a] border-l-4 border-[#B3FFC9] border border-white/5 space-y-2">
+            <div className="h-4 bg-white/15 rounded w-full" />
+            <div className="h-4 bg-white/15 rounded w-4/5" />
+          </div>
+
+          {/* Body Lines Skeleton */}
+          <div className="space-y-4 pt-4">
+            <div className="h-4 bg-white/10 rounded w-full" />
+            <div className="h-4 bg-white/10 rounded w-[96%]" />
+            <div className="h-4 bg-white/10 rounded w-[92%]" />
+            <div className="h-4 bg-white/10 rounded w-[85%]" />
+            <div className="h-8 w-1/3 bg-white/15 rounded-lg pt-4" />
+            <div className="h-4 bg-white/10 rounded w-full" />
+            <div className="h-4 bg-white/10 rounded w-[90%]" />
+          </div>
         </div>
-      </div>
+      </article>
     );
   }
 

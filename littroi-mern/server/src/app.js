@@ -23,12 +23,17 @@ dotenv.config();
 
 const app = express();
 
+// Disable X-Powered-By header to obscure server technology stack
+app.disable("x-powered-by");
+
 // Security Headers
 app.use(helmet({ crossOriginResourcePolicy: false }));
 
-// CORS Config — Allows Vite dev server on any localhost port (5173, 5174, etc.)
+// CORS Config — Production domains, Vercel edge previews, and local development
 const allowedOrigins = [
   process.env.CLIENT_URL,
+  "https://littroi.com",
+  "https://www.littroi.com",
   "http://localhost:5173",
   "http://localhost:5174",
   "http://localhost:5175",
@@ -48,7 +53,16 @@ app.use(
       ) {
         return callback(null, true);
       }
-      return callback(null, true);
+      try {
+        const parsed = new URL(origin);
+        if (parsed.hostname.endsWith(".vercel.app")) {
+          return callback(null, true);
+        }
+      } catch {}
+      if (process.env.NODE_ENV === "development") {
+        return callback(null, true);
+      }
+      return callback(new Error("CORS policy violation: origin not permitted"));
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],

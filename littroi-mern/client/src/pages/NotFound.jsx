@@ -6,7 +6,7 @@ import { Button } from "../components/ui/Button";
 export function NotFound() {
   return (
     <>
-      <SEO title="404 — Page Not Found" />
+      <SEO title="404 — Page Not Found" noindex={true} />
       <div className="min-h-[80vh] flex items-center justify-center pt-24 px-4">
         <div className="max-w-md text-center space-y-6">
           <span className="text-7xl font-display font-extrabold text-brand-primary">404</span>

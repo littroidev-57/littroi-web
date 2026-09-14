@@ -52,7 +52,7 @@ import litroiLogo from "../assets/littroi-logo.png";
 export function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     const token = cookieUtils.get("littroi_token") || localStorage.getItem("littroi_token");
-    return Boolean(token && token !== "mock_jwt_token_littroi_admin_active");
+    return Boolean(token);
   });
   const [adminUser, setAdminUser] = useState(() => {
     try {
@@ -94,7 +94,7 @@ export function Admin() {
   });
 
   // Auth States
-  const [credentials, setCredentials] = useState({ email: "[EMAIL_ADDRESS]", password: "" });
+  const [credentials, setCredentials] = useState({ email: "", password: "" });
   const [loginError, setLoginError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
@@ -212,11 +212,11 @@ export function Admin() {
     setTimeout(() => setToastMessage(""), 3500);
   };
 
-  // Check Existing Session — validates token against real server, clears any stale mock tokens
+  // Check Existing Session — validates real JWT token against server
   useEffect(() => {
     const checkSession = async () => {
       const token = cookieUtils.get("littroi_token") || localStorage.getItem("littroi_token");
-      if (!token || token === "mock_jwt_token_littroi_admin_active") {
+      if (!token) {
         setIsAuthenticated(false);
         setAdminUser(null);
         cookieUtils.remove("littroi_token");
@@ -1543,6 +1543,7 @@ export function Admin() {
                 <input
                   type="email"
                   value={credentials.email}
+                  placeholder="Enter your email"
                   onChange={(e) => setCredentials({ ...credentials, email: e.target.value })}
                   className="w-full px-4 py-3.5 rounded-xl bg-[#141414] border border-white/10 text-white text-sm focus:outline-none focus:border-[#B3FFC9] transition-colors"
                   required

@@ -9,6 +9,7 @@ import {
   Phone,
   Sparkles,
   ChevronDown,
+  ChevronUp,
   Copy,
   Check,
   Video,
@@ -453,66 +454,76 @@ export function Contact() {
         </section>
 
         {/* =========================================================================
-            6. PRE-BOOKING FAQ ACCORDION
+            6. PRE-BOOKING FAQ ACCORDION (2-COLUMN SPLIT LAYOUT)
            ========================================================================= */}
-        <section className="py-14 sm:py-20 max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-16 border-t border-white/10">
-          <div className="text-left mb-10">
-            <span className="text-xs font-mono tracking-widest text-[#B3FFC9] uppercase font-semibold block mb-2">
-              FREQUENTLY ASKED QUESTIONS
-            </span>
-            <h2
-              className="text-2xl sm:text-4xl font-extrabold text-white"
-              style={{ fontFamily: "'Syne', sans-serif" }}
-            >
-              Questions Before Scheduling?
-            </h2>
-          </div>
+        <section className="py-14 sm:py-24 max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-16 border-t border-white/10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
+            {/* FAQ Left Heading */}
+            <div className="lg:col-span-5 space-y-4">
+              <span className="text-xs font-mono tracking-[0.2em] uppercase text-[#B3FFC9] font-bold block">
+                COMMON QUESTIONS
+              </span>
+              <h2
+                className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-[1.15] mt-2"
+                style={{ fontFamily: "'Syne', sans-serif" }}
+              >
+                <span className="block whitespace-nowrap">Frequently Asked</span>
+                <span style={{ color: "#B3FFC9" }} className="block">Questions</span>
+              </h2>
+              <p
+                className="text-sm text-white/60 leading-relaxed mt-4 max-w-md"
+                style={{ fontFamily: "'benzine', 'Benzin', sans-serif" }}
+              >
+                Everything you need to know about our strategy calls, production workflows, and turnaround times.
+              </p>
+            </div>
 
-          <div className="space-y-4 max-w-4xl">
-            {faqs.map((faq, index) => {
-              const isOpen = activeFaq === index;
-              return (
-                <div
-                  key={index}
-                  className="rounded-2xl border border-white/10 bg-white/[0.02] hover:border-white/20 transition-colors overflow-hidden"
-                >
-                  <button
-                    type="button"
-                    onClick={() => toggleFaq(index)}
-                    className="w-full px-6 py-5 flex items-center justify-between text-left cursor-pointer focus:outline-none"
+            {/* FAQ Right Accordion Items */}
+            <div className="lg:col-span-7 space-y-4">
+              {faqs.map((faq, index) => {
+                const isOpen = activeFaq === index;
+                return (
+                  <div
+                    key={index}
+                    className="border border-white/10 rounded-2xl bg-[#0a0a0a] overflow-hidden transition-colors duration-300"
                   >
-                    <span
-                      className="text-base sm:text-lg font-bold text-white pr-4"
-                      style={{ fontFamily: "'Syne', sans-serif" }}
+                    <button
+                      onClick={() => toggleFaq(index)}
+                      type="button"
+                      className="w-full p-6 text-left flex items-center justify-between gap-4 cursor-pointer hover:bg-white/[0.02] transition-colors"
                     >
-                      {faq.question}
-                    </span>
-                    <motion.div
-                      animate={{ rotate: isOpen ? 180 : 0 }}
-                      transition={{ duration: 0.25 }}
-                      className="shrink-0 text-[#B3FFC9]"
-                    >
-                      <ChevronDown size={20} />
-                    </motion.div>
-                  </button>
-
-                  <AnimatePresence initial={false}>
-                    {isOpen && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                      <span
+                        className="text-base sm:text-lg font-bold text-white tracking-tight pr-4"
+                        style={{ fontFamily: "'Syne', sans-serif" }}
                       >
-                        <div className="px-6 pb-6 pt-1 text-sm text-white/70 leading-relaxed border-t border-white/5">
-                          {faq.answer}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              );
-            })}
+                        {faq.question}
+                      </span>
+                      <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/60 shrink-0">
+                        {isOpen ? <ChevronUp size={16} className="text-[#B3FFC9]" /> : <ChevronDown size={16} />}
+                      </div>
+                    </button>
+
+                    <AnimatePresence initial={false}>
+                      {isOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                        >
+                          <div
+                            className="px-6 pb-6 pt-2 border-t border-white/5 text-sm sm:text-[15px] text-white/70 leading-relaxed"
+                            style={{ fontFamily: "'benzine', 'Benzin', sans-serif" }}
+                          >
+                            {faq.answer}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </section>
 

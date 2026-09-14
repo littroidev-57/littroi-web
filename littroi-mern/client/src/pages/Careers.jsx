@@ -165,8 +165,37 @@ const parseListItems = (data) => {
   return [];
 };
 
+/**
+ * Skeleton Loader for Job Cards in Careers
+ */
+function JobCardSkeleton() {
+  return (
+    <div className="rounded-3xl bg-[#0c0c0c] border border-white/10 p-6 sm:p-8 space-y-4 animate-pulse select-none">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+        <div className="space-y-3 flex-1">
+          <div className="flex items-center gap-2.5">
+            <div className="h-5 w-28 bg-[#B3FFC9]/20 rounded-full" />
+            <div className="h-5 w-24 bg-white/10 rounded-full" />
+          </div>
+          <div className="h-7 w-64 bg-white/15 rounded-md" />
+          <div className="flex items-center gap-4">
+            <div className="h-3.5 w-32 bg-white/10 rounded" />
+            <div className="h-3.5 w-20 bg-white/10 rounded" />
+            <div className="h-3.5 w-24 bg-white/10 rounded" />
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="h-9 w-24 bg-[#B3FFC9]/20 rounded-full" />
+          <div className="w-10 h-10 rounded-full bg-white/5" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function Careers() {
   const [jobList, setJobList] = useState(fallbackJobs);
+  const [isLoading, setIsLoading] = useState(true);
   const [expandedJob, setExpandedJob] = useState(fallbackJobs[0]?.id || null);
 
   // Application Modal States
@@ -306,16 +335,30 @@ export function Careers() {
   };
 
   useEffect(() => {
+    let isMounted = true;
     const loadJobs = async () => {
-      const data = await jobsAPI.getAll();
-      if (data && data.length) {
-        setJobList(data);
-        if (!expandedJob && data[0]) {
-          setExpandedJob(data[0].id || data[0]._id);
+      try {
+        const data = await jobsAPI.getAll();
+        if (isMounted) {
+          if (data && data.length) {
+            setJobList(data);
+            if (!expandedJob && data[0]) {
+              setExpandedJob(data[0].id || data[0]._id);
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load careers:", err);
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
         }
       }
     };
     loadJobs();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const toggleJob = (id) => {
@@ -411,7 +454,10 @@ export function Careers() {
           </div>
 
           <div className="space-y-5">
-            {jobList.map((job, idx) => {
+            {isLoading ? (
+              [0, 1, 2, 3].map((idx) => <JobCardSkeleton key={idx} />)
+            ) : (
+              jobList.map((job, idx) => {
               const jobId = job.id || job._id || `job-${idx}`;
               const isExpanded = expandedJob === jobId;
               return (
@@ -529,7 +575,7 @@ export function Careers() {
                   </div>
                 </FadeIn>
               );
-            })}
+            }))}
           </div>
         </section>
 
