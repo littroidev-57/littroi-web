@@ -1792,11 +1792,11 @@ export function Admin() {
           {/* Main Body Content */}
           <main className="p-6 sm:p-10 space-y-8 flex-1">
 
-            {/* ==================== TAB: DASHBOARD WITH ANALYTICS GRAPHS ==================== */}
+            {/* ==================== TAB: DASHBOARD WITH REAL METRICS ==================== */}
             {activeTab === "dashboard" && (
               <div className="space-y-8">
-                {/* 6 Hero Metric Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+                {/* 5 Real Metric Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                   <div
                     onClick={() => setActiveTab("caseStudies")}
                     className="p-5 rounded-2xl bg-[#0e0e0e] border border-white/10 hover:border-[#B3FFC9]/40 transition-all cursor-pointer space-y-3 group hover:shadow-[0_10px_30px_rgba(0,0,0,0.8),0_0_20px_rgba(179,255,201,0.05)]"
@@ -1807,14 +1807,9 @@ export function Admin() {
                         <FileText size={14} />
                       </div>
                     </div>
-                    <div className="flex items-baseline justify-between">
-                      <p className="text-3xl font-extrabold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>
-                        {caseStudiesList.length}
-                      </p>
-                      <span className="text-[10px] font-mono text-[#B3FFC9] flex items-center gap-0.5">
-                        <TrendingUp size={10} /> +12%
-                      </span>
-                    </div>
+                    <p className="text-3xl font-extrabold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>
+                      {caseStudiesList.length}
+                    </p>
                     <div className="text-[10px] text-white/40 font-mono">
                       <span>Full Case Studies</span>
                     </div>
@@ -1830,39 +1825,11 @@ export function Admin() {
                         <Quote size={14} />
                       </div>
                     </div>
-                    <div className="flex items-baseline justify-between">
-                      <p className="text-3xl font-extrabold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>
-                        {testimonialsList.length}
-                      </p>
-                      <span className="text-[10px] font-mono text-[#B3FFC9] flex items-center gap-0.5">
-                        <Star size={10} /> 5.0
-                      </span>
-                    </div>
+                    <p className="text-3xl font-extrabold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>
+                      {testimonialsList.length}
+                    </p>
                     <div className="text-[10px] text-white/40 font-mono">
-                      <span>Home Video Reviews</span>
-                    </div>
-                  </div>
-
-                  <div
-                    onClick={() => setActiveTab("homeVideos")}
-                    className="p-5 rounded-2xl bg-[#0e0e0e] border border-white/10 hover:border-[#B3FFC9]/40 transition-all cursor-pointer space-y-3 group hover:shadow-[0_10px_30px_rgba(0,0,0,0.8),0_0_20px_rgba(179,255,201,0.05)]"
-                  >
-                    <div className="flex items-center justify-between text-white/50">
-                      <span className="text-[11px] uppercase font-bold tracking-wider" style={{ fontFamily: "'Syne', sans-serif" }}>Home Videos</span>
-                      <div className="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center text-[#B3FFC9] group-hover:scale-110 transition-transform">
-                        <Video size={14} />
-                      </div>
-                    </div>
-                    <div className="flex items-baseline justify-between">
-                      <p className="text-3xl font-extrabold text-[#B3FFC9]" style={{ fontFamily: "'Syne', sans-serif" }}>
-                        {projectsList.length}
-                      </p>
-                      <span className="text-[10px] font-mono text-[#B3FFC9] flex items-center gap-0.5">
-                        <TrendingUp size={10} /> Live
-                      </span>
-                    </div>
-                    <div className="text-[10px] text-white/40 font-mono">
-                      <span>Projects, Podcasts, Shorts</span>
+                      <span>Client Video Stories</span>
                     </div>
                   </div>
 
@@ -1876,16 +1843,11 @@ export function Admin() {
                         <FileText size={14} />
                       </div>
                     </div>
-                    <div className="flex items-baseline justify-between">
-                      <p className="text-3xl font-extrabold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>
-                        {blogsList.length}
-                      </p>
-                      <span className="text-[10px] font-mono text-[#B3FFC9] flex items-center gap-1">
-                        <Eye size={10} /> {blogsList.reduce((acc, b) => acc + (Number(b.views) || 0), 0).toLocaleString()} reads
-                      </span>
-                    </div>
+                    <p className="text-3xl font-extrabold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>
+                      {blogsList.length}
+                    </p>
                     <div className="text-[10px] text-white/40 font-mono">
-                      <span>Thought Leadership</span>
+                      <span>Published Articles</span>
                     </div>
                   </div>
 
@@ -1894,19 +1856,16 @@ export function Admin() {
                     className="p-5 rounded-2xl bg-[#0e0e0e] border border-white/10 hover:border-[#B3FFC9]/40 transition-all cursor-pointer space-y-3 group hover:shadow-[0_10px_30px_rgba(0,0,0,0.8),0_0_20px_rgba(179,255,201,0.05)]"
                   >
                     <div className="flex items-center justify-between text-white/50">
-                      <span className="text-[11px] uppercase font-bold tracking-wider" style={{ fontFamily: "'Syne', sans-serif" }}>Active Careers</span>
+                      <span className="text-[11px] uppercase font-bold tracking-wider" style={{ fontFamily: "'Syne', sans-serif" }}>Open Careers</span>
                       <div className="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center text-[#B3FFC9] group-hover:scale-110 transition-transform">
                         <Briefcase size={14} />
                       </div>
                     </div>
-                    <div className="flex items-baseline justify-between">
-                      <p className="text-3xl font-extrabold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>
-                        {jobsList.length}
-                      </p>
-                      <span className="text-[10px] font-mono text-white/40">Hiring</span>
-                    </div>
+                    <p className="text-3xl font-extrabold text-white" style={{ fontFamily: "'Syne', sans-serif" }}>
+                      {jobsList.length}
+                    </p>
                     <div className="text-[10px] text-white/40 font-mono">
-                      <span>Open Studio Roles</span>
+                      <span>Active Studio Roles</span>
                     </div>
                   </div>
 
@@ -1924,475 +1883,22 @@ export function Admin() {
                       <p className="text-3xl font-extrabold text-[#B3FFC9]" style={{ fontFamily: "'Syne', sans-serif" }}>
                         {jobApplicationsList.length}
                       </p>
-                      {jobApplicationsList.some(a => a.status === "New") && (
-                        <span className="text-[10px] font-mono text-[#B3FFC9] flex items-center gap-0.5">
-                          New
+                      {jobApplicationsList.some((a) => a.status === "New") && (
+                        <span className="text-[10px] font-mono text-[#B3FFC9] px-2 py-0.5 rounded-full bg-[#B3FFC9]/10 border border-[#B3FFC9]/20 font-bold">
+                          {jobApplicationsList.filter((a) => a.status === "New").length} New
                         </span>
                       )}
                     </div>
                     <div className="text-[10px] text-white/40 font-mono">
-                      <span>Candidate Profiles</span>
+                      <span>Candidate Inflow</span>
                     </div>
                   </div>
                 </div>
 
-                {/* ==================== ANALYTICS GRAPHS ROW 1 ==================== */}
+                {/* Dashboard Main Grid: Quick Actions & Recent Activity */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-                  {/* Left Chart: Audience, Leads & Video Views Engagement Area Curve (8 Cols) */}
-                  <div className="lg:col-span-8 p-6 sm:p-7 rounded-3xl bg-[#0c0c0c] border border-white/10 space-y-6 flex flex-col justify-between">
-                    <div className="flex flex-wrap items-center justify-between gap-4">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="w-2.5 h-2.5 rounded-full bg-[#B3FFC9] animate-pulse" />
-                          <h3 className="text-base sm:text-lg font-bold text-white tracking-tight" style={{ fontFamily: "'Syne', sans-serif" }}>
-                            Traffic, Inquiries &amp; Video Engagement
-                          </h3>
-                        </div>
-                        <p className="text-xs text-white/40 font-mono mt-1">
-                          Live database analytics: lead influx velocity and audience impact pacing
-                        </p>
-                      </div>
-
-                      <div className="flex flex-wrap items-center gap-2">
-                        {/* Metric Mode Filter */}
-                        <div className="flex items-center gap-1 bg-[#141414] p-1 rounded-xl border border-white/10 text-[11px] font-mono">
-                          <button
-                            onClick={() => setChartMetric("all")}
-                            className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${chartMetric === "all" ? "bg-white/15 text-[#B3FFC9] font-bold" : "text-white/40 hover:text-white"
-                              }`}
-                          >
-                            All Growth
-                          </button>
-                          <button
-                            onClick={() => setChartMetric("leads")}
-                            className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${chartMetric === "leads" ? "bg-white/15 text-[#B3FFC9] font-bold" : "text-white/40 hover:text-white"
-                              }`}
-                          >
-                            Leads Only
-                          </button>
-                          <button
-                            onClick={() => setChartMetric("reach")}
-                            className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${chartMetric === "reach" ? "bg-white/15 text-[#22D3EE] font-bold" : "text-white/40 hover:text-white"
-                              }`}
-                          >
-                            Reach Only
-                          </button>
-                        </div>
-
-                        {/* Time Range Filter Pills */}
-                        <div className="flex items-center gap-1 bg-[#141414] p-1 rounded-full border border-white/10">
-                          {["7D", "30D", "90D", "1Y"].map((range) => (
-                            <button
-                              key={range}
-                              onClick={() => setChartRange(range)}
-                              className={`px-3 py-1 rounded-full text-xs font-mono font-bold transition-all cursor-pointer ${chartRange === range
-                                ? "bg-[#B3FFC9] text-black shadow-[0_0_15px_rgba(179,255,201,0.3)]"
-                                : "text-white/50 hover:text-white"
-                                }`}
-                            >
-                              {range}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Dynamic Interactive SVG Area Chart */}
-                    <div className="relative w-full h-64 sm:h-72 select-none">
-                      <svg className="w-full h-full overflow-visible" viewBox="0 0 700 240" preserveAspectRatio="none">
-                        <defs>
-                          <linearGradient id="mintAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#B3FFC9" stopOpacity="0.38" />
-                            <stop offset="100%" stopColor="#B3FFC9" stopOpacity="0.0" />
-                          </linearGradient>
-                          <linearGradient id="cyanAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#22D3EE" stopOpacity="0.28" />
-                            <stop offset="100%" stopColor="#22D3EE" stopOpacity="0.0" />
-                          </linearGradient>
-                        </defs>
-
-                        {/* Background Grid Lines */}
-                        <line x1="0" y1="40" x2="700" y2="40" stroke="rgba(255,255,255,0.05)" strokeDasharray="4 4" />
-                        <line x1="0" y1="95" x2="700" y2="95" stroke="rgba(255,255,255,0.05)" strokeDasharray="4 4" />
-                        <line x1="0" y1="150" x2="700" y2="150" stroke="rgba(255,255,255,0.05)" strokeDasharray="4 4" />
-                        <line x1="0" y1="215" x2="700" y2="215" stroke="rgba(255,255,255,0.08)" />
-
-                        {/* Secondary Series: Cyan Area & Line (Audience Reach & Impact) */}
-                        {(chartMetric === "all" || chartMetric === "reach") && (
-                          <g>
-                            <path
-                              d={timeSeriesAnalytics.secondaryArea}
-                              fill="url(#cyanAreaGrad)"
-                              className="transition-all duration-700 ease-out"
-                            />
-                            <path
-                              d={timeSeriesAnalytics.secondaryPath}
-                              fill="none"
-                              stroke="#22D3EE"
-                              strokeWidth="2.2"
-                              strokeDasharray="4 4"
-                              opacity="0.85"
-                              className="transition-all duration-700 ease-out"
-                            />
-                          </g>
-                        )}
-
-                        {/* Primary Series: Mint Area & Line (Direct Inbound Leads & Interactions) */}
-                        {(chartMetric === "all" || chartMetric === "leads") && (
-                          <g>
-                            <path
-                              d={timeSeriesAnalytics.primaryArea}
-                              fill="url(#mintAreaGrad)"
-                              className="transition-all duration-700 ease-out"
-                            />
-                            <path
-                              d={timeSeriesAnalytics.primaryPath}
-                              fill="none"
-                              stroke="#B3FFC9"
-                              strokeWidth="3.5"
-                              strokeLinecap="round"
-                              className="transition-all duration-700 ease-out"
-                            />
-                          </g>
-                        )}
-
-                        {/* Dynamic Interactive Data Nodes */}
-                        {timeSeriesAnalytics.nodes.map((pt, i) => (
-                          <g key={i} className="cursor-pointer group/dot">
-                            {/* Hitbox */}
-                            <circle
-                              cx={pt.cx}
-                              cy={chartMetric === "reach" ? pt.cy2 : pt.cy}
-                              r={16}
-                              fill="transparent"
-                              onMouseEnter={() => setHoveredPoint(i)}
-                              onMouseLeave={() => setHoveredPoint(null)}
-                            />
-
-                            {/* Center Node Dot */}
-                            <circle
-                              cx={pt.cx}
-                              cy={chartMetric === "reach" ? pt.cy2 : pt.cy}
-                              r={hoveredPoint === i ? 7.5 : 5}
-                              className={`transition-all duration-200 ${chartMetric === "reach"
-                                ? "fill-[#0c0c0c] stroke-[#22D3EE]"
-                                : "fill-[#0c0c0c] stroke-[#B3FFC9]"
-                                }`}
-                              strokeWidth={hoveredPoint === i ? 4 : 2.5}
-                              onMouseEnter={() => setHoveredPoint(i)}
-                              onMouseLeave={() => setHoveredPoint(null)}
-                            />
-
-                            {/* Floating Tooltip Card on Hover */}
-                            {hoveredPoint === i && (
-                              <g className="transition-opacity duration-200 pointer-events-none">
-                                <rect
-                                  x={Math.max(10, Math.min(pt.cx - 55, 580))}
-                                  y={Math.max(10, (chartMetric === "reach" ? pt.cy2 : pt.cy) - 52)}
-                                  width="110"
-                                  height="44"
-                                  rx="8"
-                                  fill="#161616"
-                                  stroke={chartMetric === "reach" ? "#22D3EE" : "#B3FFC9"}
-                                  strokeWidth="1.2"
-                                  className="shadow-2xl"
-                                />
-                                <text
-                                  x={Math.max(65, Math.min(pt.cx, 635))}
-                                  y={Math.max(26, (chartMetric === "reach" ? pt.cy2 : pt.cy) - 34)}
-                                  fill="#ffffff"
-                                  fontSize="10"
-                                  fontWeight="600"
-                                  textAnchor="middle"
-                                  fontFamily="monospace"
-                                  opacity="0.75"
-                                >
-                                  {pt.date || pt.label}
-                                </text>
-                                <text
-                                  x={Math.max(65, Math.min(pt.cx, 635))}
-                                  y={Math.max(42, (chartMetric === "reach" ? pt.cy2 : pt.cy) - 18)}
-                                  fill={chartMetric === "reach" ? "#22D3EE" : "#B3FFC9"}
-                                  fontSize="12"
-                                  fontWeight="bold"
-                                  textAnchor="middle"
-                                  fontFamily="monospace"
-                                >
-                                  {chartMetric === "reach" ? `${pt.reachVal} Reach` : pt.val}
-                                </text>
-                              </g>
-                            )}
-                          </g>
-                        ))}
-                      </svg>
-
-                      {/* X-Axis Labels */}
-                      <div className="flex items-center justify-between text-[11px] font-mono text-white/40 pt-2 border-t border-white/5">
-                        {timeSeriesAnalytics.labels.map((lbl, idx) => (
-                          <span
-                            key={idx}
-                            className={idx === timeSeriesAnalytics.labels.length - 1 ? "text-[#B3FFC9] font-bold" : ""}
-                          >
-                            {lbl.short}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Chart Dynamic KPI Highlights */}
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-white/10">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-1.5 text-xs text-white/50">
-                          <span className="w-2.5 h-2.5 rounded-full bg-[#B3FFC9]" />
-                          <span>Candidate Applications</span>
-                        </div>
-                        <p className="text-lg font-bold text-white font-mono">
-                          {applicationPipelineStats.total}
-                          <span className="text-xs font-normal text-[#B3FFC9] ml-1.5">
-                            ({applicationPipelineStats.newCount} New)
-                          </span>
-                        </p>
-                      </div>
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-1.5 text-xs text-white/50">
-                          <span className="w-2.5 h-2.5 rounded-full bg-[#22D3EE]" />
-                          <span>Documented Reach</span>
-                        </div>
-                        <p className="text-lg font-bold text-white font-mono">
-                          {caseStudyReachMetrics.formattedViews}
-                        </p>
-                      </div>
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-1.5 text-xs text-white/50">
-                          <span className="w-2.5 h-2.5 rounded-full bg-pink-400" />
-                          <span>Studio Assets</span>
-                        </div>
-                        <p className="text-lg font-bold text-white font-mono">
-                          {portfolioAnalytics.total}
-                        </p>
-                      </div>
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-1.5 text-xs text-white/50">
-                          <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
-                          <span>Application Review Rate</span>
-                        </div>
-                        <p className="text-lg font-bold text-white font-mono">
-                          {applicationPipelineStats.reviewRate}%
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right Chart: Content Portfolio Dynamic SVG Donut (4 Cols) */}
-                  <div className="lg:col-span-4 p-6 sm:p-7 rounded-3xl bg-[#0c0c0c] border border-white/10 space-y-6 flex flex-col justify-between">
-                    <div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <PieChart size={16} className="text-[#B3FFC9]" />
-                          <h3 className="text-base sm:text-lg font-bold text-white tracking-tight" style={{ fontFamily: "'Syne', sans-serif" }}>
-                            Content Portfolio
-                          </h3>
-                        </div>
-                        <span className="text-[10px] font-mono text-[#B3FFC9] bg-[#B3FFC9]/10 px-2 py-0.5 rounded-md border border-[#B3FFC9]/20">
-                          {portfolioAnalytics.total} Live Assets
-                        </span>
-                      </div>
-                      <p className="text-xs text-white/40 font-mono mt-1">
-                        Real-time database media asset breakdown
-                      </p>
-                    </div>
-
-                    {/* Dynamic SVG Donut Ring */}
-                    <div className="flex items-center justify-center relative py-2">
-                      <div className="relative w-40 h-40 flex items-center justify-center">
-                        <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 120 120">
-                          {/* Background Track */}
-                          <circle
-                            cx="60"
-                            cy="60"
-                            r="46"
-                            fill="none"
-                            stroke="#161616"
-                            strokeWidth="12"
-                          />
-
-                          {/* Dynamic Color Segments */}
-                          {portfolioAnalytics.categories.map((cat) => {
-                            if (cat.count === 0 && portfolioAnalytics.total > 0) return null;
-                            const isHovered = hoveredDonutCat === cat.key;
-                            return (
-                              <circle
-                                key={cat.key}
-                                cx="60"
-                                cy="60"
-                                r="46"
-                                fill="none"
-                                stroke={cat.color}
-                                strokeWidth={isHovered ? "15" : "12"}
-                                strokeDasharray={cat.dasharray}
-                                strokeDashoffset={cat.dashoffset}
-                                strokeLinecap="round"
-                                className="transition-all duration-300 cursor-pointer"
-                                onMouseEnter={() => setHoveredDonutCat(cat.key)}
-                                onMouseLeave={() => setHoveredDonutCat(null)}
-                              />
-                            );
-                          })}
-                        </svg>
-
-                        {/* Center Metric Callout */}
-                        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
-                          {portfolioAnalytics.activeHoverItem ? (
-                            <>
-                              <span className="text-xl font-black" style={{ color: portfolioAnalytics.activeHoverItem.color, fontFamily: "'Syne', sans-serif" }}>
-                                {portfolioAnalytics.activeHoverItem.count}
-                              </span>
-                              <span className="text-[9px] uppercase font-mono text-white/70">
-                                {portfolioAnalytics.activeHoverItem.pct}% {portfolioAnalytics.activeHoverItem.label.split(" ")[0]}
-                              </span>
-                            </>
-                          ) : (
-                            <>
-                              <span className="text-2xl font-black text-white" style={{ fontFamily: "'Syne', sans-serif" }}>
-                                {portfolioAnalytics.total}
-                              </span>
-                              <span className="text-[9px] uppercase font-mono text-white/40">Total Assets</span>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Category Distribution Dynamic Progress Bars */}
-                    <div className="space-y-2.5">
-                      {portfolioAnalytics.categories.map((cat) => (
-                        <div
-                          key={cat.key}
-                          onClick={() => setActiveTab(cat.tab)}
-                          onMouseEnter={() => setHoveredDonutCat(cat.key)}
-                          onMouseLeave={() => setHoveredDonutCat(null)}
-                          className="group/item cursor-pointer p-1.5 -mx-1.5 rounded-xl hover:bg-white/5 transition-colors"
-                        >
-                          <div className="flex items-center justify-between text-xs font-mono mb-1">
-                            <span className="text-white/70 group-hover/item:text-white flex items-center gap-1.5 transition-colors">
-                              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: cat.color }} />
-                              {cat.label}
-                            </span>
-                            <span className="font-bold font-mono" style={{ color: cat.color }}>
-                              {cat.count} ({cat.pct}%)
-                            </span>
-                          </div>
-                          <div className="w-full h-1.5 rounded-full bg-[#161616] overflow-hidden">
-                            <div
-                              className="h-full rounded-full transition-all duration-700 ease-out"
-                              style={{
-                                width: `${cat.exactPct || 0}%`,
-                                backgroundColor: cat.color
-                              }}
-                            />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                </div>
-
-                {/* ==================== ANALYTICS GRAPHS ROW 2 ==================== */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-                  {/* Left: Dynamic Applications Velocity Bar Chart (6 Cols) */}
-                  <div
-                    onClick={() => setActiveTab("jobApplications")}
-                    className="lg:col-span-6 p-6 sm:p-7 rounded-3xl bg-[#0c0c0c] border border-white/10 hover:border-white/20 transition-all space-y-6 flex flex-col justify-between cursor-pointer group"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <BarChart3 size={16} className="text-[#B3FFC9]" />
-                          <h3 className="text-base sm:text-lg font-bold text-white tracking-tight" style={{ fontFamily: "'Syne', sans-serif" }}>
-                            Applications Velocity
-                          </h3>
-                        </div>
-                        <p className="text-xs text-white/40 font-mono mt-1">
-                          Weekly job candidate applications distribution
-                        </p>
-                      </div>
-                      <span className="px-3 py-1 rounded-full bg-[#B3FFC9]/10 text-[#B3FFC9] text-xs font-mono font-bold border border-[#B3FFC9]/20">
-                        {leadsVelocityData.totalCount} Applications Recorded
-                      </span>
-                    </div>
-
-                    {/* Dynamic Bar Chart Bars */}
-                    <div className="pt-4 flex items-end justify-between gap-2.5 h-48 border-b border-white/10 pb-2 relative">
-                      {leadsVelocityData.bars.map((bar, idx) => (
-                        <div
-                          key={idx}
-                          onMouseEnter={(e) => {
-                            e.stopPropagation();
-                            setHoveredBarIndex(idx);
-                          }}
-                          onMouseLeave={(e) => {
-                            e.stopPropagation();
-                            setHoveredBarIndex(null);
-                          }}
-                          className="flex-1 flex flex-col items-center gap-2 h-full justify-end group/bar cursor-pointer"
-                        >
-                          {/* Top Count Badge */}
-                          <span className={`text-[10px] font-mono transition-opacity duration-200 ${hoveredBarIndex === idx || bar.isPeak ? "opacity-100 text-[#B3FFC9] font-bold" : "opacity-0 text-white/50"
-                            }`}>
-                            {bar.count}
-                          </span>
-
-                          {/* Bar Pillar */}
-                          <div className="w-full max-w-[38px] bg-[#161616] rounded-t-xl overflow-hidden h-full flex items-end">
-                            <div
-                              className={`w-full rounded-t-xl transition-all duration-500 group-hover/bar:scale-y-105 ${bar.isPeak
-                                ? "bg-gradient-to-t from-[#0e3b26] to-[#B3FFC9] shadow-[0_0_20px_rgba(179,255,201,0.4)]"
-                                : "bg-gradient-to-t from-white/10 to-white/30 group-hover/bar:to-[#B3FFC9]"
-                                }`}
-                              style={{ height: bar.heightPct }}
-                            />
-                          </div>
-
-                          {/* Weekday Label */}
-                          <span className={`text-[10px] font-mono uppercase ${bar.isPeak ? "text-[#B3FFC9] font-bold" : "text-white/40 group-hover/bar:text-white"
-                            }`}>
-                            {bar.day}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Footer Analytics & Pipeline Status Chips */}
-                    <div className="space-y-3 pt-1">
-                      <div className="flex items-center justify-between text-xs font-mono text-white/60">
-                        <span>Peak Inflow: <strong className="text-white">{leadsVelocityData.peakDay} ({leadsVelocityData.peakCount} applications)</strong></span>
-                        <span className="text-[#B3FFC9] flex items-center gap-1 font-bold">Review Pipeline</span>
-                      </div>
-
-                      {/* Application Status Pipeline Badges */}
-                      <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-white/5 text-[11px] font-mono">
-                        <span className="text-white/40">Status:</span>
-                        <span className="px-2.5 py-0.5 rounded-md bg-[#B3FFC9]/10 text-[#B3FFC9] border border-[#B3FFC9]/20">
-                          {applicationPipelineStats.newCount} New
-                        </span>
-                        <span className="px-2.5 py-0.5 rounded-md bg-[#22D3EE]/10 text-[#22D3EE] border border-[#22D3EE]/20">
-                          {applicationPipelineStats.reviewedCount} In Review
-                        </span>
-                        <span className="px-2.5 py-0.5 rounded-md bg-emerald-400/10 text-emerald-400 border border-emerald-400/20">
-                          {applicationPipelineStats.shortlistedCount} Shortlisted
-                        </span>
-                        <span className="px-2.5 py-0.5 rounded-md bg-red-400/10 text-red-400 border border-red-400/20">
-                          {applicationPipelineStats.rejectedCount} Rejected
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right: Quick Action Shortcuts & Recent System Highlights (6 Cols) */}
-                  <div className="lg:col-span-6 p-6 sm:p-7 rounded-3xl bg-[#0c0c0c] border border-white/10 space-y-6 flex flex-col justify-between">
+                  {/* Left: Quick Studio Actions (5 Cols) */}
+                  <div className="lg:col-span-5 p-6 sm:p-7 rounded-3xl bg-[#0c0c0c] border border-white/10 space-y-6 flex flex-col justify-between">
                     <div>
                       <div className="flex items-center gap-2">
                         <Sparkles size={16} className="text-[#B3FFC9]" />
@@ -2401,33 +1907,18 @@ export function Admin() {
                         </h3>
                       </div>
                       <p className="text-xs text-white/40 font-mono mt-1">
-                        Fast shortcuts to manage and create agency content
+                        Fast shortcuts to manage and create studio content
                       </p>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <button
-                        onClick={() => handleOpenProjectModal()}
-                        className="p-4 rounded-2xl bg-[#141414] hover:bg-[#1a1a1a] border border-white/10 hover:border-[#B3FFC9]/40 text-left transition-all group cursor-pointer flex items-center justify-between"
-                      >
-                        <div className="space-y-1">
-                          <p className="text-xs font-bold text-white group-hover:text-[#B3FFC9] transition-colors" style={{ fontFamily: "'Syne', sans-serif" }}>
-                            + Add Home Video
-                          </p>
-                          <p className="text-[10px] text-white/40 font-mono">Projects, Podcasts &amp; SaaS</p>
-                        </div>
-                        <div className="w-8 h-8 rounded-full bg-white/5 group-hover:bg-[#B3FFC9] text-white group-hover:text-black flex items-center justify-center text-xs transition-all">
-                          <ArrowUpRight size={14} />
-                        </div>
-                      </button>
-
                       <button
                         onClick={() => handleOpenBlogModal()}
                         className="p-4 rounded-2xl bg-[#141414] hover:bg-[#1a1a1a] border border-white/10 hover:border-[#B3FFC9]/40 text-left transition-all group cursor-pointer flex items-center justify-between"
                       >
                         <div className="space-y-1">
                           <p className="text-xs font-bold text-white group-hover:text-[#B3FFC9] transition-colors" style={{ fontFamily: "'Syne', sans-serif" }}>
-                            + Write New Article
+                            + Write Article
                           </p>
                           <p className="text-[10px] text-white/40 font-mono">Insights &amp; Strategy</p>
                         </div>
@@ -2442,9 +1933,24 @@ export function Admin() {
                       >
                         <div className="space-y-1">
                           <p className="text-xs font-bold text-white group-hover:text-[#B3FFC9] transition-colors" style={{ fontFamily: "'Syne', sans-serif" }}>
-                            + Create Case Study
+                            + Case Study
                           </p>
-                          <p className="text-[10px] text-white/40 font-mono">Full Metrics &amp; Gallery</p>
+                          <p className="text-[10px] text-white/40 font-mono">Client Metrics &amp; Media</p>
+                        </div>
+                        <div className="w-8 h-8 rounded-full bg-white/5 group-hover:bg-[#B3FFC9] text-white group-hover:text-black flex items-center justify-center text-xs transition-all">
+                          <ArrowUpRight size={14} />
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => handleOpenJobModal()}
+                        className="p-4 rounded-2xl bg-[#141414] hover:bg-[#1a1a1a] border border-white/10 hover:border-[#B3FFC9]/40 text-left transition-all group cursor-pointer flex items-center justify-between"
+                      >
+                        <div className="space-y-1">
+                          <p className="text-xs font-bold text-white group-hover:text-[#B3FFC9] transition-colors" style={{ fontFamily: "'Syne', sans-serif" }}>
+                            + Post New Job
+                          </p>
+                          <p className="text-[10px] text-white/40 font-mono">Open Studio Position</p>
                         </div>
                         <div className="w-8 h-8 rounded-full bg-white/5 group-hover:bg-[#B3FFC9] text-white group-hover:text-black flex items-center justify-center text-xs transition-all">
                           <ArrowUpRight size={14} />
@@ -2457,7 +1963,7 @@ export function Admin() {
                       >
                         <div className="space-y-1">
                           <p className="text-xs font-bold text-white group-hover:text-[#B3FFC9] transition-colors" style={{ fontFamily: "'Syne', sans-serif" }}>
-                            Review Applications
+                            Applications
                           </p>
                           <p className="text-[10px] text-white/40 font-mono">{jobApplicationsList.length} candidate profiles</p>
                         </div>
@@ -2470,14 +1976,76 @@ export function Admin() {
                     <div className="p-4 rounded-2xl bg-[#141414] border border-white/5 flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className="w-2.5 h-2.5 rounded-full bg-[#B3FFC9] animate-ping" />
-                        <span className="text-xs text-white/60 font-mono">Database Status: <strong className="text-white">MongoDB Live &amp; Cloudinary CDN Connected</strong></span>
+                        <span className="text-xs text-white/60 font-mono">Database: <strong className="text-white">MongoDB Live &amp; Cloudinary Connected</strong></span>
                       </div>
                       <Link to="/" target="_blank" className="text-xs text-[#B3FFC9] font-bold flex items-center gap-1 hover:underline">
-                        Visit Live Website <ExternalLink size={12} />
+                        Live Site <ExternalLink size={12} />
                       </Link>
                     </div>
                   </div>
 
+                  {/* Right: Latest Real Candidate Inflow (7 Cols) */}
+                  <div className="lg:col-span-7 p-6 sm:p-7 rounded-3xl bg-[#0c0c0c] border border-white/10 space-y-5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <UserCheck size={16} className="text-[#B3FFC9]" />
+                        <h3 className="text-base sm:text-lg font-bold text-white tracking-tight" style={{ fontFamily: "'Syne', sans-serif" }}>
+                          Latest Candidate Applications
+                        </h3>
+                      </div>
+                      <button
+                        onClick={() => setActiveTab("jobApplications")}
+                        className="text-xs font-mono text-[#B3FFC9] hover:underline cursor-pointer flex items-center gap-1"
+                      >
+                        View All ({jobApplicationsList.length}) <ChevronRight size={13} />
+                      </button>
+                    </div>
+
+                    {jobApplicationsList.length === 0 ? (
+                      <div className="text-center py-12 rounded-2xl bg-[#141414] border border-white/5 space-y-2">
+                        <p className="text-sm font-bold text-white/80">No Candidate Applications Yet</p>
+                        <p className="text-xs text-white/40 font-mono">Applications submitted via the Careers page will appear here instantly.</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-2.5">
+                        {jobApplicationsList.slice(0, 5).map((app) => (
+                          <div
+                            key={app._id || app.id}
+                            onClick={() => {
+                              setSelectedApplication(app);
+                              setModalType("viewApplication");
+                            }}
+                            className="p-3.5 rounded-xl bg-[#141414] border border-white/5 hover:border-white/20 flex items-center justify-between gap-3 cursor-pointer transition-all hover:bg-white/[0.04]"
+                          >
+                            <div className="min-w-0">
+                              <p className="text-xs font-bold text-white truncate" style={{ fontFamily: "'Syne', sans-serif" }}>
+                                {app.name}
+                              </p>
+                              <p className="text-[11px] text-white/50 font-mono truncate">
+                                {app.jobTitle || "Studio Role"} • {app.experience || "Not specified"}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2 shrink-0">
+                              <span
+                                className={`px-2 py-0.5 rounded-full text-[10px] font-mono uppercase font-bold ${
+                                  app.status === "New"
+                                    ? "bg-[#B3FFC9]/10 text-[#B3FFC9] border border-[#B3FFC9]/30"
+                                    : app.status === "Reviewed"
+                                    ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20"
+                                    : app.status === "Shortlisted"
+                                    ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                                    : "bg-white/10 text-white/50"
+                                }`}
+                              >
+                                {app.status || "New"}
+                              </span>
+                              <ChevronRight size={13} className="text-white/40" />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
