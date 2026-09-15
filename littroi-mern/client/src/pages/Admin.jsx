@@ -1503,7 +1503,7 @@ export function Admin() {
   const navTabs = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, count: null },
     { id: "caseStudies", label: "Case Studies", icon: FileText, count: caseStudiesList.length },
-    { id: "homeVideos", label: "Home Videos", icon: Video, count: projectsList.length },
+    // { id: "homeVideos", label: "Home Videos", icon: Video, count: projectsList.length },
     { id: "testimonials", label: "Testimonials", icon: Quote, count: testimonialsList.length },
     { id: "blog", label: "Blog Insights", icon: FileText, count: blogsList.length },
     { id: "jobs", label: "Careers", icon: Briefcase, count: jobsList.length },
@@ -1747,7 +1747,7 @@ export function Admin() {
                 </button>
               )}
 
-              {activeTab === "homeVideos" && (
+              {/* {activeTab === "homeVideos" && (
                 <button
                   onClick={() => handleOpenProjectModal()}
                   className="px-4 py-2 sm:px-5 sm:py-2.5 rounded-full bg-[#B3FFC9] text-black font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 hover:bg-[#9effba] hover:shadow-[0_0_20px_rgba(179,255,201,0.4)] transition-all cursor-pointer"
@@ -1755,7 +1755,7 @@ export function Admin() {
                 >
                   <Plus size={15} /> <span>New Video</span>
                 </button>
-              )}
+              )} */}
 
               {activeTab === "testimonials" && (
                 <button
@@ -2582,8 +2582,9 @@ export function Admin() {
               </div>
             )}
 
-            {/* ==================== TAB: HOME VIDEO SHOWCASES ==================== */}
-            {activeTab === "homeVideos" && (
+            {/* ==================== TAB: HOME VIDEO SHOWCASES (COMMENTED OUT) ==================== */}
+            {/* Home video section code commented out: */}
+            {false && activeTab === "homeVideos" && (
               <div className="space-y-6">
                 <div className="flex flex-wrap items-center justify-between gap-4">
                   {/* Category Filter Tabs */}
