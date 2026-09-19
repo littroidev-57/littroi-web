@@ -6,11 +6,11 @@ export function SEO({
   title,
   description = SITE_CONFIG.positioning,
   canonical,
-  ogImage = "https://littroi.com/android-chrome-512x512.png",
+  ogImage = "https://www.littroi.com/android-chrome-512x512.png",
   ogType = "website",
   noindex = false,
 }) {
-  const siteUrl = import.meta.env.VITE_SITE_URL || "https://littroi.com";
+  const siteUrl = import.meta.env.VITE_SITE_URL || "https://www.littroi.com";
   const fullTitle = !title || title === "Home" 
     ? SITE_CONFIG.title 
     : (title.includes(SITE_CONFIG.name) ? title : `${title} | ${SITE_CONFIG.name}`);

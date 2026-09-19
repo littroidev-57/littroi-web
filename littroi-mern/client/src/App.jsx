@@ -57,6 +57,8 @@ export function App() {
           <Route path="/" element={<Home />} />
           <Route path="/about-us" element={<About />} />
           <Route path="/about" element={<Navigate to="/about-us" replace />} />
+          <Route path="/about-us-2" element={<Navigate to="/about-us" replace />} />
+          <Route path="/about-2" element={<Navigate to="/about-us" replace />} />
           <Route path="/case-studies" element={<CaseStudies />} />
           <Route path="/case-studies/:slug" element={<CaseStudyDetail />} />
           <Route path="/testimonials" element={<Testimonials />} />
@@ -66,7 +68,11 @@ export function App() {
           <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="/contact-us" element={<Contact />} />
           <Route path="/contact" element={<Navigate to="/contact-us" replace />} />
+          <Route path="/contact-us-2" element={<Navigate to="/contact-us" replace />} />
+          <Route path="/contact-2" element={<Navigate to="/contact-us" replace />} />
           <Route path="/services" element={<Navigate to="/" replace />} />
+          <Route path="/services-2" element={<Navigate to="/" replace />} />
+          <Route path="/home-2" element={<Navigate to="/" replace />} />
           <Route path="/defining" element={<Navigate to="/" replace />} />
           <Route path="/boost-your-business-with-effective-digital-strategies" element={<Navigate to="/blog" replace />} />
           <Route path="/why-cro-is-key-to-maximizing-your-content-roi" element={<Navigate to="/blog" replace />} />

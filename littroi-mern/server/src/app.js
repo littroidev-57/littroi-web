@@ -88,6 +88,11 @@ app.get("/api/health", (req, res) => {
   });
 });
 
+// Legacy WordPress Sitemaps & Feeds redirect
+app.get(["/wp-sitemap.xml", "/wp-sitemap*"], (req, res) => {
+  res.redirect(301, "https://littroi.com/sitemap.xml");
+});
+
 // Request Parsers, Cookies & Rate Limiter
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));

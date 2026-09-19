@@ -1,5 +1,9 @@
 User-agent: *
 Allow: /
 Disallow: /api/
+Disallow: /studio-hq
+Disallow: /wp-admin/
+Disallow: /wp-includes/
+Disallow: /wp-content/
 
-Sitemap: https://littroi.com/sitemap.xml
+Sitemap: https://www.littroi.com/sitemap.xml
