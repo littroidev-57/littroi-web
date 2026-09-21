@@ -217,6 +217,7 @@ export function Contact() {
                 width="100%"
                 height="780"
                 frameBorder="0"
+                loading="lazy"
                 title="Schedule a Strategy Call with Littroi"
                 className="w-full h-full min-h-[720px] sm:min-h-[780px] block"
               />

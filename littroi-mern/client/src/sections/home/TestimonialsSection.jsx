@@ -203,6 +203,7 @@ export function TestimonialsSection() {
                         <iframe
                           src={`https://www.youtube.com/embed/${vidId}?controls=1&rel=0&playsinline=0`}
                           title={`${authorName} Testimonial`}
+                          loading="lazy"
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                           allowFullScreen
                           className="w-full h-full border-none block"

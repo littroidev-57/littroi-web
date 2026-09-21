@@ -332,6 +332,16 @@ export function About() {
       role: "Video Editor",
       image: "https://res.cloudinary.com/eikgki2a/image/upload/v1788583781/Vasu-Verma-Video-Editor-scaled.png",
     },
+    {
+      name: "Mohsin Ansari",
+      role: "FullStack Developer",
+      image: "https://res.cloudinary.com/eikgki2a/image/upload/v1789964804/Mohsin_Ansari_-_Full_Stack_Developer-1.png",
+    },
+    {
+      name: "Akshita Parashar",
+      role: "Social Media Manager",
+      image: "https://res.cloudinary.com/eikgki2a/image/upload/v1789964800/Akshita_Parashar_-_Social_Media_Manager.png",
+    },
   ];
 
   const smoothFadeInUp = {
@@ -686,16 +696,34 @@ export function About() {
                 transition={{ duration: 1.1, delay: (idx % 4) * 0.1, ease: [0.16, 1, 0.3, 1] }}
                 className="group flex flex-col items-start space-y-3"
               >
-                <div className="w-full aspect-[3/4] rounded-2xl overflow-hidden border border-white/10 bg-[#0d0d0d] shadow-lg relative">
-                  <img
-                    src={member.image}
-                    alt={member.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    loading="lazy"
-                    onError={(e) => {
-                      e.target.style.display = "none";
-                    }}
-                  />
+                <div className="w-full aspect-[3/4] rounded-2xl overflow-hidden border border-white/10 bg-[#0d0d0d] shadow-lg relative flex items-center justify-center">
+                  {member.image ? (
+                    <img
+                      src={member.image}
+                      alt={member.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      loading="lazy"
+                      decoding="async"
+                      onError={(e) => {
+                        e.target.style.display = "none";
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-gradient-to-b from-white/[0.06] via-transparent to-transparent">
+                      <div
+                        className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-[#B3FFC9]/10 border border-[#B3FFC9]/30 flex items-center justify-center text-[#B3FFC9] text-2xl sm:text-3xl font-extrabold shadow-[0_0_35px_rgba(179,255,201,0.12)] mb-3 group-hover:scale-110 transition-transform duration-300"
+                        style={{ fontFamily: "'Syne', sans-serif" }}
+                      >
+                        {member.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
+                      </div>
+                      <span className="text-[11px] text-[#B3FFC9]/70 font-mono tracking-wider uppercase">
+                        Littroi Studio
+                      </span>
+                    </div>
+                  )}
                 </div>
                 <h3
                   className="m-0 text-xl font-bold text-white pt-1 group-hover:text-[#B3FFC9] transition-colors"

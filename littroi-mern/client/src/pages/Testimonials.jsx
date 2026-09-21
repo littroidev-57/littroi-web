@@ -419,6 +419,7 @@ export function Testimonials() {
                         <iframe
                           src={`https://www.youtube.com/embed/${videoId}?controls=1&rel=0&playsinline=0`}
                           title={`${authorName} Client Video Review`}
+                          loading="lazy"
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                           allowFullScreen
                           className="w-full h-full border-none block"
@@ -474,6 +475,8 @@ export function Testimonials() {
                           <img
                             src={avatarSrc}
                             alt={authorName}
+                            loading="lazy"
+                            decoding="async"
                             className="w-11 h-11 sm:w-14 sm:h-14 rounded-full object-cover border border-white/15 bg-white/5 p-0.5 shadow-md shrink-0"
                             onError={(e) => {
                               e.target.src = avatarMarc;
