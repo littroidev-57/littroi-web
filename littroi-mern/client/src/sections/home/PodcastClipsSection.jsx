@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { projectsAPI } from "../../services/api";
+import { CarouselVideoPlayer } from "../../components/ui/CarouselVideoPlayer";
 
 function extractYoutubeId(urlOrId) {
   if (!urlOrId) return "";
@@ -96,7 +97,7 @@ export function PodcastClipsSection() {
       </div>
 
       {/* Header: Podcast Clips */}
-      <div className="max-w-[1400px] w-full mx-auto px-6 sm:px-10 lg:px-14 mb-8 sm:mb-12">
+      <div className="max-w-[1400px] 3xl:max-w-[1720px] 4xl:max-w-[2160px] w-full mx-auto px-6 sm:px-10 lg:px-14 4xl:px-16 mb-8 sm:mb-12 4xl:mb-16">
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 sm:gap-8">
           <motion.div
             initial={{ opacity: 0, x: -80 }}
@@ -109,7 +110,7 @@ export function PodcastClipsSection() {
             data-widget_type="heading.default"
           >
             <h2
-              className="elementor-heading-title elementor-size-default m-0 text-white"
+              className="elementor-heading-title elementor-size-default m-0 text-white 4xl:text-6xl"
               style={{
                 fontFamily: "'Syne', sans-serif",
                 fontSize: "clamp(30px, 3.8vw, 46px)",
@@ -122,7 +123,7 @@ export function PodcastClipsSection() {
             </h2>
           </motion.div>
 
-          <div className="max-w-[700px]">
+          <div className="max-w-[700px] 4xl:max-w-[900px]">
             <motion.div
               initial={{ opacity: 0, x: 50 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -130,7 +131,7 @@ export function PodcastClipsSection() {
               transition={{ duration: 1.4, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
             >
               <p
-                className="m-0 lg:text-left"
+                className="m-0 lg:text-left 4xl:text-[17px]"
                 style={{
                   fontFamily: "'benzine', sans-serif",
                   fontSize: "clamp(12.5px, 1.05vw, 14px)",
@@ -153,7 +154,7 @@ export function PodcastClipsSection() {
         {/* Navigation Left Arrow */}
         <button
           onClick={() => scrollReels(-1)}
-          className="scroll-arrow arrow-left absolute top-1/2 -translate-y-1/2 left-4 sm:left-8 w-[50px] h-[50px] rounded-full bg-[#111111]/85 border border-white/15 text-white flex items-center justify-center cursor-pointer z-40 transition-all duration-300 hover:bg-[#6ecf97] hover:text-black hover:border-[#6ecf97] hover:shadow-[0_0_20px_rgba(110,207,151,0.6)] text-xl hidden md:flex shadow-2xl active:scale-95"
+          className="scroll-arrow arrow-left absolute top-1/2 -translate-y-1/2 left-4 sm:left-8 4xl:left-14 w-[50px] h-[50px] 4xl:w-[68px] 4xl:h-[68px] rounded-full bg-[#111111]/85 border border-white/15 text-white flex items-center justify-center cursor-pointer z-40 transition-all duration-300 hover:bg-[#6ecf97] hover:text-black hover:border-[#6ecf97] hover:shadow-[0_0_20px_rgba(110,207,151,0.6)] text-xl 4xl:text-2xl hidden md:flex shadow-2xl active:scale-95"
           aria-label="Previous Clips"
           title="Previous Clips"
         >
@@ -163,7 +164,7 @@ export function PodcastClipsSection() {
         {/* Navigation Right Arrow */}
         <button
           onClick={() => scrollReels(1)}
-          className="scroll-arrow arrow-right absolute top-1/2 -translate-y-1/2 right-4 sm:right-8 w-[50px] h-[50px] rounded-full bg-[#111111]/85 border border-white/15 text-white flex items-center justify-center cursor-pointer z-40 transition-all duration-300 hover:bg-[#6ecf97] hover:text-black hover:border-[#6ecf97] hover:shadow-[0_0_20px_rgba(110,207,151,0.6)] text-xl hidden md:flex shadow-2xl active:scale-95"
+          className="scroll-arrow arrow-right absolute top-1/2 -translate-y-1/2 right-4 sm:right-8 4xl:right-14 w-[50px] h-[50px] 4xl:w-[68px] 4xl:h-[68px] rounded-full bg-[#111111]/85 border border-white/15 text-white flex items-center justify-center cursor-pointer z-40 transition-all duration-300 hover:bg-[#6ecf97] hover:text-black hover:border-[#6ecf97] hover:shadow-[0_0_20px_rgba(110,207,151,0.6)] text-xl 4xl:text-2xl hidden md:flex shadow-2xl active:scale-95"
           aria-label="Next Clips"
           title="Next Clips"
         >
@@ -174,7 +175,7 @@ export function PodcastClipsSection() {
         <div
           ref={stageRef}
           id="reelsStage"
-          className="reels-stage flex items-center justify-start gap-5 relative bg-black py-[60px] px-6 sm:px-14 overflow-x-auto flex-nowrap scroll-smooth no-scrollbar"
+          className="reels-stage flex items-center justify-start gap-5 4xl:gap-8 relative bg-black py-[60px] 4xl:py-[90px] px-6 sm:px-14 4xl:px-24 overflow-x-auto flex-nowrap scroll-smooth no-scrollbar"
           style={{
             scrollbarWidth: "none",
             msOverflowStyle: "none",
@@ -184,95 +185,76 @@ export function PodcastClipsSection() {
             [1, 2, 3, 4, 5].map((n) => (
               <div
                 key={`skel-reel-${n}`}
-                className="flex-shrink-0 w-[220px] aspect-[9/16] rounded-[22px] border border-white/10 bg-[#141414] animate-pulse flex items-center justify-center"
+                className="flex-shrink-0 w-[220px] 3xl:w-[270px] 4xl:w-[320px] aspect-[9/16] rounded-[22px] border border-white/10 bg-[#141414] animate-pulse flex items-center justify-center"
               >
                 <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10" />
               </div>
             ))
           ) : (
             reelsList.map((item, index) => {
-            const isOdd = index % 2 === 0;
-            const videoId = item.id || item;
-            const thumbUrl = item.thumb || `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-            const isPlaying = activeReel === videoId;
+              const isOdd = index % 2 === 0;
+              const videoId = item.id || item;
+              const thumbUrl = item.thumb || `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+              const isPlaying = activeReel === videoId;
 
-            return (
-              <div
-                key={`${videoId}-${index}`}
-                onClick={() => {
-                  if (!isPlaying) {
-                    setActiveReel(videoId);
-                    setLoadingVideo(true);
-                  }
-                }}
-                className="reel flex-shrink-0 w-[220px] aspect-[9/16] rounded-[22px] border border-white/10 bg-[#111111] overflow-hidden cursor-pointer relative transition-all duration-300 group hover:border-[#6ecf97] hover:shadow-[0_0_60px_rgba(110,207,151,0.3)] hover:scale-[1.05] hover:z-20"
-                style={{
-                  animation: isPlaying
-                    ? "none"
-                    : isOdd
-                    ? "rUp 3.4s ease-in-out infinite"
-                    : "rDown 3.4s ease-in-out infinite",
-                }}
-              >
-                {isPlaying ? (
-                  <div className="w-full h-full relative bg-black">
-                    {loadingVideo && (
-                      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/80 gap-2">
-                        <div className="video-loading-spinner" />
-                        <span className="text-[11px] text-[#B3FFC9] font-medium tracking-wide">Loading reel...</span>
-                      </div>
-                    )}
-                    <iframe
-                      src={`https://www.youtube.com/embed/${videoId}?autoplay=1&playsinline=1&enablejsapi=1&modestbranding=1&rel=0`}
-                      allow="autoplay; encrypted-media; picture-in-picture"
-                      allowFullScreen
-                      onLoad={() => setLoadingVideo(false)}
-                      className="w-full h-full border-none rounded-[22px]"
+              return (
+                <div
+                  key={`${videoId}-${index}`}
+                  onClick={() => {
+                    if (!isPlaying) {
+                      setActiveReel(videoId);
+                      setLoadingVideo(true);
+                    }
+                  }}
+                  className={`reel flex-shrink-0 w-[220px] 3xl:w-[270px] 4xl:w-[320px] aspect-[9/16] rounded-[22px] border border-white/10 bg-[#111111] overflow-hidden cursor-pointer relative transition-all duration-300 group hover:border-[#6ecf97] hover:shadow-[0_0_60px_rgba(110,207,151,0.3)] ${isPlaying ? "" : "hover:scale-[1.05] hover:z-20"}`}
+                  style={{
+                    animation: isPlaying
+                      ? "none"
+                      : isOdd
+                        ? "rUp 3.4s ease-in-out infinite"
+                        : "rDown 3.4s ease-in-out infinite",
+                  }}
+                >
+                  {isPlaying ? (
+                    <CarouselVideoPlayer
+                      videoId={videoId}
                       title={item.title || `Podcast reel ${videoId}`}
-                    />
-                    {/* Close / Stop Button */}
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
+                      loadingLabel="Loading reel..."
+                      roundedClassName="rounded-[22px]"
+                      sectionId="podcast-clips"
+                      onClose={() => {
                         setActiveReel(null);
                         setLoadingVideo(false);
                       }}
-                      className="absolute top-2.5 right-2.5 z-30 w-7 h-7 rounded-full bg-black/80 border border-white/20 text-white flex items-center justify-center text-xs hover:bg-[#B3FFC9] hover:text-black transition-colors"
-                      title="Close reel"
-                      aria-label="Close reel"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ) : (
-                  <div className="reel-body w-full h-full relative overflow-hidden bg-[#111111]">
-                    {/* Lazy thumbnail with fallback */}
-                    <img
-                      src={thumbUrl}
-                      alt={item.title || "Podcast reel thumbnail"}
-                      loading="lazy"
-                      decoding="async"
-                      onError={(e) => {
-                        e.currentTarget.onerror = null;
-                        e.currentTarget.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-                      }}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
+                  ) : (
+                    <div className="reel-body w-full h-full relative overflow-hidden bg-[#111111]">
+                      {/* Lazy thumbnail with fallback */}
+                      <img
+                        src={thumbUrl}
+                        alt={item.title || "Podcast reel thumbnail"}
+                        loading="lazy"
+                        decoding="async"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+                        }}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
 
-                    {/* Gradient Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/15 to-black/60 pointer-events-none z-[1]" />
+                      {/* Gradient Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/15 to-black/60 pointer-events-none z-[1]" />
 
-                    {/* Play Button Indicator */}
-                    <div className="play-btn absolute bottom-5 right-6 w-[45px] h-[45px] rounded-full border border-[#6ecf97]/50 bg-black/40 backdrop-blur-[5px] text-[#6ecf97] flex items-center justify-center text-sm transition-all duration-300 z-[2] group-hover:bg-[#6ecf97] group-hover:text-black group-hover:scale-110 group-hover:border-[#6ecf97] group-hover:shadow-[0_0_20px_rgba(110,207,151,0.6)]">
-                      ▶
+                      {/* Play Button Indicator */}
+                      <div className="play-btn absolute bottom-5 right-6 w-[45px] h-[45px] rounded-full border border-[#6ecf97]/50 bg-black/40 backdrop-blur-[5px] text-[#6ecf97] flex items-center justify-center text-sm transition-all duration-300 z-[2] group-hover:bg-[#6ecf97] group-hover:text-black group-hover:scale-110 group-hover:border-[#6ecf97] group-hover:shadow-[0_0_20px_rgba(110,207,151,0.6)]">
+                        ▶
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            );
-          })
-        )}
+                  )}
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
     </section>

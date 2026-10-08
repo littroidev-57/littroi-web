@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { projectsAPI } from "../../services/api";
+import { CarouselVideoPlayer } from "../../components/ui/CarouselVideoPlayer";
 
 function extractYoutubeId(urlOrId) {
   if (!urlOrId) return "";
@@ -96,7 +97,7 @@ export function SaasVideoSection() {
       </div>
 
       {/* Header: Saas Video */}
-      <div className="max-w-[1400px] w-full mx-auto px-6 sm:px-10 lg:px-14 mb-8 sm:mb-12">
+      <div className="max-w-[1400px] 3xl:max-w-[1720px] 4xl:max-w-[2160px] w-full mx-auto px-6 sm:px-10 lg:px-14 4xl:px-16 mb-8 sm:mb-12 4xl:mb-16">
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 sm:gap-8">
           <motion.div
             initial={{ opacity: 0, x: -80 }}
@@ -109,7 +110,7 @@ export function SaasVideoSection() {
             data-widget_type="heading.default"
           >
             <h2
-              className="elementor-heading-title elementor-size-default m-0 text-white"
+              className="elementor-heading-title elementor-size-default m-0 text-white 4xl:text-6xl"
               style={{
                 fontFamily: "'Syne', sans-serif",
                 fontSize: "clamp(30px, 3.8vw, 46px)",
@@ -122,7 +123,7 @@ export function SaasVideoSection() {
             </h2>
           </motion.div>
 
-          <div className="max-w-[700px]">
+          <div className="max-w-[700px] 4xl:max-w-[900px]">
             <motion.div
               initial={{ opacity: 0, x: 50 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -130,7 +131,7 @@ export function SaasVideoSection() {
               transition={{ duration: 1.4, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
             >
               <p
-                className="m-0 lg:text-left"
+                className="m-0 lg:text-left 4xl:text-[17px]"
                 style={{
                   fontFamily: "'benzine', sans-serif",
                   fontSize: "clamp(12.5px, 1.05vw, 14px)",
@@ -154,7 +155,7 @@ export function SaasVideoSection() {
         {saasList.length >= 2 && (
           <button
             onClick={() => moveSlider(-1)}
-            className="nav-arrow arrow-left absolute top-1/2 -translate-y-1/2 left-6 sm:left-10 w-[52px] h-[52px] rounded-full bg-[#111111]/90 border border-white/20 text-white flex items-center justify-center cursor-pointer z-40 transition-all duration-300 hover:bg-[#6ecf97] hover:text-black hover:border-[#6ecf97] hover:shadow-[0_0_25px_rgba(110,207,151,0.6)] text-xl hidden md:flex shadow-2xl active:scale-95"
+            className="nav-arrow arrow-left absolute top-1/2 -translate-y-1/2 left-6 sm:left-10 4xl:left-16 w-[52px] h-[52px] 4xl:w-[68px] 4xl:h-[68px] rounded-full bg-[#111111]/90 border border-white/20 text-white flex items-center justify-center cursor-pointer z-40 transition-all duration-300 hover:bg-[#6ecf97] hover:text-black hover:border-[#6ecf97] hover:shadow-[0_0_25px_rgba(110,207,151,0.6)] text-xl 4xl:text-2xl hidden md:flex shadow-2xl active:scale-95"
             aria-label="Previous SaaS Video"
             title="Previous SaaS Video"
           >
@@ -166,7 +167,7 @@ export function SaasVideoSection() {
         {saasList.length >= 2 && (
           <button
             onClick={() => moveSlider(1)}
-            className="nav-arrow arrow-right absolute top-1/2 -translate-y-1/2 right-6 sm:right-10 w-[52px] h-[52px] rounded-full bg-[#111111]/90 border border-white/20 text-white flex items-center justify-center cursor-pointer z-40 transition-all duration-300 hover:bg-[#6ecf97] hover:text-black hover:border-[#6ecf97] hover:shadow-[0_0_25px_rgba(110,207,151,0.6)] text-xl hidden md:flex shadow-2xl active:scale-95"
+            className="nav-arrow arrow-right absolute top-1/2 -translate-y-1/2 right-6 sm:right-10 4xl:right-16 w-[52px] h-[52px] 4xl:w-[68px] 4xl:h-[68px] rounded-full bg-[#111111]/90 border border-white/20 text-white flex items-center justify-center cursor-pointer z-40 transition-all duration-300 hover:bg-[#6ecf97] hover:text-black hover:border-[#6ecf97] hover:shadow-[0_0_25px_rgba(110,207,151,0.6)] text-xl 4xl:text-2xl hidden md:flex shadow-2xl active:scale-95"
             aria-label="Next SaaS Video"
             title="Next SaaS Video"
           >
@@ -178,7 +179,7 @@ export function SaasVideoSection() {
         <div
           ref={sliderRef}
           id="videoSlider"
-          className="video-slider flex items-center justify-start gap-[30px] relative bg-black py-[60px] px-6 sm:px-14 overflow-x-auto flex-nowrap scroll-smooth no-scrollbar"
+          className="video-slider flex items-center justify-start gap-[30px] 4xl:gap-14 relative bg-black py-[60px] 4xl:py-[100px] px-6 sm:px-14 4xl:px-24 overflow-x-auto flex-nowrap scroll-smooth no-scrollbar"
           style={{
             scrollbarWidth: "none",
             msOverflowStyle: "none",
@@ -188,93 +189,74 @@ export function SaasVideoSection() {
             [1, 2, 3].map((n) => (
               <div
                 key={`skel-saas-${n}`}
-                className="flex-shrink-0 w-[85vw] sm:w-[680px] md:w-[920px] aspect-video rounded-[20px] border border-white/10 bg-[#141414] animate-pulse flex items-center justify-center"
+                className="flex-shrink-0 w-[85vw] sm:w-[680px] md:w-[920px] 3xl:w-[1150px] 4xl:w-[1380px] aspect-video rounded-[20px] border border-white/10 bg-[#141414] animate-pulse flex items-center justify-center"
               >
                 <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10" />
               </div>
             ))
           ) : (
             saasList.map((item, idx) => {
-            const isPlaying = activeVideo === item.id;
-            const isOdd = idx % 2 === 0;
+              const isPlaying = activeVideo === item.id;
+              const isOdd = idx % 2 === 0;
 
-            return (
-              <div
-                key={`${item.id}-${idx}`}
-                onClick={() => {
-                  if (!isPlaying) {
-                    setActiveVideo(item.id);
-                    setLoadingVideo(true);
-                  }
-                }}
-                className="video-card flex-shrink-0 w-[85vw] sm:w-[680px] md:w-[920px] aspect-video rounded-[20px] border border-white/10 bg-[#111111] overflow-hidden cursor-pointer relative transition-all duration-400 group hover:border-[#6ecf97] hover:shadow-[0_0_50px_rgba(110,207,151,0.25)] hover:scale-[1.04] hover:z-10"
-                style={{
-                  animation: isPlaying
-                    ? "none"
-                    : isOdd
-                    ? "floatUp 3.6s ease-in-out infinite"
-                    : "floatDown 3.6s ease-in-out infinite",
-                }}
-              >
-                {isPlaying ? (
-                  <div className="w-full h-full relative bg-black">
-                    {loadingVideo && (
-                      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/80 gap-3">
-                        <div className="video-loading-spinner" />
-                        <span className="text-xs text-[#B3FFC9] font-medium tracking-wide">Loading SaaS video...</span>
-                      </div>
-                    )}
-                    <iframe
-                      src={`https://www.youtube.com/embed/${item.id}?autoplay=1&playsinline=1&enablejsapi=1&modestbranding=1&rel=0`}
-                      allow="autoplay; encrypted-media; picture-in-picture"
-                      allowFullScreen
-                      onLoad={() => setLoadingVideo(false)}
-                      className="w-full h-full border-none"
+              return (
+                <div
+                  key={`${item.id}-${idx}`}
+                  onClick={() => {
+                    if (!isPlaying) {
+                      setActiveVideo(item.id);
+                      setLoadingVideo(true);
+                    }
+                  }}
+                  className={`video-card flex-shrink-0 w-[85vw] sm:w-[680px] md:w-[920px] 3xl:w-[1150px] 4xl:w-[1380px] aspect-video rounded-[20px] border border-white/10 bg-[#111111] overflow-hidden cursor-pointer relative transition-all duration-400 group hover:border-[#6ecf97] hover:shadow-[0_0_50px_rgba(110,207,151,0.25)] ${isPlaying ? "" : "hover:scale-[1.04] hover:z-10"}`}
+                  style={{
+                    animation: isPlaying
+                      ? "none"
+                      : isOdd
+                        ? "floatUp 3.6s ease-in-out infinite"
+                        : "floatDown 3.6s ease-in-out infinite",
+                  }}
+                >
+                  {isPlaying ? (
+                    <CarouselVideoPlayer
+                      videoId={item.id}
                       title={item.title || "Saas Video"}
-                    />
-                    {/* Close / Stop Button */}
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
+                      loadingLabel="Loading SaaS video..."
+                      roundedClassName="rounded-[20px]"
+                      sectionId="saas-video"
+                      onClose={() => {
                         setActiveVideo(null);
                         setLoadingVideo(false);
                       }}
-                      className="absolute top-3 right-3 z-30 w-8 h-8 rounded-full bg-black/80 border border-white/20 text-white flex items-center justify-center text-xs hover:bg-[#B3FFC9] hover:text-black transition-colors"
-                      title="Close video"
-                      aria-label="Close video"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ) : (
-                  <div className="video-overlay w-full h-full relative overflow-hidden bg-[#111111]">
-                    {/* Lazy thumbnail with fallback */}
-                    <img
-                      src={item.thumb}
-                      alt={item.title || "Saas Video thumbnail"}
-                      loading="lazy"
-                      decoding="async"
-                      onError={(e) => {
-                        e.currentTarget.onerror = null;
-                        e.currentTarget.src = `https://img.youtube.com/vi/${item.id}/hqdefault.jpg`;
-                      }}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
+                  ) : (
+                    <div className="video-overlay w-full h-full relative overflow-hidden bg-[#111111]">
+                      {/* Lazy thumbnail with fallback */}
+                      <img
+                        src={item.thumb}
+                        alt={item.title || "Saas Video thumbnail"}
+                        loading="lazy"
+                        decoding="async"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = `https://img.youtube.com/vi/${item.id}/hqdefault.jpg`;
+                        }}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
 
-                    {/* Gradient Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/20 to-black/50 pointer-events-none z-[1]" />
+                      {/* Gradient Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/20 to-black/50 pointer-events-none z-[1]" />
 
-                    {/* Play Button */}
-                    <div className="play-btn absolute bottom-5 right-6 w-[45px] h-[45px] rounded-full border border-[#6ecf97]/50 bg-black/40 backdrop-blur-[5px] text-[#6ecf97] flex items-center justify-center text-sm transition-all duration-300 z-[2] group-hover:bg-[#6ecf97] group-hover:text-black group-hover:scale-110 group-hover:border-[#6ecf97] group-hover:shadow-[0_0_20px_rgba(110,207,151,0.6)]">
-                      ▶
+                      {/* Play Button */}
+                      <div className="play-btn absolute bottom-5 right-6 w-[45px] h-[45px] rounded-full border border-[#6ecf97]/50 bg-black/40 backdrop-blur-[5px] text-[#6ecf97] flex items-center justify-center text-sm transition-all duration-300 z-[2] group-hover:bg-[#6ecf97] group-hover:text-black group-hover:scale-110 group-hover:border-[#6ecf97] group-hover:shadow-[0_0_20px_rgba(110,207,151,0.6)]">
+                        ▶
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            );
-          })
-        )}
+                  )}
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
     </section>

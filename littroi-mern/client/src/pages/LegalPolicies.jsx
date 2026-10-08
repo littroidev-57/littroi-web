@@ -73,7 +73,7 @@ export function LegalPolicies() {
       <div className="bg-black text-white min-h-screen select-none overflow-hidden">
 
         {/* ==================== 1. PAGE HERO HEADER ==================== */}
-        <section className="pt-32 sm:pt-44 pb-12 sm:pb-16 max-w-[1400px] w-full mx-auto px-6 sm:px-10 lg:px-16">
+        <section className="pt-32 sm:pt-44 pb-12 sm:pb-16 max-w-[1400px] 3xl:max-w-[1720px] 4xl:max-w-[2160px] w-full mx-auto px-6 sm:px-10 lg:px-16 4xl:px-20">
           {/* Eyebrow */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -93,7 +93,7 @@ export function LegalPolicies() {
         </section>
 
         {/* ==================== 2. MAIN INTERACTIVE CONSOLE ==================== */}
-        <section className="pb-20 sm:pb-28 max-w-[1400px] w-full mx-auto px-6 sm:px-10 lg:px-16">
+        <section className="pb-20 sm:pb-28 max-w-[1400px] 3xl:max-w-[1720px] 4xl:max-w-[2160px] w-full mx-auto px-6 sm:px-10 lg:px-16 4xl:px-20">
           <FadeIn>
             <div className="w-full bg-[#0a0a0a] border border-[#181818] rounded-[24px] grid grid-cols-1 lg:grid-cols-[340px_1fr] shadow-[0_40px_100px_rgba(0,0,0,0.8),0_0_80px_rgba(179,255,201,0.02)] relative overflow-hidden">
               {/* Top Accent Tech Line */}
@@ -433,7 +433,7 @@ export function LegalPolicies() {
         </section>
 
         {/* ==================== 3. COMPLIANCE PILLARS GRID (TRUST & SECURITY) ==================== */}
-        <section className="pb-16 sm:pb-24 max-w-[1400px] w-full mx-auto px-6 sm:px-10 lg:px-16">
+        <section className="pb-16 sm:pb-24 max-w-[1400px] 3xl:max-w-[1720px] 4xl:max-w-[2160px] w-full mx-auto px-6 sm:px-10 lg:px-16 4xl:px-20">
           <FadeIn>
             <div className="mb-12">
               <span
@@ -495,7 +495,7 @@ export function LegalPolicies() {
         </section>
 
         {/* ==================== 4. LEGAL FAQ ACCORDION SECTION ==================== */}
-        <section className="pb-16 sm:pb-24 max-w-[1400px] w-full mx-auto px-6 sm:px-10 lg:px-16">
+        <section className="pb-16 sm:pb-24 max-w-[1400px] 3xl:max-w-[1720px] 4xl:max-w-[2160px] w-full mx-auto px-6 sm:px-10 lg:px-16 4xl:px-20">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
             {/* FAQ Left Heading */}
             <div className="lg:col-span-5 space-y-4">
@@ -570,7 +570,7 @@ export function LegalPolicies() {
         </section>
 
         {/* ==================== 5. BOTTOM CONTACT / LEGAL CTA ==================== */}
-        <section className="pb-20 sm:pb-28 max-w-[1400px] w-full mx-auto px-6 sm:px-10 lg:px-16">
+        <section className="pb-20 sm:pb-28 max-w-[1400px] 3xl:max-w-[1720px] 4xl:max-w-[2160px] w-full mx-auto px-6 sm:px-10 lg:px-16 4xl:px-20">
           <FadeIn>
             <div className="p-8 sm:p-14 rounded-3xl bg-gradient-to-b from-[#111] to-[#0a0a0a] border border-white/10 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">
               <div className="space-y-3 text-center md:text-left max-w-xl">

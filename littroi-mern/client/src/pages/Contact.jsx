@@ -120,7 +120,7 @@ export function Contact() {
         {/* =========================================================================
             1. HERO SECTION
            ========================================================================= */}
-        <section className="pt-32 sm:pt-40 pb-10 sm:pb-14 max-w-[1400px] w-full mx-auto px-6 sm:px-10 lg:px-16">
+        <section className="pt-32 sm:pt-40 pb-10 sm:pb-14 max-w-[1400px] 3xl:max-w-[1720px] 4xl:max-w-[2160px] w-full mx-auto px-6 sm:px-10 lg:px-16 4xl:px-20">
           {/* Eyebrow */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -180,7 +180,7 @@ export function Contact() {
         {/* =========================================================================
             2. CALENDLY CALL SCHEDULER SECTION (FIRST)
            ========================================================================= */}
-        <section id="calendar-section" className="pb-16 sm:pb-24 max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-16">
+        <section id="calendar-section" className="pb-16 sm:pb-24 max-w-[1400px] 3xl:max-w-[1720px] 4xl:max-w-[2160px] mx-auto px-6 sm:px-10 lg:px-16 4xl:px-20">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
@@ -228,7 +228,7 @@ export function Contact() {
         {/* =========================================================================
             3. WHAT TO EXPECT (3-STEP DISCOVERY AGENDA)
            ========================================================================= */}
-        <section className="py-14 sm:py-20 max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-16 border-t border-white/10">
+        <section className="py-14 sm:py-20 max-w-[1400px] 3xl:max-w-[1720px] 4xl:max-w-[2160px] mx-auto px-6 sm:px-10 lg:px-16 4xl:px-20 border-t border-white/10">
           <div className="text-left mb-10">
             <span
               className="text-xs font-mono tracking-widest text-[#B3FFC9] uppercase font-semibold block mb-2"
@@ -286,7 +286,7 @@ export function Contact() {
         {/* =========================================================================
             4. WHO YOU'LL BE SPEAKING WITH (FOUNDER & LEADERSHIP)
            ========================================================================= */}
-        <section className="py-14 sm:py-20 max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-16 border-t border-white/10">
+        <section className="py-14 sm:py-20 max-w-[1400px] 3xl:max-w-[1720px] 4xl:max-w-[2160px] mx-auto px-6 sm:px-10 lg:px-16 4xl:px-20 border-t border-white/10">
           <div className="rounded-3xl p-8 sm:p-12 bg-white/[0.02] border border-white/10 relative overflow-hidden">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
               {/* Founder Image */}
@@ -393,7 +393,7 @@ export function Contact() {
         {/* =========================================================================
             5. IS LITTROI RIGHT FOR YOU? (QUALIFYING COMPARISON)
            ========================================================================= */}
-        <section className="py-14 sm:py-20 max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-16 border-t border-white/10">
+        <section className="py-14 sm:py-20 max-w-[1400px] 3xl:max-w-[1720px] 4xl:max-w-[2160px] mx-auto px-6 sm:px-10 lg:px-16 4xl:px-20 border-t border-white/10">
           <div className="text-left mb-10">
             <span className="text-xs font-mono tracking-widest text-[#B3FFC9] uppercase font-semibold block mb-2">
               QUALIFYING PARTNERSHIP
@@ -457,7 +457,7 @@ export function Contact() {
         {/* =========================================================================
             6. PRE-BOOKING FAQ ACCORDION (2-COLUMN SPLIT LAYOUT)
            ========================================================================= */}
-        <section className="py-14 sm:py-24 max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-16 border-t border-white/10">
+        <section className="py-14 sm:py-24 max-w-[1400px] 3xl:max-w-[1720px] 4xl:max-w-[2160px] mx-auto px-6 sm:px-10 lg:px-16 4xl:px-20 border-t border-white/10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
             {/* FAQ Left Heading */}
             <div className="lg:col-span-5 space-y-4">
@@ -531,7 +531,7 @@ export function Contact() {
         {/* =========================================================================
             7. DIRECT STUDIO COORDINATES
            ========================================================================= */}
-        <section className="py-14 sm:py-20 max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-16 border-t border-white/10">
+        <section className="py-14 sm:py-20 max-w-[1400px] 3xl:max-w-[1720px] 4xl:max-w-[2160px] mx-auto px-6 sm:px-10 lg:px-16 4xl:px-20 border-t border-white/10">
           <div className="mb-10 text-left">
             <span className="text-xs font-mono tracking-widest text-[#B3FFC9] uppercase font-semibold block mb-2">
               PREFER TEXT OR DIRECT REACHOUT?

@@ -361,7 +361,7 @@ export function About() {
 
       <div className="bg-black text-white min-h-screen select-none overflow-hidden">
         {/* 1. Page Header (elementor-element-ed9e992) */}
-        <section className="pt-32 sm:pt-44 pb-12 sm:pb-16 max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-16">
+        <section className="pt-32 sm:pt-44 pb-12 sm:pb-16 max-w-[1400px] 3xl:max-w-[1720px] 4xl:max-w-[2160px] mx-auto px-6 sm:px-10 lg:px-16 4xl:px-20">
           {/* Eyebrow */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -425,7 +425,7 @@ export function About() {
         </section>
 
         {/* 2. Team Picture Banner (elementor-element-6b06f57) */}
-        <section className="max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-16 mb-28 sm:mb-40">
+        <section className="max-w-[1400px] 3xl:max-w-[1720px] 4xl:max-w-[2160px] mx-auto px-6 sm:px-10 lg:px-16 4xl:px-20 mb-28 sm:mb-40">
           <motion.div
             initial={{ opacity: 0, scale: 0.97 }}
             whileInView={{ opacity: 1, scale: 1 }}
@@ -449,7 +449,7 @@ export function About() {
         </section>
 
         {/* 3. Our Belief Section (elementor-element-d74a0bf & e4f0fdc) */}
-        <section className="max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-16 mb-28 sm:mb-40">
+        <section className="max-w-[1400px] 3xl:max-w-[1720px] 4xl:max-w-[2160px] mx-auto px-6 sm:px-10 lg:px-16 4xl:px-20 mb-28 sm:mb-40">
           <div className="flex flex-col space-y-16 sm:space-y-20">
             {/* Top Belief Statement */}
             <div className="space-y-6 max-w-[1340px]">
@@ -541,7 +541,7 @@ export function About() {
         </section>
 
         {/* 4. Our Proven Result Section (elementor-element-7363700 & 242664f) */}
-        <section className="max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-16 mb-28 sm:mb-40">
+        <section className="max-w-[1400px] 3xl:max-w-[1720px] 4xl:max-w-[2160px] mx-auto px-6 sm:px-10 lg:px-16 4xl:px-20 mb-28 sm:mb-40">
           <motion.div {...smoothFadeInUp} className="mb-12">
             <h2
               className="elementor-heading-title elementor-size-default m-0 text-white font-extrabold"
@@ -570,7 +570,7 @@ export function About() {
         </section>
 
         {/* 5. Our Founder Section (elementor-element-56ff36b) */}
-        <section className="max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-16 mb-28 sm:mb-40">
+        <section className="max-w-[1400px] 3xl:max-w-[1720px] 4xl:max-w-[2160px] mx-auto px-6 sm:px-10 lg:px-16 4xl:px-20 mb-28 sm:mb-40">
           <motion.div {...smoothFadeInUp} className="mb-12">
             <h2
               className="elementor-heading-title elementor-size-default m-0 font-extrabold"
@@ -670,7 +670,7 @@ export function About() {
         </section>
 
         {/* 6. Team Grid Section (elementor-element-c92ad94) */}
-        <section className="max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-16 mb-28 sm:mb-40">
+        <section className="max-w-[1400px] 3xl:max-w-[1720px] 4xl:max-w-[2160px] mx-auto px-6 sm:px-10 lg:px-16 4xl:px-20 mb-28 sm:mb-40">
           <motion.div {...smoothFadeInUp} className="mb-12">
             <h2
               className="elementor-heading-title elementor-size-default m-0 font-extrabold"
@@ -740,7 +740,7 @@ export function About() {
         </section>
 
         {/* 7. Bottom CTA Section (elementor-element-743a65f) */}
-        <section className="max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-16 pb-28 sm:pb-40 text-center">
+        <section className="max-w-[1400px] 3xl:max-w-[1720px] 4xl:max-w-[2160px] mx-auto px-6 sm:px-10 lg:px-16 4xl:px-20 pb-28 sm:pb-40 text-center">
           <motion.div
             {...smoothFadeInUp}
             className="p-10 sm:p-20 rounded-3xl bg-[#080808] border border-white/10 flex flex-col items-center justify-center space-y-10 sm:space-y-14 shadow-2xl relative overflow-hidden"

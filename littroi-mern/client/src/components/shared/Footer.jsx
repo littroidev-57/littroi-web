@@ -18,17 +18,17 @@ export function Footer() {
 
   return (
     <footer
-      className="elementor-element elementor-element-a2b4365 e-con-full e-flex wpr-particle-no wpr-jarallax-no wpr-parallax-no wpr-sticky-section-no wpr-column-slider-no wpr-equal-height-no e-con e-parent e-lazyloaded bg-black text-white relative pt-16 sm:pt-24 pb-0 overflow-hidden select-none"
+      className="elementor-element elementor-element-a2b4365 e-con-full e-flex wpr-particle-no wpr-jarallax-no wpr-parallax-no wpr-sticky-section-no wpr-column-slider-no wpr-equal-height-no e-con e-parent e-lazyloaded bg-black text-white relative pt-16 sm:pt-24 4xl:pt-36 pb-0 overflow-hidden select-none"
       data-id="a2b4365"
       data-element_type="container"
       data-e-type="container"
     >
-      <div className="max-w-[1440px] w-full mx-auto px-6 sm:px-10 lg:px-14 pb-12 sm:pb-16">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 lg:gap-16 items-start">
+      <div className="max-w-[1440px] 3xl:max-w-[1720px] 4xl:max-w-[2160px] w-full mx-auto px-6 sm:px-10 lg:px-14 4xl:px-16 pb-12 sm:pb-16 4xl:pb-24">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 lg:gap-16 4xl:gap-24 items-start">
           {/* Column 1: Build Right With Littroi (strictly ONE LINE) + Solid Green Book a Call Button */}
-          <div className="md:col-span-6 flex flex-col items-start space-y-6 max-w-[560px]">
+          <div className="md:col-span-6 flex flex-col items-start space-y-6 max-w-[560px] 4xl:max-w-[760px]">
             <h2
-              className="m-0 text-white whitespace-normal sm:whitespace-nowrap leading-tight sm:leading-none"
+              className="m-0 text-white whitespace-normal sm:whitespace-nowrap leading-tight sm:leading-none 4xl:text-[54px]"
               style={{
                 fontFamily: "'Syne', sans-serif",
                 fontSize: "clamp(24px, 3.4vw, 48px)",
@@ -44,7 +44,7 @@ export function Footer() {
               href="https://calendly.com/littroi-info/strategy-call"
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full max-w-[480px] h-[52px] rounded-[10px] bg-[#b3ffc9] text-black font-bold flex items-center justify-center text-base tracking-wide hover:bg-[#9effba] hover:shadow-[0_0_30px_rgba(179,255,201,0.4)] transition-all duration-300 hover:scale-[1.01] mt-3"
+              className="w-full max-w-[480px] 4xl:max-w-[560px] h-[52px] 4xl:h-[62px] rounded-[10px] bg-[#b3ffc9] text-black font-bold flex items-center justify-center text-base 4xl:text-lg tracking-wide hover:bg-[#9effba] hover:shadow-[0_0_30px_rgba(179,255,201,0.4)] transition-all duration-300 hover:scale-[1.01] mt-3"
               style={{ fontFamily: "'Syne', sans-serif" }}
             >
               Book a Call
@@ -54,7 +54,7 @@ export function Footer() {
           {/* Column 2: Vertical Nav Menu */}
           <div className="md:col-span-3 flex flex-col items-start">
             <nav aria-label="Menu" className="w-full">
-              <ul className="space-y-2">
+              <ul className="space-y-2 4xl:space-y-3">
                 {navLinks.map((item) => {
                   const isActive = location.pathname === item.path;
                   return (
@@ -62,7 +62,7 @@ export function Footer() {
                       <Link
                         to={item.path}
                         onClick={() => window.scrollTo({ top: 0, left: 0, behavior: "smooth" })}
-                        className={`text-sm transition-colors duration-200 block ${
+                        className={`text-sm 4xl:text-base transition-colors duration-200 block ${
                           isActive
                             ? "text-[#b3ffc9] font-semibold"
                             : "text-white/70 hover:text-[#b3ffc9]"

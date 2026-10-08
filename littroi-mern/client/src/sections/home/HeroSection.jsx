@@ -30,7 +30,7 @@ export function HeroSection() {
 
         {/* ── elementor-element-7bf9d12 fronttextt: EXACT DEAD CENTER in Viewport ── */}
         <div
-          className="elementor-element elementor-element-7bf9d12 fronttextt exad-sticky-section-no exad-glass-effect-no elementor-widget elementor-widget-image flex items-center justify-center overflow-hidden w-full max-w-[1400px] px-3 sm:px-6 md:px-8 text-center select-none my-auto"
+          className="elementor-element elementor-element-7bf9d12 fronttextt exad-sticky-section-no exad-glass-effect-no elementor-widget elementor-widget-image flex items-center justify-center overflow-hidden w-full max-w-[1400px] 3xl:max-w-[1720px] 4xl:max-w-[2160px] px-3 sm:px-6 md:px-8 4xl:px-12 text-center select-none my-auto"
           data-id="7bf9d12"
           data-element_type="widget"
           data-widget_type="image.default"
@@ -60,7 +60,7 @@ export function HeroSection() {
 
         {/* ── elementor-element-5e2e98b: Hero Bottom Text Row — Positioned cleanly beneath LITTROI logo ── */}
         <div
-          className="elementor-element elementor-element-5e2e98b e-con-full e-flex wpr-particle-no wpr-jarallax-no wpr-parallax-no wpr-sticky-section-no wpr-column-slider-no wpr-equal-height-no e-con e-child w-[94%] max-w-[1400px] flex flex-col sm:flex-row items-start sm:items-end justify-between gap-3 sm:gap-6 px-4 sm:px-8 pointer-events-auto z-20 flex-shrink-0"
+          className="elementor-element elementor-element-5e2e98b e-con-full e-flex wpr-particle-no wpr-jarallax-no wpr-parallax-no wpr-sticky-section-no wpr-column-slider-no wpr-equal-height-no e-con e-child w-[94%] max-w-[1400px] 3xl:max-w-[1720px] 4xl:max-w-[2160px] flex flex-col sm:flex-row items-start sm:items-end justify-between gap-3 sm:gap-6 px-4 sm:px-8 4xl:px-12 4xl:pb-6 pointer-events-auto z-20 flex-shrink-0"
           data-id="5e2e98b"
           data-element_type="container"
           data-e-type="container"
@@ -73,7 +73,7 @@ export function HeroSection() {
             data-widget_type="heading.default"
           >
             <h2
-              className="elementor-heading-title elementor-size-default m-0"
+              className="elementor-heading-title elementor-size-default m-0 4xl:text-[25px]"
               style={{
                 fontFamily: "'Syne', 'benzine', sans-serif",
                 fontSize: "clamp(14px, 1.25vw, 19px)",
@@ -95,7 +95,7 @@ export function HeroSection() {
             data-widget_type="heading.default"
           >
             <h2
-              className="elementor-heading-title elementor-size-default m-0"
+              className="elementor-heading-title elementor-size-default m-0 4xl:text-[25px]"
               style={{
                 fontFamily: "'Syne', 'benzine', sans-serif",
                 fontSize: "clamp(13px, 1.25vw, 19px)",
@@ -113,14 +113,13 @@ export function HeroSection() {
       </section>
 
       {/* ── elementor-element-40b85c9: The Next Wave of Content Creation ── */}
-      {/* ── elementor-element-40b85c9: The Next Wave of Content Creation ── */}
       <section
-        className="elementor-element elementor-element-40b85c9 e-con-full e-flex wpr-particle-no wpr-jarallax-no wpr-parallax-no wpr-sticky-section-no wpr-column-slider-no wpr-equal-height-no e-con e-parent e-lazyloaded bg-[#000000] min-h-[50vh] sm:min-h-[70vh] lg:min-h-screen flex flex-col items-center justify-center text-center px-4 w-full relative overflow-hidden py-14 sm:py-24 lg:py-36"
+        className="elementor-element elementor-element-40b85c9 e-con-full e-flex wpr-particle-no wpr-jarallax-no wpr-parallax-no wpr-sticky-section-no wpr-column-slider-no wpr-equal-height-no e-con e-parent e-lazyloaded bg-[#000000] min-h-[50vh] sm:min-h-[70vh] lg:min-h-screen flex flex-col items-center justify-center text-center px-4 w-full relative overflow-hidden py-14 sm:py-24 lg:py-36 4xl:py-48"
         data-id="40b85c9"
         data-element_type="container"
         data-e-type="container"
       >
-        <div className="w-full max-w-6xl mx-auto flex flex-col items-center justify-center text-center">
+        <div className="w-full max-w-6xl 3xl:max-w-7xl 4xl:max-w-[1720px] mx-auto flex flex-col items-center justify-center text-center">
 
           {/* Main Headline: The Next Wave of Content Creation — exactly 2 crisp balanced lines */}
           <motion.div
@@ -131,7 +130,7 @@ export function HeroSection() {
             className="w-full text-center"
           >
             <h2
-              className="elementor-heading-title elementor-size-default m-0 text-center font-extrabold tracking-tight"
+              className="elementor-heading-title elementor-size-default m-0 text-center font-extrabold tracking-tight 4xl:text-[96px]"
               style={{
                 fontFamily: "'Syne', sans-serif",
                 fontSize: "clamp(22px, 5.6vw, 75px)",
@@ -155,10 +154,10 @@ export function HeroSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-50px" }}
             transition={{ duration: 1.0, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            className="w-full text-center mt-4 sm:mt-6 lg:mt-8"
+            className="w-full text-center mt-4 sm:mt-6 lg:mt-8 4xl:mt-12"
           >
             <p
-              className="m-0 text-center mx-auto max-w-2xl px-2"
+              className="m-0 text-center mx-auto max-w-2xl 4xl:max-w-4xl px-2 4xl:text-[26px]"
               style={{
                 fontFamily: "'benzine', 'Syne', sans-serif",
                 fontSize: "clamp(12px, 1.4vw, 22px)",

@@ -13,7 +13,7 @@ export function PageHero({
       {/* Radial lighting */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-brand-primary/10 rounded-full blur-[140px] pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center max-w-4xl">
+      <div className="max-w-4xl 3xl:max-w-5xl 4xl:max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 4xl:px-16 relative z-10 text-center">
         <FadeIn direction="down">
           {tag && (
             <div className="mb-4">
@@ -22,14 +22,14 @@ export function PageHero({
               </Badge>
             </div>
           )}
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-extrabold text-white tracking-tight leading-tight">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl 4xl:text-[84px] font-display font-extrabold text-white tracking-tight leading-tight">
             {title}
           </h1>
         </FadeIn>
 
         {subtitle && (
           <FadeIn delay={0.2}>
-            <p className="text-lg sm:text-xl text-brand-muted mt-6 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-lg sm:text-xl 4xl:text-2xl text-brand-muted mt-6 max-w-2xl 4xl:max-w-4xl mx-auto leading-relaxed">
               {subtitle}
             </p>
           </FadeIn>

@@ -1,6 +1,11 @@
 @import "tailwindcss";
 @config "../tailwind.config.js";
 
+@theme {
+  --breakpoint-3xl: 1920px;
+  --breakpoint-4xl: 2560px;
+}
+
 @font-face {
   font-family: 'benzine';
   src: url('/fonts/Benzin-Regular.ttf') format('truetype');
@@ -100,6 +105,42 @@
   .mask-marquee {
     mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
     -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  }
+
+  /* Ultra-wide 27-inch display container utility */
+  .site-container {
+    width: 100%;
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+  @media (min-width: 640px) {
+    .site-container {
+      padding-left: 2.5rem;
+      padding-right: 2.5rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    .site-container {
+      padding-left: 3.5rem;
+      padding-right: 3.5rem;
+    }
+  }
+  @media (min-width: 1920px) {
+    .site-container {
+      max-width: 1720px;
+      padding-left: 4.5rem;
+      padding-right: 4.5rem;
+    }
+  }
+  @media (min-width: 2560px) {
+    .site-container {
+      max-width: 2160px;
+      padding-left: 5.5rem;
+      padding-right: 5.5rem;
+    }
   }
 }
 
@@ -203,6 +244,17 @@
 .masscie-team-member-image:hover img {
   opacity: 1;
   box-shadow: 0px 8px 25px 0px rgba(179, 255, 201, 0.25);
+}
+
+@media (min-width: 2560px) {
+  .masscie-team-member-image,
+  .masscie-team-member-image img {
+    width: 130px;
+    height: 130px;
+    max-width: 130px;
+    max-height: 130px;
+    border-radius: 28px;
+  }
 }
 
 /* ── Elementor Hero Image Widget — subtle gentle float & mild fade ── */
@@ -322,6 +374,20 @@
   margin: 0 auto;
   user-select: none;
   pointer-events: none;
+}
+
+@media (min-width: 1920px) {
+  .elementor-widget-image.fronttextt img,
+  .elementor-widget-image.fronttextt .wp-image-4133 {
+    max-height: 480px !important;
+  }
+}
+
+@media (min-width: 2560px) {
+  .elementor-widget-image.fronttextt img,
+  .elementor-widget-image.fronttextt .wp-image-4133 {
+    max-height: 580px !important;
+  }
 }
 
 /* ── Mobile Performance & Smooth Scrolling Optimizations ── */

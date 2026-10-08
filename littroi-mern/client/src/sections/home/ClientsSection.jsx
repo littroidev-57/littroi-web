@@ -89,7 +89,7 @@ export function ClientsSection() {
       style={{ paddingTop: "clamp(60px, 8vw, 110px)", paddingBottom: "clamp(50px, 6vw, 90px)" }}
     >
       {/* elementor-element-7bba5fd — Our Clients Header Section */}
-      <div className="e-con-inner max-w-[1400px] w-full mx-auto px-6 sm:px-10 lg:px-14 mb-12 sm:mb-16">
+      <div className="e-con-inner max-w-[1400px] 3xl:max-w-[1720px] 4xl:max-w-[2160px] w-full mx-auto px-6 sm:px-10 lg:px-14 4xl:px-16 mb-12 sm:mb-16 4xl:mb-20">
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
 
           {/* elementor-element-6bfc39e: Left Heading "Our Clients" with fadeInLeft entrance transition */}
@@ -111,7 +111,7 @@ export function ClientsSection() {
                 data-widget_type="heading.default"
               >
                 <h2
-                  className="elementor-heading-title elementor-size-default m-0"
+                  className="elementor-heading-title elementor-size-default m-0 4xl:text-6xl"
                   style={{
                     fontFamily: "'Syne', sans-serif",
                     fontSize: "clamp(30px, 3.8vw, 46px)",
@@ -129,7 +129,7 @@ export function ClientsSection() {
 
           {/* elementor-element-fca3cff: Right Text formatted in EXACT 3 lines matching screenshot */}
           <div
-            className="elementor-element elementor-element-fca3cff e-flex e-con-boxed wpr-particle-no wpr-jarallax-no wpr-parallax-no wpr-sticky-section-no wpr-column-slider-no wpr-equal-height-no e-con e-child max-w-[700px]"
+            className="elementor-element elementor-element-fca3cff e-flex e-con-boxed wpr-particle-no wpr-jarallax-no wpr-parallax-no wpr-sticky-section-no wpr-column-slider-no wpr-equal-height-no e-con e-child max-w-[700px] 4xl:max-w-[900px]"
             data-id="fca3cff"
             data-element_type="container"
             data-e-type="container"
@@ -146,7 +146,7 @@ export function ClientsSection() {
                 data-widget_type="text-editor.default"
               >
                 <p
-                  className="m-0 lg:text-left"
+                  className="m-0 lg:text-left 4xl:text-[17px]"
                   style={{
                     fontFamily: "'benzine', sans-serif",
                     fontSize: "clamp(12.5px, 1.05vw, 14px)",

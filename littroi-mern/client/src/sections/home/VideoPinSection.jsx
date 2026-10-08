@@ -11,6 +11,7 @@ export function VideoPinSection() {
   const vidRef = useRef(null);
   const dockTargetRef = useRef(null);
   const contentRef = useRef(null);
+  const mobileVidRef = useRef(null);
   const [isMuted, setIsMuted] = useState(true);
 
   // Toggle audio on / off
@@ -137,8 +138,26 @@ export function VideoPinSection() {
       });
     }, section);
 
+    // Observe mobile video so it pauses when out of view
+    const mobileVid = mobileVidRef.current;
+    let mobileObserver;
+    if (mobileVid) {
+      mobileObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting && !mobileVid.paused) {
+              mobileVid.pause();
+            }
+          });
+        },
+        { threshold: 0.15 }
+      );
+      mobileObserver.observe(mobileVid);
+    }
+
     return () => {
       observer.disconnect();
+      if (mobileObserver) mobileObserver.disconnect();
       ctx.revert();
     };
   }, []);
@@ -220,11 +239,11 @@ export function VideoPinSection() {
         <div
           id="vps-content"
           ref={contentRef}
-          className="absolute inset-0 z-10 w-full h-full flex flex-col justify-center px-6 lg:px-14 xl:px-20 py-12 max-w-[1440px] mx-auto pointer-events-auto"
+          className="absolute inset-0 z-10 w-full h-full flex flex-col justify-center px-6 lg:px-14 xl:px-20 4xl:px-24 py-12 max-w-[1440px] 3xl:max-w-[1760px] 4xl:max-w-[2200px] mx-auto pointer-events-auto"
           style={{ opacity: 0 }}
         >
           {/* Top Eyebrow Tag */}
-          <div className="w-fit rounded-full text-xs sm:text-sm font-semibold text-[#B3FFC9] tracking-wider uppercase mb-6 lg:mb-8">
+          <div className="w-fit rounded-full text-xs sm:text-sm 3xl:text-base 4xl:text-lg font-semibold text-[#B3FFC9] tracking-wider uppercase mb-6 lg:mb-8 4xl:mb-12">
             [ ! ] Be the brand they never stop talking about
           </div>
 
@@ -233,11 +252,11 @@ export function VideoPinSection() {
             {/* The reserved float box that the video tweens into — text wraps naturally around it */}
             <div
               ref={dockTargetRef}
-              className="float-left w-[260px] md:w-[300px] lg:w-[360px] xl:w-[420px] aspect-video mr-6 lg:mr-8 mb-4 rounded-2xl opacity-0 pointer-events-none"
+              className="float-left w-[260px] md:w-[300px] lg:w-[360px] xl:w-[420px] 3xl:w-[500px] 4xl:w-[600px] aspect-video mr-6 lg:mr-8 4xl:mr-12 mb-4 4xl:mb-8 rounded-2xl opacity-0 pointer-events-none"
             />
 
             <h2
-              className="text-2xl md:text-3xl lg:text-[2.6rem] xl:text-[3.1rem] text-white font-bold leading-[1.18] tracking-[-0.02em] m-0"
+              className="text-2xl md:text-3xl lg:text-[2.6rem] xl:text-[3.1rem] 3xl:text-[3.6rem] 4xl:text-[4.2rem] text-white font-bold leading-[1.18] tracking-[-0.02em] m-0"
               style={{ fontFamily: "'Syne', sans-serif" }}
             >
               Smart strategy backed by precise execution, because ideas alone are never enough. Get seen. Get trusted. Get chosen.
@@ -251,6 +270,7 @@ export function VideoPinSection() {
       <div className="block md:hidden w-full px-5 py-12 space-y-8">
         <div className="relative w-full aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black">
           <video
+            ref={mobileVidRef}
             src={showreelVideo}
             controls
             preload="none"

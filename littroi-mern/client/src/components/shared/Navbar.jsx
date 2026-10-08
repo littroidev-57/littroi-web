@@ -70,10 +70,10 @@ export function Navbar() {
       data-section="section-primary-header-builder"
     >
       <div
-        className="site-primary-header-wrap ast-builder-grid-row-container site-header-focus-item ast-container w-full max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-14"
+        className="site-primary-header-wrap ast-builder-grid-row-container site-header-focus-item ast-container w-full max-w-[1400px] 3xl:max-w-[1720px] 4xl:max-w-[2160px] mx-auto px-6 sm:px-10 lg:px-14 4xl:px-16"
         data-section="section-primary-header-builder"
       >
-        <div className="ast-builder-grid-row ast-builder-grid-row-has-sides ast-grid-center-col-layout flex items-center justify-between min-h-[90px] lg:min-h-[100px]">
+        <div className="ast-builder-grid-row ast-builder-grid-row-has-sides ast-grid-center-col-layout flex items-center justify-between min-h-[90px] lg:min-h-[100px] 4xl:min-h-[120px]">
 
           {/* LEFT: Site Logo Section */}
           <div className="site-header-primary-section-left site-header-section ast-flex site-header-section-left flex items-center">
@@ -96,7 +96,7 @@ export function Navbar() {
                         width="95"
                         height="95"
                         src={litroiLogo}
-                        className="custom-logo h-[75px] sm:h-[85px] w-auto object-contain"
+                        className="custom-logo h-[75px] sm:h-[85px] 4xl:h-[105px] w-auto object-contain"
                         alt="Littroi"
                         decoding="async"
                       />
@@ -113,7 +113,7 @@ export function Navbar() {
           </div>
 
           {/* CENTER: Main Desktop Navigation (1024px+) */}
-          <div className="site-header-primary-section-center site-header-section ast-flex ast-grid-section-center hidden lg:flex items-center justify-center flex-1 mx-3 xl:mx-8">
+          <div className="site-header-primary-section-center site-header-section ast-flex ast-grid-section-center hidden lg:flex items-center justify-center flex-1 mx-3 xl:mx-8 4xl:mx-12">
             <div className="ast-builder-menu-1 ast-builder-menu ast-flex ast-builder-menu-1-focus-item ast-builder-layout-element site-header-focus-item" data-section="section-hb-menu-1">
               <div className="ast-main-header-bar-alignment">
                 <div className="main-header-bar-navigation">
@@ -127,7 +127,7 @@ export function Navbar() {
                     <div className="main-navigation ast-inline-flex">
                       <ul
                         id="ast-hf-menu-1"
-                        className="main-header-menu ast-menu-shadow ast-nav-menu ast-flex submenu-with-border ast-menu-hover-style-zoom stack-on-mobile flex items-center gap-3.5 xl:gap-8 list-none m-0 p-0"
+                        className="main-header-menu ast-menu-shadow ast-nav-menu ast-flex submenu-with-border ast-menu-hover-style-zoom stack-on-mobile flex items-center gap-3.5 xl:gap-8 4xl:gap-11 list-none m-0 p-0"
                       >
                         {navLinks.map((link) => (
                           <motion.li
@@ -139,7 +139,7 @@ export function Navbar() {
                               to={link.path}
                               end={link.path === "/"}
                               className={({ isActive }) =>
-                                `menu-link text-[13.5px] xl:text-[15px] font-semibold tracking-wide transition-colors duration-200 inline-block select-none whitespace-nowrap ${
+                                `menu-link text-[13.5px] xl:text-[15px] 4xl:text-[17px] font-semibold tracking-wide transition-colors duration-200 inline-block select-none whitespace-nowrap ${
                                   isActive
                                     ? "text-[#B3FFC9]"
                                     : "text-white hover:text-[#B3FFC9]"
@@ -177,7 +177,7 @@ export function Navbar() {
                   aria-label="Book a Call"
                 >
                   <div
-                    className="ast-custom-button px-5 xl:px-7 py-2.5 xl:py-3 rounded-full border border-[#B3FFC9] text-[#B3FFC9] text-[13.5px] xl:text-[15px] font-bold tracking-wide transition-all duration-300 group-hover:bg-[#B3FFC9] group-hover:text-black cursor-pointer shadow-[0_0_15px_rgba(179,255,201,0.15)] group-hover:shadow-[0_0_25px_rgba(179,255,201,0.4)] whitespace-nowrap"
+                    className="ast-custom-button px-5 xl:px-7 4xl:px-9 py-2.5 xl:py-3 4xl:py-3.5 rounded-full border border-[#B3FFC9] text-[#B3FFC9] text-[13.5px] xl:text-[15px] 4xl:text-[17px] font-bold tracking-wide transition-all duration-300 group-hover:bg-[#B3FFC9] group-hover:text-black cursor-pointer shadow-[0_0_15px_rgba(179,255,201,0.15)] group-hover:shadow-[0_0_25px_rgba(179,255,201,0.4)] whitespace-nowrap"
                     style={{ fontFamily: "'Syne', sans-serif" }}
                   >
                     Book a Call

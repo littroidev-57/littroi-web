@@ -139,7 +139,7 @@ export function BlogPost() {
   if (loading) {
     return (
       <article className="pt-28 sm:pt-36 pb-24 bg-[#060606] text-white min-h-screen relative overflow-hidden select-none animate-pulse">
-        <div className="max-w-4xl mx-auto px-6 sm:px-10 lg:px-12 space-y-10">
+        <div className="max-w-4xl 3xl:max-w-5xl 4xl:max-w-6xl mx-auto px-6 sm:px-10 lg:px-12 4xl:px-16 space-y-10">
           {/* Back button & share skeleton */}
           <div className="flex items-center justify-between">
             <div className="h-4 w-32 bg-white/10 rounded" />
@@ -255,7 +255,7 @@ export function BlogPost() {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[400px] bg-[#B3FFC9]/[0.04] blur-[150px] pointer-events-none rounded-full" />
         <div className="absolute top-96 -left-48 w-80 h-80 bg-[#22D3EE]/[0.02] blur-[130px] pointer-events-none rounded-full" />
 
-        <div className="max-w-4xl mx-auto px-6 sm:px-10 lg:px-12 space-y-10 relative z-10">
+        <div className="max-w-4xl 3xl:max-w-5xl 4xl:max-w-6xl mx-auto px-6 sm:px-10 lg:px-12 4xl:px-16 space-y-10 relative z-10">
 
           {/* Top Navigation Bar & Action Buttons */}
           <div className="flex items-center justify-between">

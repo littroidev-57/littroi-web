@@ -852,6 +852,48 @@ export function CaseStudies() {
           color: #000;
         }
 
+        /* 27-inch Displays (1920px+ and 2560px+) */
+        @media (min-width: 1920px) {
+          .cs-hero-container,
+          .cs-tabs-wrap,
+          .cs-grid-container {
+            max-width: 1720px;
+            padding-left: 64px;
+            padding-right: 64px;
+          }
+          .cs-modal {
+            max-width: 1600px;
+          }
+        }
+
+        @media (min-width: 2560px) {
+          .cs-hero-container,
+          .cs-tabs-wrap,
+          .cs-grid-container {
+            max-width: 2160px;
+            padding-left: 80px;
+            padding-right: 80px;
+          }
+          .cs-hero-title {
+            font-size: 88px;
+          }
+          .cs-hero-sub {
+            font-size: 16px;
+            line-height: 26px;
+            max-width: 440px;
+          }
+          .cs-grid-container {
+            gap: 36px;
+          }
+          .cs-card-name {
+            font-size: 24px;
+          }
+          .cs-modal {
+            max-width: 1920px;
+            grid-template-columns: 500px 1fr;
+          }
+        }
+
         /* Tablet / iPad Landscape (max-width: 1024px) */
         @media (max-width: 1024px) {
           .cs-hero-container { padding: 130px 32px 32px; }

@@ -9,8 +9,8 @@ export function CtaSection() {
       {/* Background glow orb */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-brand-primary/15 rounded-full blur-[160px] pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="max-w-4xl mx-auto text-center space-y-8 glass-card p-10 sm:p-16 md:p-20 rounded-3xl border border-white/10 shadow-2xl relative overflow-hidden">
+      <div className="max-w-7xl 3xl:max-w-[1720px] 4xl:max-w-[2160px] mx-auto px-4 sm:px-6 lg:px-8 4xl:px-16 relative z-10">
+        <div className="max-w-4xl 3xl:max-w-5xl 4xl:max-w-6xl mx-auto text-center space-y-8 glass-card p-10 sm:p-16 md:p-20 4xl:p-28 rounded-3xl border border-white/10 shadow-2xl relative overflow-hidden">
           {/* Subtle top gradient accent */}
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-primary via-brand-accent to-brand-lime" />
 
@@ -21,7 +21,7 @@ export function CtaSection() {
                 Ready to scale your visual brand?
               </span>
             </div>
-            <h2 className="text-3xl sm:text-5xl md:text-6xl font-display font-extrabold text-white tracking-tight leading-tight">
+            <h2 className="text-3xl sm:text-5xl md:text-6xl 4xl:text-[76px] font-display font-extrabold text-white tracking-tight leading-tight">
               Let's build something worth talking about.
             </h2>
           </FadeIn>

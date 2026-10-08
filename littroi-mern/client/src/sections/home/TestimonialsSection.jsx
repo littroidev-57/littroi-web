@@ -40,14 +40,83 @@ function HomeSpotlightCard({ children, className = "" }) {
           background: `radial-gradient(400px circle at ${mousePos.x}px ${mousePos.y}px, rgba(179, 255, 201, 0.12), transparent 60%)`,
         }}
       />
-      <div
-        className="pointer-events-none absolute inset-0 rounded-3xl transition-opacity duration-300"
-        style={{
-          opacity: isHovered ? 0.75 : 0,
-          border: "1px solid rgba(179, 255, 201, 0.35)",
-        }}
-      />
       <div className="relative z-10">{children}</div>
+    </div>
+  );
+}
+
+/**
+ * TestimonialVideoEmbed
+ * Autopauses YouTube video iframe when scrolled out of viewport
+ */
+function TestimonialVideoEmbed({ vidId, title }) {
+  const iframeRef = useRef(null);
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const pause = () => {
+      if (iframeRef.current?.contentWindow) {
+        try {
+          iframeRef.current.contentWindow.postMessage(
+            JSON.stringify({ event: "command", func: "pauseVideo", args: [] }),
+            "*"
+          );
+        } catch {
+          // ignore
+        }
+      }
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (!entry.isIntersecting || entry.intersectionRatio < 0.15) {
+          pause();
+        }
+      },
+      { threshold: [0, 0.15] }
+    );
+
+    observer.observe(container);
+
+    const handleScroll = () => {
+      if (!containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      const winH = window.innerHeight || document.documentElement.clientHeight;
+      if (rect.bottom < 0 || rect.top > winH) {
+        pause();
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  const originParam =
+    typeof window !== "undefined" && window.location.origin
+      ? `&origin=${encodeURIComponent(window.location.origin)}`
+      : "";
+
+  return (
+    <div ref={containerRef} className="w-full h-full relative">
+      <iframe
+        ref={iframeRef}
+        src={`https://www.youtube.com/embed/${vidId}?controls=1&rel=0&playsinline=0&enablejsapi=1${originParam}`}
+        title={title}
+        loading="lazy"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowFullScreen
+        frameBorder="0"
+        style={{ display: "block" }}
+        className="w-full h-full border-none block"
+      />
     </div>
   );
 }
@@ -101,9 +170,9 @@ export function TestimonialsSection() {
       {/* Subtle Ambient Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-[#B3FFC9]/[0.025] rounded-full blur-[140px] pointer-events-none" />
 
-      <div className="max-w-[1400px] w-full mx-auto px-6 sm:px-10 lg:px-14 relative z-10">
+      <div className="max-w-[1400px] 3xl:max-w-[1720px] 4xl:max-w-[2160px] w-full mx-auto px-6 sm:px-10 lg:px-14 4xl:px-16 relative z-10">
         {/* Header: Client Testimonials */}
-        <div className="w-full mx-auto mb-12 sm:mb-16">
+        <div className="w-full mx-auto mb-12 sm:mb-16 4xl:mb-20">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 sm:gap-8">
             <motion.div
               initial={{ opacity: 0, x: -80 }}
@@ -112,7 +181,7 @@ export function TestimonialsSection() {
               transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
             >
               <h2
-                className="elementor-heading-title elementor-size-default m-0 text-white"
+                className="elementor-heading-title elementor-size-default m-0 text-white 4xl:text-6xl"
                 style={{
                   fontFamily: "'Syne', sans-serif",
                   fontSize: "clamp(30px, 3.8vw, 46px)",
@@ -125,7 +194,7 @@ export function TestimonialsSection() {
               </h2>
             </motion.div>
 
-            <div className="max-w-[700px]">
+            <div className="max-w-[700px] 4xl:max-w-[900px]">
               <motion.div
                 initial={{ opacity: 0, x: 50 }}
                 whileInView={{ opacity: 1, x: 0 }}
@@ -133,7 +202,7 @@ export function TestimonialsSection() {
                 transition={{ duration: 1.4, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
               >
                 <p
-                  className="m-0 lg:text-left"
+                  className="m-0 lg:text-left 4xl:text-[17px]"
                   style={{
                     fontFamily: "'benzine', sans-serif",
                     fontSize: "clamp(12.5px, 1.05vw, 14px)",
@@ -167,7 +236,7 @@ export function TestimonialsSection() {
           </div>
         ) : (
           <>
-            <div className="space-y-16 sm:space-y-24">
+            <div className="space-y-16 sm:space-y-24 4xl:space-y-36">
               <AnimatePresence>
                 {displayTestimonials.map((item, idx) => {
                   const authorName = item.name || item.clientName || "Client";
@@ -188,7 +257,7 @@ export function TestimonialsSection() {
                     /* Video Testimonial Row with Left & Right Viewport Fade-In */
                     <div
                       key={item._id || item.id || idx}
-                      className={`flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-14 ${isVideoFirst ? "" : "lg:flex-row-reverse"
+                      className={`flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-14 4xl:gap-20 ${isVideoFirst ? "" : "lg:flex-row-reverse"
                         }`}
                     >
                       {/* Left Column (Video) - Viewport Fade In from Left/Right */}
@@ -197,16 +266,12 @@ export function TestimonialsSection() {
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true, margin: "-50px" }}
                         transition={{ duration: 0.85, delay: 0.05, ease: [0.25, 1, 0.5, 1] }}
-                        style={{ willChange: "transform, opacity" }}
-                        className="w-full lg:w-1/2 aspect-video rounded-3xl overflow-hidden border border-white/10 hover:border-[#B3FFC9]/50 bg-[#111111] shadow-[0_20px_60px_rgba(0,0,0,0.8)] hover:shadow-[0_0_40px_rgba(179,255,201,0.15)] transition-colors duration-500 group relative transform-gpu"
+                        style={{ isolation: "isolate" }}
+                        className="w-full lg:w-1/2 aspect-video rounded-3xl overflow-hidden border border-white/10 bg-[#111111] shadow-[0_20px_60px_rgba(0,0,0,0.8)] group relative isolate"
                       >
-                        <iframe
-                          src={`https://www.youtube.com/embed/${vidId}?controls=1&rel=0&playsinline=0`}
+                        <TestimonialVideoEmbed
+                          vidId={vidId}
                           title={`${authorName} Testimonial`}
-                          loading="lazy"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                          allowFullScreen
-                          className="w-full h-full border-none block"
                         />
                       </motion.div>
 
@@ -219,7 +284,7 @@ export function TestimonialsSection() {
                         style={{ willChange: "transform, opacity" }}
                         className="w-full lg:w-1/2 transform-gpu"
                       >
-                        <HomeSpotlightCard className="p-6 sm:p-8 md:p-11 flex flex-col justify-between space-y-6">
+                        <HomeSpotlightCard className="p-6 sm:p-8 md:p-11 4xl:p-14 flex flex-col justify-between space-y-6 4xl:space-y-8">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-1.5">
                               <div className="flex text-[#B3FFC9]">
@@ -244,7 +309,7 @@ export function TestimonialsSection() {
                           </div>
 
                           <p
-                            className="text-gray-200 text-sm sm:text-base leading-relaxed whitespace-pre-line m-0"
+                            className="text-gray-200 text-sm sm:text-base 4xl:text-[19px] leading-relaxed 4xl:leading-[1.8] whitespace-pre-line m-0"
                             style={{
                               fontFamily: "'benzine', sans-serif",
                               fontSize: "clamp(14px, 1.1vw, 16px)",
@@ -260,7 +325,7 @@ export function TestimonialsSection() {
                             <img
                               src={avatarSrc}
                               alt={authorName}
-                              className="w-14 h-14 rounded-full object-cover border border-white/15 bg-white/5 p-0.5 shadow-md shrink-0"
+                              className="w-14 h-14 4xl:w-18 4xl:h-18 rounded-full object-cover border border-white/15 bg-white/5 p-0.5 shadow-md shrink-0"
                               onError={(e) => {
                                 e.target.src = avatarMarc;
                               }}
@@ -268,7 +333,7 @@ export function TestimonialsSection() {
                             <div className="min-w-0">
                               <div className="flex items-center gap-2">
                                 <h4
-                                  className="text-base sm:text-lg font-bold text-white tracking-wide truncate m-0"
+                                  className="text-base sm:text-lg 4xl:text-xl font-bold text-white tracking-wide truncate m-0"
                                   style={{ fontFamily: "'Syne', sans-serif" }}
                                 >
                                   {authorName}
@@ -278,7 +343,7 @@ export function TestimonialsSection() {
                                 </span>
                               </div>
                               <p
-                                className="text-xs text-gray-400 font-mono tracking-wide mt-1 truncate m-0"
+                                className="text-xs 4xl:text-sm text-gray-400 font-mono tracking-wide mt-1 truncate m-0"
                                 style={{ fontFamily: "'benzine', 'Syne', sans-serif" }}
                               >
                                 {authorRole}
@@ -296,11 +361,11 @@ export function TestimonialsSection() {
             {/* =========================================================================
                 BOTTOM REDIRECT CALL TO ACTION: SEE MORE TESTIMONIALS
                ========================================================================= */}
-            <div className="mt-16 sm:mt-24 pt-10 border-t border-white/10 flex items-center justify-center">
+            <div className="mt-16 sm:mt-24 4xl:mt-32 pt-10 border-t border-white/10 flex items-center justify-center">
               <Link
                 to="/testimonials"
                 onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-                className="group inline-flex items-center gap-3 px-8 py-3.5 rounded-full border border-white/20 text-white hover:bg-[#B3FFC9] hover:text-black hover:border-[#B3FFC9] text-xs font-bold uppercase tracking-wider transition-all duration-300 hover:shadow-[0_0_30px_rgba(179,255,201,0.35)] hover:scale-105"
+                className="group inline-flex items-center gap-3 px-8 4xl:px-11 py-3.5 4xl:py-4.5 rounded-full border border-white/20 text-white hover:bg-[#B3FFC9] hover:text-black hover:border-[#B3FFC9] text-xs 4xl:text-sm font-bold uppercase tracking-wider transition-all duration-300 hover:shadow-[0_0_30px_rgba(179,255,201,0.35)] hover:scale-105"
                 style={{ fontFamily: "'Syne', sans-serif" }}
               >
                 <span>See More Testimonials</span>

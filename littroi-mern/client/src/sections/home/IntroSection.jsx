@@ -26,7 +26,7 @@ export function IntroSection() {
       {/* Background glow element */}
       <div className="absolute top-1/2 left-0 -translate-y-1/2 w-96 h-96 bg-brand-primary/5 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-7xl 3xl:max-w-[1720px] 4xl:max-w-[2160px] mx-auto px-4 sm:px-6 lg:px-8 4xl:px-16 relative z-10">
         {/* Section Heading & Editorial Statement */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start mb-20">
           <div className="lg:col-span-5 space-y-4">
@@ -34,7 +34,7 @@ export function IntroSection() {
               <span className="text-xs font-mono tracking-widest text-brand-accent uppercase font-semibold">
                 The Littroi Standard
               </span>
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-extrabold text-white tracking-tight leading-tight mt-2">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl 4xl:text-6xl font-display font-extrabold text-white tracking-tight leading-tight mt-2">
                 We turn complex products into cultural moments.
               </h2>
             </FadeIn>

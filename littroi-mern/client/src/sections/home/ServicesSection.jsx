@@ -205,7 +205,7 @@ export function ServicesSection() {
       </div>
 
       {/* Header: Our Services with fadeInLeft transition matching previous sections */}
-      <div className="max-w-[1480px] w-full mx-auto px-6 sm:px-10 lg:px-14 mb-8 sm:mb-12">
+      <div className="max-w-[1480px] 3xl:max-w-[1720px] 4xl:max-w-[2160px] w-full mx-auto px-6 sm:px-10 lg:px-14 4xl:px-16 mb-8 sm:mb-12 4xl:mb-16">
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 sm:gap-8">
           <motion.div
             initial={{ opacity: 0, x: -80 }}
@@ -218,7 +218,7 @@ export function ServicesSection() {
             data-widget_type="heading.default"
           >
             <h2
-              className="elementor-heading-title elementor-size-default m-0 text-white"
+              className="elementor-heading-title elementor-size-default m-0 text-white 4xl:text-6xl"
               style={{
                 fontFamily: "'Syne', sans-serif",
                 fontSize: "clamp(30px, 3.8vw, 46px)",
@@ -231,7 +231,7 @@ export function ServicesSection() {
             </h2>
           </motion.div>
 
-          <div className="max-w-[700px]">
+          <div className="max-w-[700px] 4xl:max-w-[900px]">
             <motion.div
               initial={{ opacity: 0, x: 50 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -239,7 +239,7 @@ export function ServicesSection() {
               transition={{ duration: 1.4, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
             >
               <p
-                className="m-0 lg:text-left"
+                className="m-0 lg:text-left 4xl:text-[17px]"
                 style={{
                   fontFamily: "'benzine', sans-serif",
                   fontSize: "clamp(12.5px, 1.05vw, 14px)",

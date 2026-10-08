@@ -234,7 +234,7 @@ export function Blog() {
         <div className="absolute top-48 -right-48 w-96 h-96 bg-[#22D3EE]/[0.03] blur-[140px] pointer-events-none rounded-full" />
 
         {/* ==================== PAGE HEADER HERO ==================== */}
-        <section className="pt-32 sm:pt-40 pb-14 px-6 sm:px-10 lg:px-16 max-w-[1400px] w-full mx-auto relative z-10">
+        <section className="pt-32 sm:pt-40 pb-14 px-6 sm:px-10 lg:px-16 4xl:px-20 max-w-[1400px] 3xl:max-w-[1720px] 4xl:max-w-[2160px] w-full mx-auto relative z-10">
 
           {/* Eyebrow */}
           <motion.div
@@ -260,7 +260,7 @@ export function Blog() {
               className="flex-1"
             >
               <h1
-                className="text-white tracking-tight m-0"
+                className="text-white tracking-tight m-0 4xl:text-[84px]"
                 style={{
                   fontFamily: "'Syne', sans-serif",
                   fontSize: "clamp(40px, 5.2vw, 68px)",
@@ -279,10 +279,10 @@ export function Blog() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="shrink-0 text-left lg:text-right pb-1 max-w-md"
+              className="shrink-0 text-left lg:text-right pb-1 max-w-md 4xl:max-w-xl"
             >
               <p
-                className="m-0 text-sm sm:text-[15px] leading-relaxed text-white/65 font-normal"
+                className="m-0 text-sm sm:text-[15px] 4xl:text-[17px] leading-relaxed text-white/65 font-normal"
                 style={{ fontFamily: "'Syne', sans-serif" }}
               >
                 Straight talk on <strong className="text-white font-semibold">SEO, video retention, creative strategy &amp; performance marketing</strong> — zero fluff, zero gatekeeping. Just what delivers outsized enterprise ROI.
@@ -313,7 +313,7 @@ export function Blog() {
         </div>
 
         {/* ==================== MAIN CONTENT SECTION ==================== */}
-        <section className="py-12 sm:py-16 px-6 sm:px-10 lg:px-16 max-w-[1400px] w-full mx-auto space-y-12 relative z-10">
+        <section className="py-12 sm:py-16 px-6 sm:px-10 lg:px-16 4xl:px-20 max-w-[1400px] 3xl:max-w-[1720px] 4xl:max-w-[2160px] w-full mx-auto space-y-12 relative z-10">
 
           {/* Filter, Search & Sort Bar */}
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-2">

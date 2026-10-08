@@ -376,7 +376,7 @@ export function Careers() {
       <div className="flex flex-col bg-black text-white min-h-screen select-none">
 
         {/* ==================== HERO SECTION ==================== */}
-        <section className="pt-32 sm:pt-40 pb-16 px-6 sm:px-10 lg:px-16 max-w-[1400px] w-full mx-auto space-y-10">
+        <section className="pt-32 sm:pt-40 pb-16 px-6 sm:px-10 lg:px-16 4xl:px-20 max-w-[1400px] 3xl:max-w-[1720px] 4xl:max-w-[2160px] w-full mx-auto space-y-10">
           {/* Eyebrow */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -399,7 +399,7 @@ export function Careers() {
             transition={{ duration: 1, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
           >
             <h1
-              className="text-4xl sm:text-6xl lg:text-[72px] font-extrabold text-white tracking-tight leading-[1.05] m-0"
+              className="text-4xl sm:text-6xl lg:text-[72px] 4xl:text-[90px] font-extrabold text-white tracking-tight leading-[1.05] m-0"
               style={{ fontFamily: "'Syne', sans-serif" }}
             >
               Join the team <br />
@@ -414,9 +414,9 @@ export function Careers() {
             transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
             className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 sm:gap-12 pt-4"
           >
-            <div className="max-w-lg">
+            <div className="max-w-lg 4xl:max-w-2xl">
               <p
-                className="m-0 leading-relaxed"
+                className="m-0 leading-relaxed 4xl:text-base 4xl:leading-[28px]"
                 style={{
                   fontFamily: "'benzine', 'Syne', sans-serif",
                   fontSize: "14px",
@@ -435,7 +435,7 @@ export function Careers() {
 
 
         {/* ==================== OPEN JOB POSITIONS ACCORDION ==================== */}
-        <section className="py-20 sm:py-28 px-6 sm:px-10 lg:px-16 max-w-[1100px] w-full mx-auto space-y-10">
+        <section className="py-20 sm:py-28 px-6 sm:px-10 lg:px-16 4xl:px-20 max-w-[1100px] 3xl:max-w-[1400px] 4xl:max-w-[1720px] w-full mx-auto space-y-10">
           <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-white/10">
             <div>
               <h2

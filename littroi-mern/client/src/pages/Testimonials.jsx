@@ -48,13 +48,11 @@ function SpotlightCard({ children, className = "", spotlightColor = "rgba(179, 2
   };
 
   return (
-    <motion.div
+    <div
       ref={cardRef}
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      whileHover={{ y: -6, scale: 1.01 }}
-      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
       className={`relative rounded-3xl overflow-hidden bg-[#0a0a0a] border border-white/10 transition-colors duration-300 ${className}`}
     >
       {/* Reactive Radial Torch Glow */}
@@ -65,16 +63,8 @@ function SpotlightCard({ children, className = "", spotlightColor = "rgba(179, 2
           background: `radial-gradient(420px circle at ${mousePos.x}px ${mousePos.y}px, ${spotlightColor}, transparent 60%)`,
         }}
       />
-      {/* Border reactive highlight */}
-      <div
-        className="pointer-events-none absolute inset-0 rounded-3xl transition-opacity duration-300"
-        style={{
-          opacity: isHovered ? 0.8 : 0,
-          border: "1px solid rgba(179, 255, 201, 0.3)",
-        }}
-      />
       <div className="relative z-10">{children}</div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -108,9 +98,8 @@ function TestimonialSkeletonCard({ isEven = true }) {
   return (
     <div className="relative rounded-3xl overflow-hidden bg-[#0a0a0a] border border-white/10 p-4 sm:p-7 md:p-10 animate-pulse">
       <div
-        className={`flex flex-col lg:flex-row items-center justify-between gap-6 sm:gap-8 lg:gap-14 ${
-          isEven ? "" : "lg:flex-row-reverse"
-        }`}
+        className={`flex flex-col lg:flex-row items-center justify-between gap-6 sm:gap-8 lg:gap-14 ${isEven ? "" : "lg:flex-row-reverse"
+          }`}
       >
         {/* Video Player Column Skeleton */}
         <div className="w-full lg:w-1/2 aspect-video rounded-2xl overflow-hidden border border-white/10 bg-white/[0.03] flex items-center justify-center relative shadow-lg">
@@ -236,7 +225,7 @@ export function Testimonials() {
                 exit={{ scale: 0.9, opacity: 0, y: 20 }}
                 transition={{ type: "spring", stiffness: 350, damping: 28 }}
                 onClick={(e) => e.stopPropagation()}
-                className="relative w-full max-w-5xl aspect-video rounded-3xl overflow-hidden border border-white/20 shadow-[0_0_80px_rgba(179,255,201,0.25)] bg-black"
+                className="relative w-full max-w-5xl aspect-video rounded-3xl overflow-hidden border border-white/20 shadow-[0_0_80px_rgba(179,255,201,0.25)] bg-black isolate"
               >
                 <button
                   type="button"
@@ -251,6 +240,8 @@ export function Testimonials() {
                   title={`${activeCinemaVideo.name} Full Client Review`}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen
+                  frameBorder="0"
+                  style={{ display: "block" }}
                   className="w-full h-full border-none block"
                 />
               </motion.div>
@@ -261,7 +252,7 @@ export function Testimonials() {
         {/* =========================================================================
             HERO SECTION
            ========================================================================= */}
-        <section className="pt-32 sm:pt-44 pb-12 sm:pb-16 max-w-[1400px] w-full mx-auto px-6 sm:px-10 lg:px-16 relative">
+        <section className="pt-32 sm:pt-44 pb-12 sm:pb-16 max-w-[1400px] 3xl:max-w-[1720px] 4xl:max-w-[2160px] w-full mx-auto px-6 sm:px-10 lg:px-16 4xl:px-20 relative">
           {/* Subtle Ambient Radial Glow */}
           <div className="absolute top-16 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-[#B3FFC9]/[0.035] rounded-full blur-[150px] pointer-events-none" />
 
@@ -368,8 +359,8 @@ export function Testimonials() {
             ALL VIDEO STORIES CONTAINER WITH 3D SPOTLIGHT CARDS
            ========================================================================= */}
         {isLoading ? (
-          <section className="py-6 sm:py-12 max-w-[1400px] mx-auto px-4 sm:px-8 lg:px-14">
-            <div className="space-y-10 sm:space-y-20">
+          <section className="py-6 sm:py-12 max-w-[1400px] 3xl:max-w-[1720px] 4xl:max-w-[2160px] mx-auto px-4 sm:px-8 lg:px-14 4xl:px-20">
+            <div className="space-y-10 sm:space-y-20 4xl:space-y-28">
               {[0, 1].map((idx) => (
                 <TestimonialSkeletonCard key={idx} isEven={idx % 2 === 0} />
               ))}
@@ -388,7 +379,7 @@ export function Testimonials() {
             </p>
           </div>
         ) : (
-          <section className="py-6 sm:py-12 max-w-[1400px] mx-auto px-4 sm:px-8 lg:px-14">
+          <section className="py-6 sm:py-12 max-w-[1400px] 3xl:max-w-[1720px] 4xl:max-w-[2160px] mx-auto px-4 sm:px-8 lg:px-14 4xl:px-20">
             <div className="space-y-10 sm:space-y-20">
               {displayedVideos.map((item, idx) => {
                 const authorName = item.name || item.clientName || "Client";
@@ -415,13 +406,15 @@ export function Testimonials() {
                         }`}
                     >
                       {/* Video Column with Cinema mode button */}
-                      <div className="w-full lg:w-1/2 aspect-video rounded-2xl overflow-hidden border border-white/15 bg-[#111111] shadow-[0_25px_70px_rgba(0,0,0,0.85)] relative group">
+                      <div className="w-full lg:w-1/2 aspect-video rounded-2xl overflow-hidden border border-white/15 bg-[#111111] shadow-[0_25px_70px_rgba(0,0,0,0.85)] relative group isolate">
                         <iframe
                           src={`https://www.youtube.com/embed/${videoId}?controls=1&rel=0&playsinline=0`}
                           title={`${authorName} Client Video Review`}
                           loading="lazy"
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                           allowFullScreen
+                          frameBorder="0"
+                          style={{ display: "block" }}
                           className="w-full h-full border-none block"
                         />
                         <button
@@ -545,7 +538,7 @@ export function Testimonials() {
         {/* =========================================================================
             BOTTOM CALL-TO-ACTION SECTION WITH SLEEK GLOW
            ========================================================================= */}
-        <section className="py-12 sm:py-20 max-w-[1400px] mx-auto px-4 sm:px-8 lg:px-14">
+        <section className="py-12 sm:py-20 max-w-[1400px] 3xl:max-w-[1720px] 4xl:max-w-[2160px] mx-auto px-4 sm:px-8 lg:px-14 4xl:px-20">
           <SpotlightCard className="p-8 sm:p-12 md:p-16 text-center space-y-6 sm:space-y-7 shadow-2xl relative overflow-hidden">
             <h2
               className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-white max-w-3xl mx-auto m-0 leading-tight"
