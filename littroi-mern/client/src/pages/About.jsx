@@ -342,6 +342,17 @@ export function About() {
       role: "Social Media Manager",
       image: "https://res.cloudinary.com/eikgki2a/image/upload/v1789964800/Akshita_Parashar_-_Social_Media_Manager.png",
     },
+    {
+      name: "Harsh Rastogi",
+      role: "Video Editor",
+      image: "https://res.cloudinary.com/eikgki2a/image/upload/v1791461040/Harsh_Rastogi_-_Video_Editor.png",
+    },
+    {
+      name: "Yash Rana",
+      role: "Video Editor",
+      image: "https://res.cloudinary.com/eikgki2a/image/upload/v1791461044/Yash_Rana_-_Video_Editor.png",
+    },
+
   ];
 
   const smoothFadeInUp = {
@@ -715,7 +726,8 @@ export function About() {
                         style={{ fontFamily: "'Syne', sans-serif" }}
                       >
                         {member.name
-                          .split(" ")
+                          .trim()
+                          .split(/\s+/)
                           .map((n) => n[0])
                           .join("")}
                       </div>
