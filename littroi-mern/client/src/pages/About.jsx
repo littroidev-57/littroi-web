@@ -100,7 +100,7 @@ function StatCounterCard({ label, value, suffix, delay = 0 }) {
   );
 }
 
-// Interactive Cursor Arrow Spotlight Blur Reveal component for Our Belief statement
+// Interactive Cursor Arrow Spotlight Blur Reveal component for Our Belief statement (Desktop)
 function BlurHoverBeliefText() {
   const [isHovered, setIsHovered] = useState(false);
   const [mousePos, setMousePos] = useState({ x: -9999, y: -9999 });
@@ -118,15 +118,6 @@ function BlurHoverBeliefText() {
     });
   };
 
-  const handleTouchMove = (e) => {
-    if (!containerRef.current || !e.touches[0]) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    setMousePos({
-      x: e.touches[0].clientX - rect.left,
-      y: e.touches[0].clientY - rect.top,
-    });
-  };
-
   // Radius in pixels around the mouse arrow where text is sharp and unblurred
   const spotlightRadius = 180;
 
@@ -134,7 +125,6 @@ function BlurHoverBeliefText() {
     <div
       ref={containerRef}
       onMouseMove={handleMouseMove}
-      onTouchMove={handleTouchMove}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => {
         setIsHovered(false);
@@ -278,6 +268,147 @@ function CtaBuildHeading() {
   );
 }
 
+// 1-Image-at-a-Time Auto-Moving Carousel Row for mobile team section
+function SingleSlideTeamRow({ members, interval = 3000, initialDelay = 0 }) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const touchStartX = useRef(0);
+  const touchEndX = useRef(0);
+
+  // Auto-move carousel: advance 1 image at a time with configurable interval and initial stagger
+  useEffect(() => {
+    if (isPaused || members.length <= 1) return;
+
+    let timer;
+    const startTimeout = setTimeout(() => {
+      setCurrentIndex((prev) => (prev + 1) % members.length);
+      timer = setInterval(() => {
+        setCurrentIndex((prev) => (prev + 1) % members.length);
+      }, interval);
+    }, initialDelay || interval);
+
+    return () => {
+      clearTimeout(startTimeout);
+      if (timer) clearInterval(timer);
+    };
+  }, [isPaused, members.length, interval, initialDelay]);
+
+  const handleNext = () => {
+    setCurrentIndex((prev) => (prev + 1) % members.length);
+  };
+
+  const handlePrev = () => {
+    setCurrentIndex((prev) => (prev - 1 + members.length) % members.length);
+  };
+
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchEndX.current = 0;
+    setIsPaused(true);
+  };
+
+  const handleTouchMove = (e) => {
+    touchEndX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    if (touchEndX.current !== 0) {
+      const diff = touchStartX.current - touchEndX.current;
+      if (diff > 40) {
+        handleNext();
+      } else if (diff < -40) {
+        handlePrev();
+      }
+    }
+    touchStartX.current = 0;
+    touchEndX.current = 0;
+    setTimeout(() => setIsPaused(false), 2200);
+  };
+
+  return (
+    <div
+      className="relative w-full max-w-[280px] xs:max-w-[300px] mx-auto select-none"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
+      {/* Viewport showing EXACTLY 1 card at a time */}
+      <div className="overflow-hidden rounded-2xl w-full">
+        <div
+          className="flex transition-transform duration-500 ease-out"
+          style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+        >
+          {members.map((member, idx) => (
+            <div key={`${member.name}-${idx}`} className="w-full shrink-0 flex flex-col items-center">
+              <div className="w-full aspect-[3/4] rounded-2xl overflow-hidden border border-white/10 bg-[#0d0d0d] shadow-xl relative flex items-center justify-center">
+                {member.image ? (
+                  <img
+                    src={member.image}
+                    alt={member.name}
+                    className="w-full h-full object-cover pointer-events-none select-none"
+                    loading={idx === 0 ? "eager" : "lazy"}
+                    decoding="async"
+                    onError={(e) => {
+                      e.target.style.display = "none";
+                    }}
+                  />
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center p-5 text-center bg-gradient-to-b from-white/[0.06] via-transparent to-transparent">
+                    <div
+                      className="w-16 h-16 rounded-2xl bg-[#B3FFC9]/10 border border-[#B3FFC9]/30 flex items-center justify-center text-[#B3FFC9] text-xl font-extrabold shadow-[0_0_25px_rgba(179,255,201,0.12)] mb-2"
+                      style={{ fontFamily: "'Syne', sans-serif" }}
+                    >
+                      {member.name
+                        .trim()
+                        .split(/\s+/)
+                        .map((n) => n[0])
+                        .join("")}
+                    </div>
+                    <span className="text-[10px] text-[#B3FFC9]/70 font-mono tracking-wider uppercase">
+                      Littroi Studio
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Member details */}
+              <div className="w-full text-center pt-2.5">
+                <h3
+                  className="m-0 text-lg font-bold text-white tracking-tight"
+                  style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700 }}
+                >
+                  {member.name}
+                </h3>
+                <p className="m-0 text-xs font-semibold text-white/50 uppercase tracking-wider mt-0.5">
+                  {member.role}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Indicator dots */}
+      <div className="flex items-center justify-center gap-1.5 pt-3">
+        {members.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setCurrentIndex(i)}
+            aria-label={`Go to slide ${i + 1}`}
+            className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+              i === currentIndex
+                ? "w-4 bg-[#B3FFC9]"
+                : "w-1.5 bg-white/20 hover:bg-white/40"
+            }`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function About() {
   const stats = [
     { label: "Views", value: 100, suffix: "M+", delay: 0.05 },
@@ -355,11 +486,15 @@ export function About() {
 
   ];
 
+  // Divide team into 2 rows for mobile dual carousel rows
+  const teamRow1 = team.slice(0, 7);
+  const teamRow2 = team.slice(7);
+
   const smoothFadeInUp = {
-    initial: { opacity: 0, y: 50 },
+    initial: { opacity: 0, y: 30 },
     whileInView: { opacity: 1, y: 0 },
-    viewport: { once: true, margin: "-60px" },
-    transition: { duration: 1.2, ease: [0.16, 1, 0.3, 1] },
+    viewport: { once: true, margin: "-20px" },
+    transition: { duration: 1, ease: [0.16, 1, 0.3, 1] },
   };
 
   return (
@@ -436,7 +571,7 @@ export function About() {
         </section>
 
         {/* 2. Team Picture Banner (elementor-element-6b06f57) */}
-        <section className="max-w-[1400px] 3xl:max-w-[1720px] 4xl:max-w-[2160px] mx-auto px-6 sm:px-10 lg:px-16 4xl:px-20 mb-28 sm:mb-40">
+        <section className="max-w-[1400px] 3xl:max-w-[1720px] 4xl:max-w-[2160px] mx-auto px-5 sm:px-10 lg:px-16 4xl:px-20 mb-16 sm:mb-24 md:mb-32 lg:mb-40">
           <motion.div
             initial={{ opacity: 0, scale: 0.97 }}
             whileInView={{ opacity: 1, scale: 1 }}
@@ -460,46 +595,65 @@ export function About() {
         </section>
 
         {/* 3. Our Belief Section (elementor-element-d74a0bf & e4f0fdc) */}
-        <section className="max-w-[1400px] 3xl:max-w-[1720px] 4xl:max-w-[2160px] mx-auto px-6 sm:px-10 lg:px-16 4xl:px-20 mb-28 sm:mb-40">
-          <div className="flex flex-col space-y-16 sm:space-y-20">
+        <section className="max-w-[1400px] 3xl:max-w-[1720px] 4xl:max-w-[2160px] mx-auto px-5 sm:px-8 lg:px-16 4xl:px-20 mb-16 sm:mb-24 md:mb-32 lg:mb-40">
+          <div className="flex flex-col space-y-8 sm:space-y-12 md:space-y-16 lg:space-y-20">
             {/* Top Belief Statement */}
-            <div className="space-y-6 max-w-[1340px]">
+            <div className="space-y-4 sm:space-y-6 max-w-[1340px]">
               {/* Category label: Our belief */}
               <motion.div {...smoothFadeInUp}>
                 <h2
-                  className="elementor-heading-title elementor-size-default m-0 text-white/60 text-sm sm:text-base font-semibold uppercase tracking-wider"
+                  className="elementor-heading-title elementor-size-default m-0 text-white/60 text-xs sm:text-sm md:text-base font-semibold uppercase tracking-wider"
                   style={{ fontFamily: "'Syne', sans-serif" }}
                 >
                   Our belief
                 </h2>
               </motion.div>
 
-              {/* Big Belief statement with interactive hover reveal */}
+              {/* Big Belief statement: Responsive Dual Mode */}
               <motion.div
                 {...smoothFadeInUp}
-                transition={{ duration: 1.3, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: 1.1, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
               >
-                <BlurHoverBeliefText />
+                {/* MOBILE VIEW (< md): Simple, normal readable text without highlights or box */}
+                <div className="block md:hidden">
+                  <h2
+                    className="elementor-heading-title elementor-size-default m-0 font-bold text-white"
+                    style={{
+                      fontFamily: "'Syne', sans-serif",
+                      fontSize: "clamp(22px, 5.5vw, 36px)",
+                      fontWeight: 700,
+                      lineHeight: 1.32,
+                      letterSpacing: "-0.01em",
+                    }}
+                  >
+                    Most brands look the same because most studios play it safe. We don't. We believe the best brand work is specific, honest, and a little uncomfortable — the kind that makes people stop and actually look.
+                  </h2>
+                </div>
+
+                {/* DESKTOP VIEW (>= md): Interactive cursor spotlight reveal */}
+                <div className="hidden md:block">
+                  <BlurHoverBeliefText />
+                </div>
               </motion.div>
             </div>
 
             {/* 3 Philosophy Icon Box Columns (elementor-element-9bfe9c0) */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-10 sm:gap-14 pt-8 border-t border-white/10">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-10 md:gap-14 pt-8 border-t border-white/10">
               {/* Card 1: Strategy first (13a7746) */}
               <motion.div
                 {...smoothFadeInUp}
-                transition={{ duration: 1.2, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-                className="flex flex-col items-start space-y-4 group"
+                transition={{ duration: 1, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+                className="flex flex-col items-start space-y-3 sm:space-y-4 group"
               >
                 <div className="w-10 h-[3px] bg-[#B3FFC9] rounded-full mb-1 group-hover:w-14 transition-all duration-300" />
                 <h3
-                  className="elementor-icon-box-title m-0 text-2xl font-bold text-white group-hover:text-[#B3FFC9] transition-colors"
+                  className="elementor-icon-box-title m-0 text-xl sm:text-2xl font-bold text-white group-hover:text-[#B3FFC9] transition-colors"
                   style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700 }}
                 >
                   Strategy first
                 </h3>
                 <p
-                  className="elementor-icon-box-description m-0 pt-2 sm:pt-3 text-white/60 text-sm sm:text-base leading-relaxed max-w-sm"
+                  className="elementor-icon-box-description m-0 pt-1 sm:pt-2 text-white/60 text-sm sm:text-base leading-relaxed max-w-sm"
                   style={{ fontFamily: "'Syne', sans-serif", fontWeight: 400 }}
                 >
                   We don't open Illustrator before we understand your business. Every visual decision is backed by a reason.
@@ -509,39 +663,39 @@ export function About() {
               {/* Card 2: Craft over speed (346a9c8) */}
               <motion.div
                 {...smoothFadeInUp}
-                transition={{ duration: 1.2, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                className="flex flex-col items-start space-y-4 group"
+                transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                className="flex flex-col items-start space-y-3 sm:space-y-4 group"
               >
                 <div className="w-10 h-[3px] bg-[#B3FFC9] rounded-full mb-1 group-hover:w-14 transition-all duration-300" />
                 <h3
-                  className="elementor-icon-box-title m-0 text-2xl font-bold text-white group-hover:text-[#B3FFC9] transition-colors"
+                  className="elementor-icon-box-title m-0 text-xl sm:text-2xl font-bold text-white group-hover:text-[#B3FFC9] transition-colors"
                   style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700 }}
                 >
                   Craft over speed
                 </h3>
                 <p
-                  className="elementor-icon-box-description m-0 pt-3 sm:pt-4 text-white/60 text-sm sm:text-base leading-relaxed max-w-sm"
+                  className="elementor-icon-box-description m-0 pt-1 sm:pt-2 text-white/60 text-sm sm:text-base leading-relaxed max-w-sm"
                   style={{ fontFamily: "'Syne', sans-serif", fontWeight: 400 }}
                 >
-                  Fast and forgettable isn't a win. We'd rather take the time to make "Something that actually holds up".
+                  Fast and forgettable isn't a win. We'd rather take the time to make &quot;Something that actually holds up&quot;.
                 </p>
               </motion.div>
 
               {/* Card 3: Honest partnership (33f74e2) */}
               <motion.div
                 {...smoothFadeInUp}
-                transition={{ duration: 1.2, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                className="flex flex-col items-start space-y-4 group"
+                transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                className="flex flex-col items-start space-y-3 sm:space-y-4 group"
               >
                 <div className="w-10 h-[3px] bg-[#B3FFC9] rounded-full mb-1 group-hover:w-14 transition-all duration-300" />
                 <h3
-                  className="elementor-icon-box-title m-0 text-2xl font-bold text-white group-hover:text-[#B3FFC9] transition-colors"
+                  className="elementor-icon-box-title m-0 text-xl sm:text-2xl font-bold text-white group-hover:text-[#B3FFC9] transition-colors"
                   style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700 }}
                 >
                   Honest partnership
                 </h3>
                 <p
-                  className="elementor-icon-box-description m-0 pt-3 sm:pt-4 text-white/60 text-sm sm:text-base leading-relaxed max-w-sm"
+                  className="elementor-icon-box-description m-0 pt-1 sm:pt-2 text-white/60 text-sm sm:text-base leading-relaxed max-w-sm"
                   style={{ fontFamily: "'Syne', sans-serif", fontWeight: 400 }}
                 >
                   We tell you when an idea isn't working. You're paying for perspective, not just execution.
@@ -697,7 +851,20 @@ export function About() {
             </h2>
           </motion.div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          {/* MOBILE VIEW (< md): 2 Carousel Rows, each showing 1 image at a time */}
+          <div className="block md:hidden space-y-7">
+            {/* Carousel Row 1 */}
+            <SingleSlideTeamRow members={teamRow1} interval={3000} initialDelay={0} />
+
+            {/* Subtle Divider between Row 1 and Row 2 */}
+            <div className="w-20 h-px bg-white/10 mx-auto" />
+
+            {/* Carousel Row 2 */}
+            <SingleSlideTeamRow members={teamRow2} interval={3000} initialDelay={1500} />
+          </div>
+
+          {/* DESKTOP VIEW (>= md): Full 4-Column Grid */}
+          <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {team.map((member, idx) => (
               <motion.div
                 key={member.name}

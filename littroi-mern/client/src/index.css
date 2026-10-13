@@ -338,7 +338,7 @@
   }
 }
 
-/* ── Infinite Text Marquee ── */
+/* ── Infinite Text & Team Carousel Marquee ── */
 @keyframes marquee {
   0% {
     transform: translateX(0);
@@ -346,6 +346,30 @@
   100% {
     transform: translateX(-50%);
   }
+}
+
+@keyframes marquee-reverse {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.animate-marquee {
+  animation: marquee var(--marquee-speed, 25s) linear infinite;
+}
+
+.animate-marquee-reverse {
+  animation: marquee-reverse var(--marquee-speed, 25s) linear infinite;
+}
+
+.animate-marquee:hover,
+.animate-marquee:active,
+.animate-marquee-reverse:hover,
+.animate-marquee-reverse:active {
+  animation-play-state: paused;
 }
 
 .fronttextt {
