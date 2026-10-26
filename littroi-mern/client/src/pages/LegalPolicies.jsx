@@ -54,7 +54,7 @@ export function LegalPolicies() {
     {
       question: "How do you enforce zero-tolerance anti-spam compliance across all domains?",
       answer:
-        "Every domain in the Littroi ecosystem (littroi.media, littroi.com, littroi.us, littroi.uk, littroi.eu) is protected by strict SPF records, 2048-bit DKIM cryptographic signatures, and DMARC enforcement policies. We prohibit third-party list scraping and process all opt-out requests instantly within 24 hours.",
+        "Every domain in the Littroi ecosystem (littroi.media, littroi.com, littroi.us, littroi.uk, littroi.eu, littroi.online, littroi.org, littroi.co, littroi.solutions) is protected by strict SPF records, 2048-bit DKIM cryptographic signatures, and DMARC enforcement policies. We prohibit third-party list scraping and process all opt-out requests instantly within 24 hours.",
     },
   ];
 
@@ -286,7 +286,7 @@ export function LegalPolicies() {
                         <p>
                           <strong className="text-white font-semibold">Effective Date:</strong> July 25, 2026<br />
                           <strong className="text-white font-semibold">Entity Name:</strong> Littroi Media<br />
-                          <strong className="text-white font-semibold">Official Web Properties &amp; Domain Ecosystem:</strong> littroi.media | littroi.com | littroi.us | littroi.uk | littroi.eu
+                          <strong className="text-white font-semibold">Official Web Properties &amp; Domain Ecosystem:</strong> littroi.media | littroi.com | littroi.us | littroi.uk | littroi.eu | littroi.online | littroi.org | littroi.co | littroi.solutions
                         </p>
 
                         <div>
@@ -300,7 +300,7 @@ export function LegalPolicies() {
                             Littroi Media maintains a strict zero-tolerance policy regarding the generation, transmission, or facilitation of unsolicited commercial email (UCE), unsolicited bulk email (UBE), or any form of spam.
                           </p>
                           <p className="mt-3">
-                            We do not send, authorize, sell, rent, or permit the sending of spam or unsolicited electronic messages promoting our brand, services, products, or digital media properties. Any transmission of email originating from or referencing our domain ecosystem (littroi.media, littroi.com, littroi.us, littroi.uk, littroi.eu) must strictly comply with permission-based standards and international anti-spam laws.
+                            We do not send, authorize, sell, rent, or permit the sending of spam or unsolicited electronic messages promoting our brand, services, products, or digital media properties. Any transmission of email originating from or referencing our domain ecosystem (littroi.media, littroi.com, littroi.us, littroi.uk, littroi.eu, littroi.online, littroi.org, littroi.co, littroi.solutions) must strictly comply with permission-based standards and international anti-spam laws.
                           </p>
                         </div>
 
@@ -348,7 +348,7 @@ export function LegalPolicies() {
                           </h3>
                           <p>To prevent domain spoofing, domain abuse, and unauthorized email transmission, Littroi Media mandates strict cryptographic authentication across all sending domains:</p>
                           <ul className="list-disc pl-5 mt-2 space-y-2">
-                            <li><strong className="text-white font-semibold">SPF (Sender Policy Framework):</strong> Published SPF records explicitly designate all authorized outbound mail servers for littroi.media, littroi.com, littroi.us, littroi.uk, and littroi.eu.</li>
+                            <li><strong className="text-white font-semibold">SPF (Sender Policy Framework):</strong> Published SPF records explicitly designate all authorized outbound mail servers for littroi.media, littroi.com, littroi.us, littroi.uk, littroi.eu, littroi.online, littroi.org, littroi.co, and littroi.solutions.</li>
                             <li><strong className="text-white font-semibold">DKIM (DomainKeys Identified Mail):</strong> Outbound messages carry valid cryptographic DKIM signatures matching the sending domain.</li>
                             <li><strong className="text-white font-semibold">DMARC (Domain-based Message Authentication, Reporting, and Conformance):</strong> Strict DMARC policies (p=reject or p=quarantine) are enforced to prevent fraudulent domain spoofing.</li>
                             <li><strong className="text-white font-semibold">Reverse DNS (PTR):</strong> All sending mail transfer agents (MTAs) maintain valid, matching reverse DNS records.</li>
