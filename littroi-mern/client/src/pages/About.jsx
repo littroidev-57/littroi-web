@@ -397,11 +397,10 @@ function SingleSlideTeamRow({ members, interval = 3000, initialDelay = 0 }) {
             key={i}
             onClick={() => setCurrentIndex(i)}
             aria-label={`Go to slide ${i + 1}`}
-            className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
-              i === currentIndex
+            className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${i === currentIndex
                 ? "w-4 bg-[#B3FFC9]"
                 : "w-1.5 bg-white/20 hover:bg-white/40"
-            }`}
+              }`}
           />
         ))}
       </div>
@@ -472,11 +471,6 @@ export function About() {
       name: "Akshita Parashar",
       role: "Social Media Manager",
       image: "https://res.cloudinary.com/eikgki2a/image/upload/v1789964800/Akshita_Parashar_-_Social_Media_Manager.png",
-    },
-    {
-      name: "Harsh Rastogi",
-      role: "Video Editor",
-      image: "https://res.cloudinary.com/eikgki2a/image/upload/v1791461040/Harsh_Rastogi_-_Video_Editor.png",
     },
     {
       name: "Yash Rana",
