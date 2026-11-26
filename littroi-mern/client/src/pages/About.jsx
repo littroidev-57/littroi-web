@@ -105,31 +105,82 @@ function BlurHoverBeliefText() {
   const [isHovered, setIsHovered] = useState(false);
   const [mousePos, setMousePos] = useState({ x: -9999, y: -9999 });
   const containerRef = useRef(null);
+  const clientPosRef = useRef({ x: -9999, y: -9999 });
 
   const statement =
     "Most brands look the same because most studios play it safe. We don't. We believe the best brand work is specific, honest, and a little uncomfortable — the kind that makes people stop and actually look.";
 
-  const handleMouseMove = (e) => {
+  const updateFromClientPos = (clientX, clientY) => {
     if (!containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
     setMousePos({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
+      x: clientX - rect.left,
+      y: clientY - rect.top,
     });
+  };
+
+  useEffect(() => {
+    const handleWindowMouseMove = (e) => {
+      clientPosRef.current = { x: e.clientX, y: e.clientY };
+    };
+
+    const handleScroll = () => {
+      if (!containerRef.current) return;
+      const { x: cx, y: cy } = clientPosRef.current;
+      if (cx < 0 || cy < 0) return;
+
+      const rect = containerRef.current.getBoundingClientRect();
+      const inside =
+        cx >= rect.left &&
+        cx <= rect.right &&
+        cy >= rect.top &&
+        cy <= rect.bottom;
+
+      if (inside) {
+        setIsHovered(true);
+        setMousePos({ x: cx - rect.left, y: cy - rect.top });
+      } else {
+        setIsHovered(false);
+      }
+    };
+
+    window.addEventListener("mousemove", handleWindowMouseMove, { passive: true });
+    window.addEventListener("scroll", handleScroll, { passive: true, capture: true });
+    return () => {
+      window.removeEventListener("mousemove", handleWindowMouseMove);
+      window.removeEventListener("scroll", handleScroll, { capture: true });
+    };
+  }, []);
+
+  const handlePointerEnter = (e) => {
+    if (e.pointerType === "touch") return;
+    clientPosRef.current = { x: e.clientX, y: e.clientY };
+    updateFromClientPos(e.clientX, e.clientY);
+    setIsHovered(true);
+  };
+
+  const handlePointerMove = (e) => {
+    if (e.pointerType === "touch") return;
+    clientPosRef.current = { x: e.clientX, y: e.clientY };
+    updateFromClientPos(e.clientX, e.clientY);
+    if (!isHovered) setIsHovered(true);
+  };
+
+  const handlePointerLeave = (e) => {
+    if (e.pointerType === "touch") return;
+    setIsHovered(false);
   };
 
   // Radius in pixels around the mouse arrow where text is sharp and unblurred
   const spotlightRadius = 180;
+  const spotlightMask = `radial-gradient(circle ${spotlightRadius}px at ${mousePos.x}px ${mousePos.y}px, black 35%, transparent 100%)`;
 
   return (
     <div
       ref={containerRef}
-      onMouseMove={handleMouseMove}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => {
-        setIsHovered(false);
-        setMousePos({ x: -9999, y: -9999 });
-      }}
+      onPointerEnter={handlePointerEnter}
+      onPointerMove={handlePointerMove}
+      onPointerLeave={handlePointerLeave}
       className="relative cursor-default select-none py-2"
     >
 
@@ -165,12 +216,8 @@ function BlurHoverBeliefText() {
             filter: "none",
             opacity: isHovered ? 1 : 0,
             transition: "opacity 0.25s ease",
-            WebkitMaskImage: isHovered
-              ? `radial-gradient(circle ${spotlightRadius}px at ${mousePos.x}px ${mousePos.y}px, black 35%, transparent 100%)`
-              : "none",
-            maskImage: isHovered
-              ? `radial-gradient(circle ${spotlightRadius}px at ${mousePos.x}px ${mousePos.y}px, black 35%, transparent 100%)`
-              : "none",
+            WebkitMaskImage: spotlightMask,
+            maskImage: spotlightMask,
             userSelect: "none",
           }}
         >
@@ -398,8 +445,8 @@ function SingleSlideTeamRow({ members, interval = 3000, initialDelay = 0 }) {
             onClick={() => setCurrentIndex(i)}
             aria-label={`Go to slide ${i + 1}`}
             className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${i === currentIndex
-                ? "w-4 bg-[#B3FFC9]"
-                : "w-1.5 bg-white/20 hover:bg-white/40"
+              ? "w-4 bg-[#B3FFC9]"
+              : "w-1.5 bg-white/20 hover:bg-white/40"
               }`}
           />
         ))}
@@ -460,7 +507,7 @@ export function About() {
     {
       name: "Vasu Kumar",
       role: "Video Editor",
-      image: "https://res.cloudinary.com/eikgki2a/image/upload/v1788583781/Vasu-Verma-Video-Editor-scaled.png",
+      image: "https://res.cloudinary.com/eikgki2a/image/upload/v1795683357/Vasu_Verma-_Video_Editor.png",
     },
     {
       name: "Mohsin Ansari",
@@ -477,6 +524,22 @@ export function About() {
       role: "Video Editor",
       image: "https://res.cloudinary.com/eikgki2a/image/upload/v1791461044/Yash_Rana_-_Video_Editor.png",
     },
+    {
+      name: "Faisal Ansari",
+      role: "Video Editor",
+      image: "https://res.cloudinary.com/eikgki2a/image/upload/v1795683009/Faisal_Ansari_-_Video_Editor.png",
+    },
+    {
+      name: "Arpit Kumar",
+      role: "Video Editor",
+      image: "https://res.cloudinary.com/eikgki2a/image/upload/v1795683402/PIC.png",
+    },
+    {
+      name: "Mayank Saxena",
+      role: "Graphic Designer",
+      image: "https://res.cloudinary.com/eikgki2a/image/upload/v1795683013/Mayank_Saxena_-_Graphic_Designer.png",
+    },
+
 
   ];
 
