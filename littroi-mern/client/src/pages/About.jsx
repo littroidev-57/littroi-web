@@ -532,12 +532,12 @@ export function About() {
     {
       name: "Arpit Kumar",
       role: "Video Editor",
-      image: "https://res.cloudinary.com/eikgki2a/image/upload/v1795683402/PIC.png",
+      image: "https://res.cloudinary.com/eikgki2a/image/upload/v1795684683/MY_PIC_02.png",
     },
     {
       name: "Mayank Saxena",
       role: "Graphic Designer",
-      image: "https://res.cloudinary.com/eikgki2a/image/upload/v1795683013/Mayank_Saxena_-_Graphic_Designer.png",
+      image: "https://res.cloudinary.com/eikgki2a/image/upload/v1795684761/1000470088.png",
     },
 
 
