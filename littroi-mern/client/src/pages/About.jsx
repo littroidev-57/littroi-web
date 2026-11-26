@@ -537,7 +537,7 @@ export function About() {
     {
       name: "Mayank Saxena",
       role: "Graphic Designer",
-      image: "https://res.cloudinary.com/eikgki2a/image/upload/v1795684761/1000470088.png",
+      image: "https://res.cloudinary.com/eikgki2a/image/upload/v1795683013/Mayank_Saxena_-_Graphic_Designer.png",
     },
 
 
